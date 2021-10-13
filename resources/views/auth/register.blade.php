@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'namePage' => 'Register page',
+    'namePage' => 'Registro',
     'activePage' => 'register',
     'backgroundImage' => asset('assets') . "/img/bg14.jpg",
 ])
@@ -23,7 +23,7 @@
                       <i class="now-ui-icons users_circle-08"></i>
                     </div>
                   </div>
-                  <input class="form-control {{ $errors->has('name') ? ' is-invalid' : '' }}" placeholder="{{ __('Name') }}" type="text" name="name" value="{{ old('name') }}" required autofocus>
+                  <input class="form-control {{ $errors->has('name') ? ' is-invalid' : '' }}" placeholder="{{ __('Nombre Completo') }}" type="text" name="name" value="{{ old('name') }}" required autofocus>
                   @if ($errors->has('name'))
                     <span class="invalid-feedback" style="display: block;" role="alert">
                       <strong>{{ $errors->first('name') }}</strong>
@@ -37,7 +37,7 @@
                       <i class="now-ui-icons ui-1_email-85"></i>
                     </div>
                   </div>
-                  <input class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" placeholder="{{ __('Email') }}" type="email" name="email" value="{{ old('email') }}" required>
+                  <input class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" placeholder="{{ __('Correo') }}" type="email" name="email" value="{{ old('email') }}" required>
                  </div>
                  @if ($errors->has('email'))
                     <span class="invalid-feedback" style="display: block;" role="alert">
@@ -53,7 +53,7 @@
                       <i class="now-ui-icons objects_key-25"></i>
                     </div>
                   </div>
-                  <input class="form-control {{ $errors->has('password') ? ' is-invalid' : '' }}" placeholder="{{ __('Password') }}" type="password" name="password" required>
+                  <input class="form-control {{ $errors->has('password') ? ' is-invalid' : '' }}" placeholder="{{ __('Contraseña') }}" type="password" name="password" required>
                   @if ($errors->has('password'))
                     <span class="invalid-feedback" style="display: block;" role="alert">
                       <strong>{{ $errors->first('password') }}</strong>
@@ -67,9 +67,9 @@
                       <i class="now-ui-icons objects_key-25"></i></i>
                     </div>
                   </div>
-                  <input class="form-control" placeholder="{{ __('Confirm Password') }}" type="password" name="password_confirmation" required>
+                  <input class="form-control" placeholder="{{ __('Confirmar Contraseña') }}" type="password" name="password_confirmation" required>
                 </div>
-                <div class="form-check text-left">
+                <div class="form-check text-left" hidden>
                   <label class="form-check-label">
                     <input class="form-check-input" type="checkbox">
                     <span class="form-check-sign"></span>
