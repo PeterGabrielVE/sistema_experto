@@ -13,17 +13,17 @@
       <ul class="navbar-nav">
         <li class="nav-item">
           <a href="{{ route('login') }}" class="nav-link">
-            <i class="now-ui-icons design_app"></i> {{ __("Dashboard") }}
+            <i class="now-ui-icons design_app"></i> {{ __("Inicio") }}
           </a>
         </li>
         <li class="nav-item @if ($activePage == 'register') active @endif">
           <a href="{{ route('register') }}" class="nav-link">
-            <i class="now-ui-icons tech_mobile"></i> {{ __("Register") }}
+            <i class="now-ui-icons tech_mobile"></i> {{ __("Registro") }}
           </a>
         </li>
         <li class="nav-item @if ($activePage == 'login') active @endif ">
           <a href="{{ route('login') }}" class="nav-link">
-            <i class="now-ui-icons users_circle-08"></i> {{ __("Login") }}
+            <i class="now-ui-icons users_circle-08"></i> {{ __("Acceder") }}
           </a>
         </li>
       </ul>

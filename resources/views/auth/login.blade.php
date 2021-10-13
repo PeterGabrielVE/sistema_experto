@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'namePage' => 'Login page',
+    'namePage' => 'SISTEMA EXPERTO',
     'class' => 'login-page sidebar-mini ',
     'activePage' => 'login',
     'backgroundImage' => asset('assets') . "/img/bg14.jpg",
@@ -41,7 +41,7 @@
                         <i class="now-ui-icons users_circle-08"></i>
                     </div>
                     </span>
-                    <input class="form-control {{ $errors->has('email') ? ' is-invalid' : '' }}" placeholder="{{ __('Email') }}" type="email" name="email" value="{{ old('email', 'admin@nowui.com') }}" required autofocus>
+                    <input class="form-control {{ $errors->has('email') ? ' is-invalid' : '' }}" placeholder="{{ __('Email') }}" type="email" name="email" value="{{ old('email', 'admin@gmail.com') }}" required autofocus>
                 </div>
                 @if ($errors->has('email'))
                     <span class="invalid-feedback" style="display: block;" role="alert">
@@ -63,15 +63,15 @@
                 @endif
                 </div>
                 <div class="card-footer ">
-                <button  type = "submit" class="btn btn-primary btn-round btn-lg btn-block mb-3">{{ __('Get Started') }}</button>
+                <button  type = "submit" class="btn btn-primary btn-round btn-lg btn-block mb-3">{{ __('Ingresar') }}</button>
                 <div class="pull-left">
                     <h6>
-                    <a href="{{ route('register') }}" class="link footer-link">{{ __('Create Account') }}</a>
+                    <a href="{{ route('register') }}" class="link footer-link">{{ __('Crear Cuenta') }}</a>
                     </h6>
                 </div>
                 <div class="pull-right">
                     <h6>
-                    <a href="{{ route('password.request') }}" class="link footer-link">{{ __('Forgot Password?') }}</a>
+                    <a href="{{ route('password.request') }}" class="link footer-link">{{ __('¿Olvidaste Contraseña?') }}</a>
                     </h6>                
                 </div>
                 </div>
