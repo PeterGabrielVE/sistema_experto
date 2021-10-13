@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'namePage' => 'Dashboard',
+    'namePage' => 'Inicio',
     'class' => 'login-page sidebar-mini ',
     'activePage' => 'home',
     'backgroundImage' => asset('now') . "/img/bg14.jpg",
