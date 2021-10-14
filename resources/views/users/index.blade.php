@@ -62,7 +62,7 @@
                       <form action="{{ route('user.destroy', $user) }}" method="post" style="display:inline-block;" class ="delete-form">
                         @csrf
                         @method('delete')
-                        <button type="button" rel="tooltip" class="btn btn-danger btn-icon btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este usuario??') }}') ? this.parentElement.submit() : ''">
+                        <button type="button" rel="tooltip" class="btn btn-danger btn-icon btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este usuario?') }}') ? this.parentElement.submit() : ''">
                           <i class="now-ui-icons ui-1_simple-remove"></i>
                         </button>
                       </form>
