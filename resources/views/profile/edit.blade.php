@@ -1,6 +1,6 @@
 @extends('layouts.app', [
     'class' => 'sidebar-mini ',
-    'namePage' => 'User Profile',
+    'namePage' => 'Perfil Usuario',
     'activePage' => 'profile',
     'activeNav' => '',
 ])
@@ -13,7 +13,7 @@
       <div class="col-md-8">
         <div class="card">
           <div class="card-header">
-            <h5 class="title">{{__(" Edit Profile")}}</h5>
+            <h5 class="title">{{__("Editar Perfil")}}</h5>
           </div>
           <div class="card-body">
             <form method="post" action="{{ route('profile.update') }}" autocomplete="off"
@@ -26,7 +26,7 @@
                 <div class="row">
                     <div class="col-md-7 pr-1">
                         <div class="form-group">
-                            <label>{{__(" Name")}}</label>
+                            <label>{{__("Nombre Completo")}}</label>
                                 <input type="text" name="name" class="form-control" value="{{ old('name', auth()->user()->name) }}">
                                 @include('alerts.feedback', ['field' => 'name'])
                         </div>
@@ -35,20 +35,20 @@
                 <div class="row">
                   <div class="col-md-7 pr-1">
                     <div class="form-group">
-                      <label for="exampleInputEmail1">{{__(" Email address")}}</label>
+                      <label for="exampleInputEmail1">{{__("Correo Electronico")}}</label>
                       <input type="email" name="email" class="form-control" placeholder="Email" value="{{ old('email', auth()->user()->email) }}">
                       @include('alerts.feedback', ['field' => 'email'])
                     </div>
                   </div>
                 </div>
               <div class="card-footer ">
-                <button type="submit" class="btn btn-primary btn-round">{{__('Save')}}</button>
+                <button type="submit" class="btn btn-primary btn-round">{{__('Guardar')}}</button>
               </div>
               <hr class="half-rule"/>
             </form>
           </div>
           <div class="card-header">
-            <h5 class="title">{{__("Password")}}</h5>
+            <h5 class="title">{{__("Contraseña")}}</h5>
           </div>
           <div class="card-body">
             <form method="post" action="{{ route('profile.password') }}" autocomplete="off">
