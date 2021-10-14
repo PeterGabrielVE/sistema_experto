@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'namePage' => 'Usuarios',
+    'namePage' => 'Pacientes',
     'class' => 'sidebar-mini',
     'activePage' => 'users',
     'activeNav' => '',
@@ -13,8 +13,8 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('user.create') }}">{{ __('Agregar usuario') }}</a>
-            <h4 class="card-title">{{ __('Usuarios') }}</h4>
+              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('user.create') }}">{{ __('Agregar paciente') }}</a>
+            <h4 class="card-title">{{ __('Pacientes') }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')
               @include('alerts.errors')
