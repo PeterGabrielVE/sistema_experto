@@ -58,8 +58,8 @@
               <div class="row">
                 <div class="col-md-7 pr-1">
                   <div class="form-group {{ $errors->has('password') ? ' has-danger' : '' }}">
-                    <label>{{__(" Current Password")}}</label>
-                    <input class="form-control {{ $errors->has('password') ? ' is-invalid' : '' }}" name="old_password" placeholder="{{ __('Current Password') }}" type="password"  required>
+                    <label>{{__("Contraseña actual")}}</label>
+                    <input class="form-control {{ $errors->has('password') ? ' is-invalid' : '' }}" name="old_password" placeholder="{{ __('Contraseña actual') }}" type="password"  required>
                     @include('alerts.feedback', ['field' => 'old_password'])
                   </div>
                 </div>
@@ -67,8 +67,8 @@
               <div class="row">
                 <div class="col-md-7 pr-1">
                   <div class="form-group {{ $errors->has('password') ? ' has-danger' : '' }}">
-                    <label>{{__(" New password")}}</label>
-                    <input class="form-control {{ $errors->has('password') ? ' is-invalid' : '' }}" placeholder="{{ __('New Password') }}" type="password" name="password" required>
+                    <label>{{__("Nueva Contraseña")}}</label>
+                    <input class="form-control {{ $errors->has('password') ? ' is-invalid' : '' }}" placeholder="{{ __('Nueva Contraseña') }}" type="password" name="password" required>
                     @include('alerts.feedback', ['field' => 'password'])
                   </div>
                 </div>
@@ -76,13 +76,13 @@
             <div class="row">
               <div class="col-md-7 pr-1">
                 <div class="form-group {{ $errors->has('password') ? ' has-danger' : '' }}">
-                  <label>{{__(" Confirm New Password")}}</label>
-                  <input class="form-control" placeholder="{{ __('Confirm New Password') }}" type="password" name="password_confirmation" required>
+                  <label>{{__(" Confirmar Nueva Contraseña")}}</label>
+                  <input class="form-control" placeholder="{{ __('Confirmar Nueva Contraseña') }}" type="password" name="password_confirmation" required>
                 </div>
               </div>
             </div>
             <div class="card-footer ">
-              <button type="submit" class="btn btn-primary btn-round ">{{__('Change Password')}}</button>
+              <button type="submit" class="btn btn-primary btn-round ">{{__('Cambiar Contraseña')}}</button>
             </div>
           </form>
         </div>
@@ -105,7 +105,7 @@
             </div>
           </div>
           <hr>
-          <div class="button-container">
+          <!--<div class="button-container">
             <button href="#" class="btn btn-neutral btn-icon btn-round btn-lg">
               <i class="fab fa-facebook-square"></i>
             </button>
@@ -115,7 +115,7 @@
             <button href="#" class="btn btn-neutral btn-icon btn-round btn-lg">
               <i class="fab fa-google-plus-square"></i>
             </button>
-          </div>
+          </div>-->
         </div>
       </div>
     </div>
