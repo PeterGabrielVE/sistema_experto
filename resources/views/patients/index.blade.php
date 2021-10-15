@@ -1,7 +1,7 @@
 @extends('layouts.app', [
     'namePage' => 'Pacientes',
     'class' => 'sidebar-mini',
-    'activePage' => 'users',
+    'activePage' => 'patients',
     'activeNav' => '',
 ])
 
@@ -13,7 +13,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('user.create') }}">{{ __('Agregar paciente') }}</a>
+              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Agregar paciente') }}</a>
             <h4 class="card-title">{{ __('Pacientes') }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')
@@ -44,22 +44,22 @@
                 </tr>
               </tfoot>
               <tbody>
-                @foreach($users as $user)
+                @foreach($patients as $patient)
                   <tr>
                     <td>
                       <span class="avatar avatar-sm rounded-circle">
                         <img src="{{asset('assets')}}/img/default-avatar.png" alt="" style="max-width: 80px; border-radiu: 100px">
                       </span>
                     </td>
-                    <td>{{$user->name}}</td>
-                    <td>{{$user->email}}</td>
-                    <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                    <td>{{$patient->name}}</td>
+                    <td>{{$patient->email}}</td>
+                    <td>{{ $patient->created_at->format('d/m/Y H:i') }}</td>
                       <td class="text-right">
-                      @if($user->id!=auth()->user()->id)
-                        <a type="button" href="{{route("user.edit",$user)}}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
+                      @if($patient->id!=auth()->patient()->id)
+                        <a type="button" href="{{route("patient.edit",$patient)}}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
                           <i class="now-ui-icons ui-2_settings-90"></i>
                         </a>
-                      <form action="{{ route('user.destroy', $user) }}" method="post" style="display:inline-block;" class ="delete-form">
+                      <form action="{{ route('patient.destroy', $patient) }}" method="post" style="display:inline-block;" class ="delete-form">
                         @csrf
                         @method('delete')
                         <button type="button" rel="tooltip" class="btn btn-danger btn-icon btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este usuario?') }}') ? this.parentElement.submit() : ''">

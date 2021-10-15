@@ -42,8 +42,8 @@
             </li>
           </ul>
         </div>
-      <li class="@if ($activePage == 'patients') active @endif">
-        <a href="{{ route('user.index') }}">
+      <li class="@if ($activePage == 'patient') active @endif">
+        <a href="{{ route('patient.index','patient') }}">
             <i class="now-ui-icons design_bullet-list-67"></i>
               <p> {{ __("Pacientes") }} </p>
         </a>
