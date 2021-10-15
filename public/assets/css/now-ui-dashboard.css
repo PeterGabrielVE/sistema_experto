@@ -1335,7 +1335,7 @@ fieldset[disabled] .btn-link.active {
 }
 
 .form-control:focus {
-    border: 1px solid #f96332;
+    border: 1px solid #00b8f0;
     box-shadow: none;
     outline: 0 !important;
     color: #2c2c2c;

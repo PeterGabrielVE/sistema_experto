@@ -26,7 +26,9 @@ class PatientController extends Controller
      */
     public function create()
     {
-        return view('patients.create');
+        $regions = [ 1=>'Arica y Parinacota',2 =>'Tarapacá'];
+        $comunas = [ 1=>'Arica y Parinacota',2 =>'Tarapacá'];
+        return view('patients.create',['regions'=>$regions, 'comunas'=>$comunas]);
     }
 
     /**

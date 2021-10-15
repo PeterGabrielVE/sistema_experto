@@ -12,7 +12,8 @@
         "fideloper/proxy": "^4.4",
         "laravel-frontend-presets/now-ui-dashboard": "^1.0",
         "laravel/framework": "^6.20.26",
-        "laravel/tinker": "^2.5"
+        "laravel/tinker": "^2.5",
+        "laravelcollective/html": "^6.2"
     },
     "require-dev": {
         "facade/ignition": "^1.16.15",
