@@ -28,18 +28,18 @@
               <thead>
                 <tr>
                   <th>{{ __('Perfil') }}</th>
-                  <th>{{ __('Nombre') }}</th>
-                  <th>{{ __('Correo') }}</th>
-                  <th>{{ __('Fecha Creación') }}</th>
+                  <th>{{ __('Nombre Completo') }}</th>
+                  <th>{{ __('Dirección') }}</th>
+                  <th>{{ __('Fecha Nacimiento') }}</th>
                   <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
                 </tr>
               </thead>
               <tfoot>
                 <tr>
                   <th>{{ __('Perfil') }}</th>
-                  <th>{{ __('Nombre') }}</th>
-                  <th>{{ __('Correo') }}</th>
-                  <th>{{ __('Fecha Creación') }}</th>
+                  <th>{{ __('Nombre Completo') }}</th>
+                  <th>{{ __('Dirección') }}</th>
+                  <th>{{ __('Fecha Nacimiento') }}</th>
                   <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
                 </tr>
               </tfoot>
@@ -51,11 +51,11 @@
                         <img src="{{asset('assets')}}/img/default-avatar.png" alt="" style="max-width: 80px; border-radiu: 100px">
                       </span>
                     </td>
-                    <td>{{$patient->name}}</td>
-                    <td>{{$patient->email}}</td>
-                    <td>{{ $patient->created_at->format('d/m/Y H:i') }}</td>
+                    <td>{{$patient->first_name}} {{$patient->last_name}}</td>
+                    <td>{{$patient->address}}</td>
+                    <td>{{ $patient->created_at->format('d/m/Y') }}</td>
                       <td class="text-right">
-                      @if($patient->id!=auth()->patient()->id)
+                    
                         <a type="button" href="{{route("patient.edit",$patient)}}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
                           <i class="now-ui-icons ui-2_settings-90"></i>
                         </a>
@@ -66,11 +66,8 @@
                           <i class="now-ui-icons ui-1_simple-remove"></i>
                         </button>
                       </form>
-                    @else
-                      <a type="button" href="{{ route('profile.edit') }}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
-                        <i class="now-ui-icons ui-2_settings-90"></i>
-                      </a>
-                    @endif
+                      <a href="#" class="btn btn-info btn-sm"><i class="fa fa-eye"></i> Diagnosticar</a>
+                      <button type="button"  class="btn btn-success btn-sm"><i class="fa fa-eye"></i>Historial</button>
                     </td>
                   </tr>
                 @endforeach

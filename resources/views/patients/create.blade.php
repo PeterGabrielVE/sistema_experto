@@ -23,7 +23,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <form method="post" action="{{ route('user.store') }}" autocomplete="off"
+                        <form method="post" action="{{ route('patient.store') }}" autocomplete="off"
                             enctype="multipart/form-data">
                             @csrf
 

@@ -50,18 +50,6 @@
       </li>
       <li class = "@if ($activePage == 'maps') active @endif">
         <a href="{{ route('page.index','maps') }}">
-          <i class="now-ui-icons location_map-big"></i>
-          <p>{{ __('Factores') }}</p>
-        </a>
-      </li>
-      <li class = "@if ($activePage == 'maps') active @endif">
-        <a href="{{ route('page.index','maps') }}">
-          <i class="now-ui-icons tech_headphones"></i>
-          <p>{{ __('Enfermedades') }}</p>
-        </a>
-      </li>
-      <li class = "@if ($activePage == 'maps') active @endif">
-        <a href="{{ route('page.index','maps') }}">
           <i class="now-ui-icons tech_tv"></i>
           <p>{{ __('Recomendaciones') }}</p>
         </a>
