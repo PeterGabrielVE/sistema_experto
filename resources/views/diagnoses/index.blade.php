@@ -36,17 +36,17 @@
 
                                         @include('alerts.feedback', ['field' => 'first_name'])
                                     </div>
-                                    <div class="form-group{{ $errors->has('last_name') ? ' has-danger' : '' }} col-3">
-                                        <label class="form-control-label" for="input-name">{{ __('Peso') }}</label>
-                                        <input type="text" name="last_name" id="input-last_name" class="form-control{{ $errors->has('last_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Peso') }}" value="{{ old('last_name') }}" required autofocus>
+                                    <div class="form-group{{ $errors->has('weight') ? ' has-danger' : '' }} col-3">
+                                        <label class="form-control-label" for="input-weight">{{ __('Peso') }}</label>
+                                        <input type="text" name="weight" id="input-weight" class="form-control{{ $errors->has('weight') ? ' is-invalid' : '' }}" placeholder="{{ __('Peso') }}" value="{{ old('weight') }}" required autofocus onchange="calcularIMC()">
 
                                         @include('alerts.feedback', ['field' => 'last_name'])
                                     </div>
-                                    <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-3">
-                                        <label class="form-control-label" for="input-address">{{ __('Talla') }}</label>
-                                        <input type="text" name="address" id="input-address" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus>
+                                    <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
+                                        <label class="form-control-label" for="input-size">{{ __('Talla') }}</label>
+                                        <input type="text" name="size" id="input-size" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
 
-                                        @include('alerts.feedback', ['field' => 'address'])
+                                        @include('alerts.feedback', ['field' => 'size'])
                                     </div>
                                     
                                     <div class="form-group{{ $errors->has('birthdate') ? ' has-danger' : '' }} col-3">
@@ -80,8 +80,8 @@
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-3">
-                                        <label class="form-control-label" for="input-address">{{ __('IMC') }}</label>
-                                        <input type="text" name="address" id="input-address" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('IMC') }}" value="{{ old('address') }}" required autofocus>
+                                        <label class="form-control-label" for="input-imc">{{ __('IMC') }}</label>
+                                        <input type="text" name="imc" id="input-imc" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('IMC') }}" value="{{ old('address') }}" required autofocus>
 
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
@@ -97,4 +97,22 @@
             </div>
         </div>
     </div>
+    <script>
+        function calcularIMC(){
+
+            let weight = $('#input-weight').val();
+            let size = $('#input-size').val();
+            let imc = 0;
+            let result = 0;
+
+            if(weight != '' && size != ''){
+                imc = weight / Math.pow(size / 100,2);
+                result = Math.round(imc * 100) / 100;
+            }else{
+                result = 0;
+            }
+
+            $('#input-imc').val(result)
+        }
+    </script>
 @endsection
