@@ -12,8 +12,9 @@ class DiagnosisController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Patient $model)
+    public function index(Request $req)
     {
+        dd($req->all());
         return view('diagnoses.index', ['patient' => $model]);
     }
 
@@ -22,11 +23,10 @@ class DiagnosisController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $req, $id)
     {
-        $regions = [ 1=>'Arica y Parinacota',2 =>'Tarapacá'];
-        $comunas = [ 1=>'Arica y Parinacota',2 =>'Tarapacá'];
-        return view('patients.create',['regions'=>$regions, 'comunas'=>$comunas]);
+        $patient = Patient::find($id);
+        return view('diagnoses.index', ['patient' => $patient]);
     }
 
     /**

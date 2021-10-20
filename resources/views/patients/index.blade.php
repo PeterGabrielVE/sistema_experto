@@ -66,7 +66,7 @@
                           <i class="now-ui-icons ui-1_simple-remove"></i>
                         </button>
                       </form>
-                      <a href="{{ route('diagnosis.index', $patient) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i> Diagnosticar</a>
+                      <a href="{{ route('diagnosis.new', $patient->id) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i> Diagnosticar</a>
                       <button type="button"  class="btn btn-success btn-sm"><i class="fa fa-eye"></i>Historial</button>
                     </td>
                   </tr>

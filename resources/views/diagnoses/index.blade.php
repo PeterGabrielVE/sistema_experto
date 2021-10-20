@@ -27,7 +27,7 @@
                             enctype="multipart/form-data">
                             @csrf
 
-                            <h6 class="heading-small text-muted mb-4">{{ __('Diagnosticando al paciente') }}: {{ $patient->first_name }}</h6>
+                            <h6 class="heading-small text-muted mb-4">{{ __('Diagnosticando al paciente') }}: {{ $patient->first_name }} {{ $patient->last_name }}</h6>
                             <div class="pl-lg-4">
                                 <div class="row">
                                     <div class="form-group{{ $errors->has('first_name') ? ' has-danger' : '' }} col-3">
@@ -73,9 +73,21 @@
 
                                         @include('alerts.feedback', ['field' => 'gender'])
                                     </div>
+                                    <?php 
+                                        $nacimiento = new DateTime($patient->birthdate);
+                                        $ahora = new DateTime(date("Y-m-d"));
+                                        $diferencia = $ahora->diff($nacimiento);
+                                        $edad =  $diferencia->format("%y");
+                                    ?>
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-address">{{ __('Edad') }}</label>
-                                        <input type="text" name="address" id="input-address" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Edad') }}" value="{{ old('address') }}" required autofocus>
+                                        <input type="text" name="address" id="input-address" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Edad') }}" value="{{ $edad }}" required autofocus>
+
+                                        @include('alerts.feedback', ['field' => 'address'])
+                                    </div>
+                                    <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-3">
+                                        <label class="form-control-label" for="input-caloria">{{ __('Ingesta Calorica Diaria') }}</label>
+                                        <input type="text" name="caloria" id="input-caloria" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Calorìa') }}" value="{{ old('caloria') }}" required autofocus>
 
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
@@ -88,7 +100,8 @@
                                 </div>
                                 
                                 <div class="text-center">
-                                    <button type="submit" class="btn btn-info mt-4">{{ __('Diagnosticar') }}</button>
+                                    <button onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Diagnosticar') }}</button>
+                                    <!--<button type="submit" class="btn btn-info mt-4">{{ __('Diagnosticar') }}</button>-->
                                 </div>
                             </div>
                         </form>
@@ -113,6 +126,10 @@
             }
 
             $('#input-imc').val(result)
+        }
+
+        function diagnosticar(){
+            alert('hi')
         }
     </script>
 @endsection
