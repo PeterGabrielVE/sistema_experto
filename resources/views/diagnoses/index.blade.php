@@ -88,7 +88,7 @@
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-caloria">{{ __('Ingesta Calorica Diaria') }}</label>
                                         <input type="text" name="caloria" id="input-caloria" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Calorìa') }}" value="{{ old('caloria') }}" required autofocus>
-
+                                        <span class="text-danger" id="error_ingesta" hidden>Ingrese la Ingesta</span>
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-3">
@@ -100,7 +100,7 @@
                                 </div>
                                 
                                 <div class="text-center">
-                                    <button onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Diagnosticar') }}</button>
+                                    <a onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Diagnosticar') }}</a>
                                     <!--<button type="submit" class="btn btn-info mt-4">{{ __('Diagnosticar') }}</button>-->
                                 </div>
                             </div>
@@ -129,7 +129,28 @@
         }
 
         function diagnosticar(){
-            alert('hi')
+
+            let ingesta = $('#input-caloria').val();
+
+            if(ingesta === '' || ingesta === null){
+                document.getElementById("input-caloria").focus();
+                document.getElementById('error_ingesta').removeAttribute("hidden");
+            }else{
+                let carbohidrato = parseFloat(ingesta) * 0.50;
+                let gramoCarbohidato = parseFloat(carbohidrato)/4;
+
+                let isocalorico = parseFloat(carbohidrato)/3;
+
+                let grasa = parseFloat(ingesta) * 0.50;
+                let gramoGrasa = parseFloat(grasa)/9;
+
+                let proteina = parseFloat(ingesta) * 0.20;
+                let gramoProteina= parseFloat(proteina)/4;
+
+                document.getElementById("error_ingesta").setAttribute("hidden",true);
+                
+            }
+            
         }
     </script>
 @endsection
