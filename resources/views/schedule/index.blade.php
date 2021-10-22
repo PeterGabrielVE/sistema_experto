@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'namePage' => 'Recomendaciones',
+    'namePage' => 'Horarios',
     'class' => 'sidebar-mini',
     'activePage' => 'patients',
     'activeNav' => '',
@@ -13,8 +13,8 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Agregar recomendaciones') }}</a>
-            <h4 class="card-title">{{ __('Gestion de recomendaciones') }}</h4>
+              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Agregar horario') }}</a>
+            <h4 class="card-title">{{ __('Gestion de horarios') }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')
               @include('alerts.errors')
@@ -31,13 +31,15 @@
                   <th>{{ __('Desayuno') }}</th>
                   <th>{{ __('Almuerzo') }}</th>
                   <th>{{ __('Cena') }}</th>
+                  <th>{{ __('Acciones') }}</th>
                 </tr>
               </thead>
               <tfoot>
                 <tr>
                   <th>{{ __('#') }}</th>
-                  <th>{{ __('Descripción') }}</th>
-                  <th>{{ __('Fecha de creacion') }}</th>
+                  <th>{{ __('Desayuno') }}</th>
+                  <th>{{ __('Almuerzo') }}</th>
+                  <th>{{ __('Cena') }}</th>
                   <th>{{ __('Acciones') }}</th>
                 </tr>
               </tfoot>

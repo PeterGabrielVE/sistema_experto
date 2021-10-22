@@ -27,6 +27,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::resource('patient', 'PatientController', ['except' => ['show']]);
 	Route::resource('diagnosis', 'DiagnosisController', ['except' => ['show']]);
     Route::resource('recommendation', 'RecommendationController', ['except' => ['show']]);
+    Route::resource('schedule', 'ScheduleController', ['except' => ['show']]);
 	Route::get('diagnosis/{id}','DiagnosisController@create')->name('diagnosis.new');
 	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'ProfileController@edit']);
 	Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
