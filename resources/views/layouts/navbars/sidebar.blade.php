@@ -56,7 +56,7 @@
       </li>
       <li class = "@if ($activePage == 'schedule') active @endif">
         <a href="{{ route('schedule.index') }}">
-          <i class="now-ui-icons tech_tv"></i>
+          <i class="now-ui-icons ui-1_calendar-60"></i>
           <p>{{ __('Horarios') }}</p>
         </a>
       </li>
