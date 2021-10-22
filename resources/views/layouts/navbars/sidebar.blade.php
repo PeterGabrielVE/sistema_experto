@@ -48,8 +48,8 @@
               <p> {{ __("Pacientes") }} </p>
         </a>
       </li>
-      <li class = "@if ($activePage == 'maps') active @endif">
-        <a href="{{ route('page.index','maps') }}">
+      <li class = "@if ($activePage == 'recommendation') active @endif">
+        <a href="{{ route('recommendation.index') }}">
           <i class="now-ui-icons tech_tv"></i>
           <p>{{ __('Recomendaciones') }}</p>
         </a>
@@ -60,7 +60,7 @@
           <p>{{ __('Regla de Conocimiento') }}</p>
         </a>
       </li>
-    
+
     </ul>
   </div>
 </div>
