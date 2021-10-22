@@ -28,9 +28,9 @@
               <thead>
                 <tr>
                   <th>{{ __('#') }}</th>
-                  <th>{{ __('Descripción') }}</th>
-                  <th>{{ __('Fecha de creación') }}</th>
-                  <th>{{ __('Acciones') }}</th>
+                  <th>{{ __('Desayuno') }}</th>
+                  <th>{{ __('Almuerzo') }}</th>
+                  <th>{{ __('Cena') }}</th>
                 </tr>
               </thead>
               <tfoot>
