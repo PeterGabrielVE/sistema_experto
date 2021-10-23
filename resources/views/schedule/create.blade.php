@@ -1,7 +1,7 @@
 @extends('layouts.app', [
     'class' => 'sidebar-mini ',
-    'namePage' => 'Crear recomendacion',
-    'activePage' => 'recommendation',
+    'namePage' => 'Crear Horario',
+    'activePage' => 'schedule',
     'activeNav' => '',
 ])
 
@@ -15,26 +15,26 @@
                     <div class="card-header">
                         <div class="row align-items-center">
                             <div class="col-8">
-                                <h3 class="mb-0">{{ __('Gestión de recomendaciones') }}</h3>
+                                <h3 class="mb-0">{{ __('Gestión de horarios') }}</h3>
                             </div>
                             <div class="col-4 text-right">
-                                <a href="{{ route('recommendation.index') }}" class="btn btn-primary btn-round">{{ __('Volver a la lista') }}</a>
+                                <a href="{{ route('schedule.index') }}" class="btn btn-primary btn-round">{{ __('Volver a la lista') }}</a>
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
-                        <form method="post" action="{{ route('recommendation.store') }}" autocomplete="off"
+                        <form method="post" action="{{ route('schedule.store') }}" autocomplete="off"
                             enctype="multipart/form-data">
                             @csrf
 
-                            <h6 class="heading-small text-muted mb-4">{{ __('Descripción de la recomendación') }}</h6>
+                            <h6 class="heading-small text-muted mb-4">{{ __('Descripción de horarios') }}</h6>
                             <div class="pl-lg-4">
                                 <div class="row">
 
 
-                                    <div class="form-group{{ $errors->has('description') ? ' has-danger' : '' }} col-12">
-                                        <label class="form-control-label" for="input-description">{{ __('Descripción') }}</label>
-                                        <input type="text" name="description" id="input-comment" class="form-control{{ $errors->has('description') ? ' is-invalid' : '' }}" placeholder="{{ __('Descripción') }}" value="{{ old('') }}" required autofocus>
+                                    <div class="form-group{{ $errors->has('schedule') ? ' has-danger' : '' }} col-12">
+                                        <label class="form-control-label" for="input-schedule">{{ __('Horarios') }}</label>
+                                        <input type="text" name="schedule" id="input-comment" class="form-control{{ $errors->has('schedule') ? ' is-invalid' : '' }}" placeholder="{{ __('Horarios') }}" value="{{ old('') }}" required autofocus>
 
                                         @include('alerts.feedback', ['field' => 'comment'])
                                     </div>

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Schedule;
+
 class ScheduleController extends Controller
 {
     /**
@@ -23,7 +25,8 @@ class ScheduleController extends Controller
      */
     public function create()
     {
-        //
+
+        return view('schedule.create');
     }
 
     /**
@@ -34,7 +37,7 @@ class ScheduleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return redirect()->route('schedule.index')->withStatus(__('Horario creado correctamente.'));
     }
 
     /**
