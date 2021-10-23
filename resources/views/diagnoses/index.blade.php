@@ -5,6 +5,7 @@
     'activeNav' => '',
 ])
 
+@include('diagnoses.create')
 @section('content')
     <div class="panel-header panel-header-sm">
     </div>
@@ -81,7 +82,7 @@
                                     ?>
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-address">{{ __('Edad') }}</label>
-                                        <input type="text" name="address" id="input-address" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Edad') }}" value="{{ $edad }}" required autofocus>
+                                        <input type="text" name="address" id="input-age" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Edad') }}" value="{{ $edad }}" required autofocus>
 
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
@@ -148,7 +149,42 @@
                 let gramoProteina= parseFloat(proteina)/4;
 
                 document.getElementById("error_ingesta").setAttribute("hidden",true);
-                
+
+                let imc = parseFloat($('#input-imc').val());
+                let imc_deseado = 0;
+
+                if(imc < 18.4){
+                    imc_deseado = 18.5;
+                }else if(imc >= 18.4 && imc <= 24.9){
+                    imc_deseado = imc;
+                }else if(imc >= 25 && imc <= 29.9){
+                    imc_deseado = 24.4;
+                }else{
+                    imc_deseado = 29.9;
+                }
+                let size = $('#input-size').val();
+                let edad = $('#input-age').val();
+                let peso_deseado = (size*size)*imc_deseado;
+
+                let sexo = '{{ $patient->gender }}';
+                if ( sexo === 'M'){
+                    tmb = (10 * peso_deseado) + (6.25*size) - (5*edad) - 161;
+                }else{
+                    tmb = (10 * peso_deseado) + (6.25*size) - (5*edad) + 5;
+                }
+
+                let peso = parseFloat($('#input-weight').val());
+                let result_pulgar = peso * imc_deseado;
+
+                $('#exampleModal').modal('show');
+                $('#input-carbohidrato').val(gramoCarbohidato);
+                $('#input-isocalorico').val(isocalorico);
+                $('#input-lipido').val(gramoGrasa);
+                $('#input-proteina').val(gramoProteina);
+
+                $('#input-imc-deseado').val(imc_deseado);
+                $('#input-result-harry').val(tmb);
+                $('#input-result-pulgar').val(result_pulgar);
             }
             
         }
