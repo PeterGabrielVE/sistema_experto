@@ -30,13 +30,24 @@
                             <h6 class="heading-small text-muted mb-4">{{ __('Descripción de horarios') }}</h6>
                             <div class="pl-lg-4">
                                 <div class="row">
+                                    <div class="form-group{{ $errors->has('first_breakfast') ? ' has-danger' : '' }} col-6">
+                                        <label class="form-control-label" for="input-breakfast">{{ __('Desayuno') }}</label>
+                                        <input type="text" name="first_breakfast" id="input-first_breakfast" class="form-control{{ $errors->has('first_breakfast') ? ' is-invalid' : '' }}" placeholder="{{ __('Desayuno') }}" value="{{ old('first_breakfast') }}" required autofocus>
 
+                                        @include('alerts.feedback', ['field' => 'first_breakfast'])
+                                    </div>
+                                    <div class="form-group{{ $errors->has('last_lunch') ? ' has-danger' : '' }} col-6">
+                                        <label class="form-control-label" for="input-lunch">{{ __('Almuerzo') }}</label>
+                                        <input type="text" name="last_lunch" id="input-last_lunch" class="form-control{{ $errors->has('last_lunch') ? ' is-invalid' : '' }}" placeholder="{{ __('Almuerzo') }}" value="{{ old('last_lunch') }}" required autofocus>
 
-                                    <div class="form-group{{ $errors->has('schedule') ? ' has-danger' : '' }} col-12">
-                                        <label class="form-control-label" for="input-schedule">{{ __('Horarios') }}</label>
-                                        <input type="text" name="schedule" id="input-comment" class="form-control{{ $errors->has('schedule') ? ' is-invalid' : '' }}" placeholder="{{ __('Horarios') }}" value="{{ old('') }}" required autofocus>
+                                        @include('alerts.feedback', ['field' => 'last_lunch'])
+                                    </div>
+                                    <div class="form-group{{ $errors->has('dinner') ? ' has-danger' : '' }} col-12">
+                                        <label class="form-control-label" for="input-dinner">{{ __('Cena') }}</label>
+                                        <input type="text" name="dinner" id="input-dinner" class="form-control{{ $errors->has('dinner') ? ' is-invalid' : '' }}" placeholder="{{ __('Cena') }}" value="{{ old('dinner') }}" required autofocus>
 
-                                        @include('alerts.feedback', ['field' => 'comment'])
+                                        @include('alerts.feedback', ['field' => 'dinner'])
+
                                     </div>
                                 </div>
 
