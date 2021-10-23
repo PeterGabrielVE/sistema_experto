@@ -1,7 +1,7 @@
 @extends('layouts.app', [
     'class' => 'sidebar-mini ',
-    'namePage' => 'Crear paciente',
-    'activePage' => 'patient',
+    'namePage' => 'Crear recomendacion',
+    'activePage' => 'recommendation',
     'activeNav' => '',
 ])
 
@@ -15,43 +15,26 @@
                     <div class="card-header">
                         <div class="row align-items-center">
                             <div class="col-8">
-                                <h3 class="mb-0">{{ __('Gestión de paciente') }}</h3>
+                                <h3 class="mb-0">{{ __('Gestión de recomendaciones') }}</h3>
                             </div>
                             <div class="col-4 text-right">
-                                <a href="{{ route('user.index') }}" class="btn btn-primary btn-round">{{ __('Volver a la lista') }}</a>
+                                <a href="{{ route('recommendation.index') }}" class="btn btn-primary btn-round">{{ __('Volver a la lista') }}</a>
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
-                        <form method="post" action="{{ route('patient.store') }}" autocomplete="off"
+                        <form method="post" action="{{ route('recommendation.store') }}" autocomplete="off"
                             enctype="multipart/form-data">
                             @csrf
 
-                            <h6 class="heading-small text-muted mb-4">{{ __('Información del paciente') }}</h6>
+                            <h6 class="heading-small text-muted mb-4">{{ __('Descripción de la recomendación') }}</h6>
                             <div class="pl-lg-4">
                                 <div class="row">
-                                    <div class="form-group{{ $errors->has('first_name') ? ' has-danger' : '' }} col-6">
-                                        <label class="form-control-label" for="input-name">{{ __('Nombre') }}</label>
-                                        <input type="text" name="first_name" id="input-first_name" class="form-control{{ $errors->has('first_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Nombre') }}" value="{{ old('first_name') }}" required autofocus>
 
-                                        @include('alerts.feedback', ['field' => 'first_name'])
-                                    </div>
-                                    <div class="form-group{{ $errors->has('last_name') ? ' has-danger' : '' }} col-6">
-                                        <label class="form-control-label" for="input-name">{{ __('Apellido') }}</label>
-                                        <input type="text" name="last_name" id="input-last_name" class="form-control{{ $errors->has('last_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Apellido') }}" value="{{ old('last_name') }}" required autofocus>
 
-                                        @include('alerts.feedback', ['field' => 'last_name'])
-                                    </div>
-                                    <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-12">
-                                        <label class="form-control-label" for="input-address">{{ __('Dirección') }}</label>
-                                        <input type="text" name="address" id="input-address" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Dirección') }}" value="{{ old('address') }}" required autofocus>
-
-                                        @include('alerts.feedback', ['field' => 'address'])
-                                    </div>
-
-                                    <div class="form-group{{ $errors->has('comment') ? ' has-danger' : '' }} col-12">
-                                        <label class="form-control-label" for="input-comment">{{ __('Comentario') }}</label>
-                                        <input type="text" name="comment" id="input-comment" class="form-control{{ $errors->has('comment') ? ' is-invalid' : '' }}" placeholder="{{ __('Comentario') }}" value="{{ old('comment') }}" required autofocus>
+                                    <div class="form-group{{ $errors->has('description') ? ' has-danger' : '' }} col-12">
+                                        <label class="form-control-label" for="input-description">{{ __('Descripción') }}</label>
+                                        <input type="text" name="description" id="input-comment" class="form-control{{ $errors->has('description') ? ' is-invalid' : '' }}" placeholder="{{ __('Descripción') }}" value="{{ old('description') }}" required autofocus>
 
                                         @include('alerts.feedback', ['field' => 'comment'])
                                     </div>
