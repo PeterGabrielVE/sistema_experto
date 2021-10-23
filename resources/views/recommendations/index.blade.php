@@ -13,7 +13,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Agregar recomendaciones') }}</a>
+              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('recommendation.create') }}">{{ __('Agregar recomendaciones') }}</a>
             <h4 class="card-title">{{ __('Gestion de recomendaciones') }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')
