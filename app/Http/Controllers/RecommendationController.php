@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Recommendation;
+
 class RecommendationController extends Controller
 {
     /**
@@ -34,7 +36,8 @@ class RecommendationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $recommendation = Recommendation::create($request->all());
+        return redirect()->route('recommendation.index')->withStatus(__('Recomendación creada correctamente.'));
     }
 
     /**
