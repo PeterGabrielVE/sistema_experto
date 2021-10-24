@@ -37,6 +37,7 @@ class ScheduleController extends Controller
      */
     public function store(Request $request)
     {
+        $recommendation = Schedule::create($request->all());
         return redirect()->route('schedule.index')->withStatus(__('Horario creado correctamente.'));
     }
 
