@@ -58,19 +58,19 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('gender') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-horario-comida">{{ __('Horario de Comida') }}</label>
-                                        {!! Form::select('gender', ['H'=>'Horario 1','M'=>'Horario 2'], null, ['class' => 'form-control','required','id'=>'input-horario-comida','autofocus']) !!}
+                                        {!! Form::select('gender', ['1'=>'Horario 1','2'=>'Horario 2'], null, ['class' => 'form-control','required','id'=>'input-horario-comida','autofocus']) !!}
 
                                         @include('alerts.feedback', ['field' => 'gender'])
                                     </div>
                                     <div class="form-group{{ $errors->has('gender') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-jornada-laboral">{{ __('Jornada Laboral') }}</label>
-                                        {!! Form::select('gender', ['H'=>'Horario 1','M'=>'Horario 2'], null, ['class' => 'form-control','required','id'=>'input-jornada-laboral','autofocus']) !!}
+                                        {!! Form::select('gender', ['1'=>'Horario 1','2'=>'Horario 2'], null, ['class' => 'form-control','required','id'=>'input-jornada-laboral','autofocus']) !!}
 
                                         @include('alerts.feedback', ['field' => 'gender'])
                                     </div>
                                     <div class="form-group{{ $errors->has('gender') ? ' has-danger' : '' }} col-3">
-                                        <label class="form-control-label" for="input-gender">{{ __('Horario Actividad') }}</label>
-                                        {!! Form::select('gender', ['H'=>'Horario 1','M'=>'Horario 2'], null, ['class' => 'form-control','required','id'=>'input-horario-actividad','autofocus']) !!}
+                                        <label class="form-control-label" for="input-horario-actividad">{{ __('Horario Actividad') }}</label>
+                                        {!! Form::select('gender', ['1'=>'Horario 1','2'=>'Horario 2'], null, ['class' => 'form-control','required','id'=>'input-horario-actividad','autofocus']) !!}
 
                                         @include('alerts.feedback', ['field' => 'gender'])
                                     </div>
@@ -81,7 +81,7 @@
                                         $edad =  $diferencia->format("%y");
                                     ?>
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-3">
-                                        <label class="form-control-label" for="input-address">{{ __('Edad') }}</label>
+                                        <label class="form-control-label" for="input-age">{{ __('Edad') }}</label>
                                         <input type="text" name="address" id="input-age" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Edad') }}" value="{{ $edad }}" required autofocus>
 
                                         @include('alerts.feedback', ['field' => 'address'])
@@ -105,7 +105,6 @@
                                     <!--<button type="submit" class="btn btn-info mt-4">{{ __('Diagnosticar') }}</button>-->
                                 </div>
                             </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -195,13 +194,28 @@
                 let size = $('#input-size').val();
 
                 let actividad_fisica = $('#input-physical-activity').val();
-                let horario_comida = $('#input-indice-insulina').val();
-                let jornada_laboral = $('#input-indice-insulina').val();
+                let horario_comida = $('#input-horario-comida').val();
+                let jornada_laboral = $('#input-jornada-laboral').val();
 
-                let horario_actividad = $('#input-indice-insulina').val();
-                let edad = $('#input-indice-insulina').val();
-                let ingesta = $('#input-indice-insulina').val();
-                let imc = $('#input-indice-insulina').val();
+                let horario_actividad = $('#input-horario-actividad').val();
+                let edad = $('#input-age').val();
+                let ingesta = $('#input-caloria').val();
+                let imc = $('#input-imc').val();
+
+                $('#indice-insulina').val(insulina);
+                $('#talla').val(size);
+                $('#peso').val(weight);
+
+                $('#actividad_fisica').val(actividad_fisica);
+                $('#horario_comida').val(horario_comida);
+                $('#jornada_laboral').val(jornada_laboral);
+
+                $('#horario_actividad').val(horario_actividad);
+                $('#edad').val(edad);
+                $('#ingesta_calorica').val(ingesta);
+                $('#imc').val(imc);
+
+
             }
             
         }

@@ -7,49 +7,51 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
+      <form method="post" action="{{ route('diagnosis.store') }}" autocomplete="off" enctype="multipart/form-data">
+      @csrf
       <div class="modal-body">
         <div class="row">
             <div class="form-group{{ $errors->has('first_name') ? ' has-danger' : '' }} col-3">
                 <label class="form-control-label" for="input-name">{{ __('Carbohidrato') }}</label>
-                <input type="text" name="first_name" id="input-carbohidrato" class="form-control{{ $errors->has('first_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Indice de Insulina') }}" value="{{ old('first_name') }}" required autofocus>
+                <input type="text" name="carbohydrate" id="input-carbohidrato" class="form-control{{ $errors->has('first_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Indice de Insulina') }}" value="{{ old('first_name') }}" required autofocus>
             </div>
             <div class="form-group{{ $errors->has('weight') ? ' has-danger' : '' }} col-3">
                 <label class="form-control-label" for="input-weight">{{ __('Isocalorico') }}</label>
-                <input type="text" name="weight" id="input-isocalorico" class="form-control{{ $errors->has('weight') ? ' is-invalid' : '' }}" placeholder="{{ __('Peso') }}" value="{{ old('weight') }}" required autofocus onchange="calcularIMC()">
+                <input type="text" name="isocaloric" id="input-isocalorico" class="form-control{{ $errors->has('weight') ? ' is-invalid' : '' }}" placeholder="{{ __('Peso') }}" value="{{ old('weight') }}" required autofocus onchange="calcularIMC()">
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                 <label class="form-control-label" for="input-size">{{ __('Lipido') }}</label>
-                <input type="text" name="size" id="input-lipido" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
+                <input type="text" name="lipid" id="input-lipido" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                 <label class="form-control-label" for="input-size">{{ __('Proteina') }}</label>
-                <input type="text" name="size" id="input-proteina" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
+                <input type="text" name="protein" id="input-proteina" class="form-control{{ $errors->has('protein') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-4">
                 <label class="form-control-label" for="input-size">{{ __('IMC DESEADO') }}</label>
-                <input type="text" name="size" id="input-imc-deseado" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
+                <input type="text" name="imc_desired" id="input-imc-deseado" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-4">
                 <label class="form-control-label" for="input-size">{{ __('Resultado Método Harray B.') }}</label>
-                <input type="text" name="size" id="input-result-harry" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
+                <input type="text" name="result_harray" id="input-result-harry" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-4">
                 <label class="form-control-label" for="input-size">{{ __('Resultado Método Pulgar') }}</label>
-                <input type="text" name="size" id="input-result-pulgar" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
+                <input type="text" name="result_pulgar" id="input-result-pulgar" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>
 
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-4">
-                <input type="text" name="size" id="indice-insulina">
-                <input type="text" name="size" id="talla">
-                <input type="text" name="size" id="peso">
-                <input type="text" name="size" id="actividad_fisica">
-                <input type="text" name="size" id="horario_comida">
-                <input type="text" name="size" id="jornada_laboral">
-                <input type="text" name="size" id="horario_actividad">
-                <input type="text" name="size" id="edad">
-                <input type="text" name="size" id="ingesta_calorica">
-                <input type="text" name="size" id="imc">
-                <input type="text" name="size" value="{{ $patient->id }}">
+                <input type="hidden" name="insulin_index" id="indice-insulina">
+                <input type="hidden" name="size" id="talla">
+                <input type="hidden" name="weight" id="peso">
+                <input type="hidden" name="physical_activity" id="actividad_fisica">
+                <input type="hidden" name="schedule_meal" id="horario_comida">
+                <input type="hidden" name="workday" id="jornada_laboral">
+                <input type="hidden" name="schedule_activity" id="horario_actividad">
+                <input type="hidden" name="age" id="edad">
+                <input type="hidden" name="caloric_ingestion" id="ingesta_calorica">
+                <input type="hidden" name="imc" id="imc">
+                <input type="hidden" name="id_patient" value="{{ $patient->id }}">
             </div>
         </div>
       </div>
@@ -57,6 +59,7 @@
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
         <button type="button" class="btn btn-primary">Guardar</button>
       </div>
+      </form>
     </div>
   </div>
 </div>
