@@ -31,6 +31,7 @@
                   <th>{{ __('Desayuno') }}</th>
                   <th>{{ __('Almuerzo') }}</th>
                   <th>{{ __('Cena') }}</th>
+                  <th>{{ __('Nota') }}</th>
                   <th>{{ __('Acciones') }}</th>
                 </tr>
               </thead>
@@ -40,10 +41,32 @@
                   <th>{{ __('Desayuno') }}</th>
                   <th>{{ __('Almuerzo') }}</th>
                   <th>{{ __('Cena') }}</th>
+                  <th>{{ __('Nota') }}</th>
                   <th>{{ __('Acciones') }}</th>
                 </tr>
               </tfoot>
               <tbody>
+                @foreach($schedules as $sc)
+                <tr>
+                  <td>{{$sc->id}}</td>
+                  <td>{{$sc->breakfast}}</td>
+                  <td>{{$sc->lunch}}</td>
+                  <td>{{$sc->dinner}}</td>
+                  <td>{{$sc->notes}}</td>
+                    <td class="text-right">
+                      <a type="button" href="{{route("schedule.edit",$sc)}}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
+                        <i class="now-ui-icons ui-2_settings-90"></i>
+                      </a>
+                    <form action="{{ route('schedule.destroy', $sc) }}" method="post" style="display:inline-block;" class ="delete-form">
+                      @csrf
+                      @method('delete')
+                      <button type="button" rel="tooltip" class="btn btn-danger btn-icon btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este usuario?') }}') ? this.parentElement.submit() : ''">
+                        <i class="now-ui-icons ui-1_simple-remove"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              @endforeach
               </tbody>
             </table>
           </div>
