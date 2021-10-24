@@ -13,9 +13,10 @@ class RecommendationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+
+    public function index(Recommendation $model)
     {
-        return view('recommendations.index');
+        return view('recommendations.index', ['recommendations' => $model->paginate(15)]);
     }
 
     /**

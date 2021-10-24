@@ -13,9 +13,9 @@ class ScheduleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Schedule $model)
     {
-        return view('schedule.index');
+        return view('schedule.index', ['schedules' => $model->paginate(15)]);
     }
 
     /**
