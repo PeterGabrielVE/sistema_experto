@@ -31,11 +31,25 @@
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-4">
                 <label class="form-control-label" for="input-size">{{ __('Resultado Método Harray B.') }}</label>
-                <input type="text" name="size" id="input-harry" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
+                <input type="text" name="size" id="input-result-harry" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-4">
                 <label class="form-control-label" for="input-size">{{ __('Resultado Método Pulgar') }}</label>
-                <input type="text" name="size" id="input-pulgar" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
+                <input type="text" name="size" id="input-result-pulgar" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
+            </div>
+
+            <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-4">
+                <input type="text" name="size" id="indice-insulina">
+                <input type="text" name="size" id="talla">
+                <input type="text" name="size" id="peso">
+                <input type="text" name="size" id="actividad_fisica">
+                <input type="text" name="size" id="horario_comida">
+                <input type="text" name="size" id="jornada_laboral">
+                <input type="text" name="size" id="horario_actividad">
+                <input type="text" name="size" id="edad">
+                <input type="text" name="size" id="ingesta_calorica">
+                <input type="text" name="size" id="imc">
+                <input type="text" name="size" value="{{ $patient->id }}">
             </div>
         </div>
       </div>
