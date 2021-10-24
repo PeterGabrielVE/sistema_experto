@@ -48,13 +48,13 @@
                   <td>{{$re->description}}</td>
                   <td>{{ $re->created_at->format('d/m/Y H:i') }}</td>
                     <td class="text-right">
-                      <a type="button" href="{{route("recommendation.edit",$re)}}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
+                      <a type="button" href="{{route("recommendation.edit",$re->id)}}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
                         <i class="now-ui-icons ui-2_settings-90"></i>
                       </a>
-                    <form action="{{ route('recommendation.destroy', $re) }}" method="post" style="display:inline-block;" class ="delete-form">
+                    <form action="{{ route('recommendation.destroy', $re->id) }}" method="post" style="display:inline-block;" class ="delete-form">
                       @csrf
                       @method('delete')
-                      <button type="button" rel="tooltip" class="btn btn-danger btn-icon btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este usuario?') }}') ? this.parentElement.submit() : ''">
+                      <button type="button" rel="tooltip" class="btn btn-danger btn-icon btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar esta recomendacion?') }}') ? this.parentElement.submit() : ''">
                         <i class="now-ui-icons ui-1_simple-remove"></i>
                       </button>
                     </form>

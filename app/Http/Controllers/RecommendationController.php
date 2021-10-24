@@ -60,8 +60,10 @@ class RecommendationController extends Controller
      */
     public function edit($id)
     {
-        //
+        $re = Recommendation::find($id);
+        return view('recommendations.edit', compact('re'));
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -72,7 +74,12 @@ class RecommendationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $re = Recommendation::find($id);
+        $re->update(
+            $request->all()
+            );
+
+        return redirect()->route('recommendation.index')->withStatus(__('Recomendación actualizado exitosamente.'));
     }
 
     /**
@@ -83,6 +90,9 @@ class RecommendationController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $re = Recommendation::find($id);
+        $re->delete();
+
+        return redirect()->route('recommendation.index')->withStatus(__('Recomendación elimindo exitosamente.'));
     }
 }
