@@ -60,7 +60,8 @@ class ScheduleController extends Controller
      */
     public function edit($id)
     {
-        //
+        $sc = Schedule::find($id);
+        return view('schedule.edit', compact('sc'));
     }
 
     /**
@@ -72,7 +73,12 @@ class ScheduleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $sc = Schedule::find($id);
+        $sc->update(
+            $request->all()
+            );
+
+        return redirect()->route('schedule.index')->withStatus(__('Horario actualizado exitosamente.'));
     }
 
     /**
@@ -83,6 +89,9 @@ class ScheduleController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $sc = Schedule::find($id);
+        $sc->delete();
+
+        return redirect()->route('schedule.index')->withStatus(__('Horario elimindo exitosamente.'));
     }
 }
