@@ -49,7 +49,6 @@
                 <input type="hidden" name="workday" id="jornada_laboral">
                 <input type="hidden" name="schedule_activity" id="horario_actividad">
                 <input type="hidden" name="age" id="edad">
-                <input type="hidden" name="caloric_ingestion" id="ingesta_calorica">
                 <input type="hidden" name="imc" id="imc">
                 <input type="hidden" name="id_patient" value="{{ $patient->id }}">
             </div>
