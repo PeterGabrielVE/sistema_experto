@@ -240,7 +240,7 @@ demo = {
         var myChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"],
+                labels: ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"],
                 datasets: [{
                     label: "Data",
                     borderColor: chartColor,
