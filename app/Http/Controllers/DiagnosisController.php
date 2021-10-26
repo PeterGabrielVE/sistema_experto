@@ -14,7 +14,6 @@ class DiagnosisController extends Controller
      */
     public function index(Request $req)
     {
-        dd($req->all());
         return view('diagnoses.index', ['patient' => $model]);
     }
 
@@ -41,7 +40,7 @@ class DiagnosisController extends Controller
         
         $diagnosis->save();
 
-        return redirect()->route('diagnoses.index')->withStatus(__('Diagnóstico creado correctamente.'));
+        return redirect()->route('diagnosis.index')->withStatus(__('Diagnóstico creado correctamente.'));
     }
 
     /**

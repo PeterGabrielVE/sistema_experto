@@ -13,7 +13,7 @@ class CreateScheduleTable extends Migration
      */
     public function up()
     {
-        Schema::create('_schedule', function (Blueprint $table) {
+        Schema::create('schedule', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('breakfast');
             $table->string('lunch');

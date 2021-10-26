@@ -15,16 +15,30 @@ class AddFieldsToDiagnoses extends Migration
     {
         Schema::table('diagnoses', function (Blueprint $table) {
 
-            $table->foreignId('provider_id')->nullable();
-            $table->foreignId('garage_id')->nullable();
-            $table->foreignId('client_id')->nullable();
+            $table->integer('id_patient');
+    
+            $table->decimal('carbohydrate')->nullable();
+            $table->decimal('isocaloric')->nullable();
+            $table->decimal('lipido')->nullable();
+            $table->decimal('protein')->nullable();
+            $table->decimal('imc_desired')->nullable();
 
-            $table->decimal('discount');
-            $table->decimal('net_price');
-            $table->integer('delivery')->nullable();
-            $table->integer('shipping');
+            $table->decimal('result_harris')->nullable();
+            $table->decimal('result_pulgar')->nullable();
+            $table->decimal('insulin_index')->nullable();
+
+            $table->decimal('size')->nullable();
+            $table->decimal('weight')->nullable();
+            $table->decimal('physical_activity')->nullable();
+
+            $table->decimal('workday')->nullable();
+            $table->decimal('schedule_meal')->nullable();
+            $table->decimal('schedule_activity')->nullable();
+            $table->decimal('imc')->nullable();
+
+            $table->integer('age');
             
-            $table->foreign('communication_id')->references('id')->on('communications')->onDelete('cascade');
+            $table->foreign('id_patient')->references('id')->on('patients')->onDelete('cascade');
         });
     }
 
@@ -35,8 +49,6 @@ class AddFieldsToDiagnoses extends Migration
      */
     public function down()
     {
-        Schema::table('diagnoses', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('diagnoses');
     }
 }

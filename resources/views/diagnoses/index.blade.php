@@ -146,15 +146,47 @@
                     imc_deseado = 29.9;
                 }
                 let size = $('#input-size').val();
+                let peso = parseFloat($('#input-weight').val());
                 let edad = $('#input-age').val();
+                let sexo = '{{ $patient->gender }}';
+
+                let pulgada = parseFloat(size)/2.54;
+                let pie = pulgada/12;
+                
+                let pesoStone = parseFloat(peso)/6.35;
+                let pesoLbs = parseFloat(peso)*2.20;
+
+                let x = calculateAge(edad); 
+                let y = calculateWeight(pesoStone, pesoLbs); 
+                let z = calculateHeight(pie, pulgada);
+    
+                let tmb = finalResult(x, y, z, sexo);
+
+                
                 let peso_deseado = (size*size)*imc_deseado;
 
-                let sexo = '{{ $patient->gender }}';
-                if ( sexo === 'M'){
-                    tmb = (10 * peso_deseado) + (6.25*size) - (5*edad) - 161;
-                }else{
-                    tmb = (10 * peso_deseado) + (6.25*size) - (5*edad) + 5;
+                let factor = $('#input-physical-activity').val();
+
+                switch(factor) {
+                case 0:
+                    tmb = tmb * 1.2;
+                    break;
+                case 1:
+                    tmb = tmb * 1.375;
+                    break;
+                case 2:
+                    tmb = tmb * 1.55;
+                    break;
+                case 3:
+                    tmb = tmb * 1.925;
+                    break;
+                case 4:
+                    tmb = tmb * 1.9;
+                    break;
+                default:
+                    break;
                 }
+
 
                 let carbohidrato = parseFloat(tmb) * 0.50;
                 let gramoCarbohidato = parseFloat(carbohidrato)/4;
@@ -167,18 +199,17 @@
                 let proteina = parseFloat(tmb) * 0.20;
                 let gramoProteina= parseFloat(proteina)/4;
 
-                let peso = parseFloat($('#input-weight').val());
                 let result_pulgar = peso * imc_deseado;
 
                 $('#exampleModal').modal('show');
-                $('#input-carbohidrato').val(gramoCarbohidato);
-                $('#input-isocalorico').val(isocalorico);
-                $('#input-lipido').val(gramoGrasa);
-                $('#input-proteina').val(gramoProteina);
+                $('#input-carbohidrato').val(gramoCarbohidato.toFixed(2));
+                $('#input-isocalorico').val(isocalorico.toFixed(2));
+                $('#input-lipido').val(gramoGrasa.toFixed(2));
+                $('#input-proteina').val(gramoProteina.toFixed(2));
 
-                $('#input-imc-deseado').val(imc_deseado);
-                $('#input-result-harry').val(tmb);
-                $('#input-result-pulgar').val(result_pulgar);
+                $('#input-imc-deseado').val(imc_deseado.toFixed(2));
+                $('#input-result-harry').val(tmb.toFixed(2));
+                $('#input-result-pulgar').val(result_pulgar.toFixed(2));
 
                 copy();
             //}
@@ -214,5 +245,35 @@
 
 
             }
+
+            function calculateAge(age){
+                finalAge = age * 5;
+                return finalAge;
+            }
+            
+            function calculateHeight(heightFeet, heightInches){
+                let centimeterHeight = ((heightFeet * 12) + heightInches) * 2.54;
+                let finalHeight = centimeterHeight * 6.25;
+                return finalHeight;
+            }
+
+            function calculateWeight(weightStone, weightLbs){ 
+                let kilogramWeight = ((weightStone * 14) + weightLbs) * 0.453;
+                let finalWeight = kilogramWeight * 10;
+                return finalWeight;
+            }
+
+            function finalResult(x, y, z, gender){
+                    let result = z + y - x; 
+                    let resultFinal = 0; 
+                    if(gender === 'H') {
+                        return resultFinal = result + 5;
+                    } else {
+                        return resultFinal = result - 161;
+                    
+                    }
+            }
+
+
     </script>
 @endsection

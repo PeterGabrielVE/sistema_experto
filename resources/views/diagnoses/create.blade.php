@@ -21,7 +21,7 @@
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                 <label class="form-control-label" for="input-size">{{ __('Lipido') }}</label>
-                <input type="text" name="lipid" id="input-lipido" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
+                <input type="text" name="lipido" id="input-lipido" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                 <label class="form-control-label" for="input-size">{{ __('Proteina') }}</label>
@@ -32,8 +32,8 @@
                 <input type="text" name="imc_desired" id="input-imc-deseado" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-4">
-                <label class="form-control-label" for="input-size">{{ __('Resultado Método Harray B.') }}</label>
-                <input type="text" name="result_harray" id="input-result-harry" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
+                <label class="form-control-label" for="input-size">{{ __('Resultado Método Harris-B.') }}</label>
+                <input type="text" name="result_harris" id="input-result-harry" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-4">
                 <label class="form-control-label" for="input-size">{{ __('Resultado Método Pulgar') }}</label>
@@ -56,7 +56,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-primary">Guardar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
       </div>
       </form>
     </div>
