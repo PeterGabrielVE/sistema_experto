@@ -12,7 +12,7 @@ class DiagnosisController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $req)
+    public function index(Patient $model)
     {
         return view('diagnoses.index', ['patient' => $model]);
     }
@@ -40,7 +40,9 @@ class DiagnosisController extends Controller
         
         $diagnosis->save();
 
-        return redirect()->route('diagnosis.index')->withStatus(__('Diagnóstico creado correctamente.'));
+        $patient = Patient::find($request->id_patient);
+
+        return redirect()->route('diagnosis.index',$patient)->withStatus(__('Diagnóstico creado correctamente.'));
     }
 
     /**
