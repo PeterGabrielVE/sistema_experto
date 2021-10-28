@@ -227,6 +227,23 @@ demo = {
             }
         };
 
+        var url = route('diagnoses/chart');
+        var Data =[];
+        var array = new Array();
+
+        $.get(url, function(response){
+
+                for (let obj of response) {
+                    for (let key in obj) {
+                        Data.push(obj[key])
+                    }
+                }
+                array.push[Data[0],Data[1], Data[2],Data[3], Data[4], Data[5], Data[6],Data[7], Data[8],Data[9], Data[10], Data[11]]
+       
+
+
+        console.log(array)
+        
         var ctx = document.getElementById('bigDashboardChart').getContext("2d");
 
         var gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
@@ -242,7 +259,7 @@ demo = {
             data: {
                 labels: ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"],
                 datasets: [{
-                    label: "Data",
+                    label: "Diagnosticos",
                     borderColor: chartColor,
                     pointBorderColor: chartColor,
                     pointBackgroundColor: "#1e3d60",
@@ -255,7 +272,7 @@ demo = {
                     fill: true,
                     backgroundColor: gradientFill,
                     borderWidth: 2,
-                    data: [50, 150, 100, 190, 130, 90, 150, 160, 120, 140, 190, 95]
+                    data: Data
                 }]
             },
             options: {
@@ -316,7 +333,7 @@ demo = {
                 }
             }
         });
-
+    });
         var cardStatsMiniLineColor = "#fff",
             cardStatsMiniDotColor = "#fff";
 
