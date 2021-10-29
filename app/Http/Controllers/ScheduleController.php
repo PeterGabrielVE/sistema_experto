@@ -92,6 +92,6 @@ class ScheduleController extends Controller
         $sc = Schedule::find($id);
         $sc->delete();
 
-        return redirect()->route('schedule.index')->withStatus(__('Horario elimindo exitosamente.'));
+        return redirect()->route('schedule.index')->withStatus(__('Horario eliminado exitosamente.'));
     }
 }

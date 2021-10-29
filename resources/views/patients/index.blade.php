@@ -51,18 +51,18 @@
                         <img src="{{asset('assets')}}/img/default-avatar.png" alt="" style="max-width: 80px; border-radiu: 100px">
                       </span>
                     </td>
-                    <td>{{$patient->first_name}} {{$patient->last_name}}</td>
+                    <td>{{$patient->first_name ??  null }} {{$patient->last_name ??  null }}</td>
                     <td>{{$patient->address}}</td>
-                    <td>{{ $patient->created_at->format('d/m/Y') }}</td>
+                    <td>{{ date('d-m-Y', strtotime($patient->birthdate))  ?? null }}</td>
                       <td class="text-right">
                     
                         <a type="button" href="{{route("patient.edit",$patient)}}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
                           <i class="now-ui-icons ui-2_settings-90"></i>
                         </a>
-                      <form action="{{ route('patient.destroy', $patient) }}" method="post" style="display:inline-block;" class ="delete-form">
+                      <form action="{{ route('patient.destroy', $patient->id) }}" method="post" style="display:inline-block;" class ="delete-form">
                         @csrf
                         @method('delete')
-                        <button type="button" rel="tooltip" class="btn btn-danger btn-icon btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este usuario?') }}') ? this.parentElement.submit() : ''">
+                        <button type="button" rel="tooltip" class="btn btn-danger btn-icon btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este paciente?') }}') ? this.parentElement.submit() : ''">
                           <i class="now-ui-icons ui-1_simple-remove"></i>
                         </button>
                       </form>

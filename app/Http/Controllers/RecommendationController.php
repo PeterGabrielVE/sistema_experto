@@ -93,6 +93,6 @@ class RecommendationController extends Controller
         $re = Recommendation::find($id);
         $re->delete();
 
-        return redirect()->route('recommendation.index')->withStatus(__('Recomendación elimindo exitosamente.'));
+        return redirect()->route('recommendation.index')->withStatus(__('Recomendación eliminado exitosamente.'));
     }
 }

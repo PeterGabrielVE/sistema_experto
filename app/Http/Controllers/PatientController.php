@@ -109,7 +109,10 @@ class PatientController extends Controller
      */
     public function edit($id)
     {
-        //
+        $patient = Patient::find($id);
+        $regions = [ 1=>'Arica y Parinacota',2 =>'Tarapacá'];
+        $comunas = [ 1=>'Arica y Parinacota',2 =>'Tarapacá'];
+        return view('patients.edit', compact('patient','regions','comunas'));
     }
 
     /**
@@ -121,7 +124,12 @@ class PatientController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $pat = Patient::find($id);
+        $pat->update(
+            $request->all()
+            );
+
+        return redirect()->route('patient.index')->withStatus(__('Paciente actualizado exitosamente.'));
     }
 
     /**
@@ -132,7 +140,10 @@ class PatientController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $pat = Patient::find($id);
+        $pat->delete();
+
+        return redirect()->route('patient.index')->withStatus(__('Paciente eliminado exitosamente.'));
     }
 
     public function chart()
