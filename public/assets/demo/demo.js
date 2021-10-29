@@ -229,7 +229,6 @@ demo = {
 
         var url = route('diagnoses/chart');
         var Data =[];
-        var array = new Array();
 
         $.get(url, function(response){
 
@@ -238,12 +237,7 @@ demo = {
                         Data.push(obj[key])
                     }
                 }
-                array.push[Data[0],Data[1], Data[2],Data[3], Data[4], Data[5], Data[6],Data[7], Data[8],Data[9], Data[10], Data[11]]
-    
 
-
-        console.log(array)
-        
         var ctx = document.getElementById('bigDashboardChart').getContext("2d");
 
         var gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
@@ -383,23 +377,34 @@ demo = {
             });
 
         });
-        ctx = document.getElementById('lineChartExampleWithNumbersAndGrid').getContext("2d");
+        ctx2 = document.getElementById('lineChartExampleWithNumbersAndGrid').getContext("2d");
+        var url3 = route('users/chart');
+        var Data3=[];
 
-        gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
+        $.get(url3, function(response){
+        gradientStroke = ctx2.createLinearGradient(500, 0, 100, 0);
         gradientStroke.addColorStop(0, '#18ce0f');
         gradientStroke.addColorStop(1, chartColor);
 
-        gradientFill = ctx.createLinearGradient(0, 170, 0, 50);
+        gradientFill = ctx2.createLinearGradient(0, 170, 0, 50);
         gradientFill.addColorStop(0, "rgba(128, 182, 244, 0)");
         gradientFill.addColorStop(1, hexToRGB('#18ce0f', 0.4));
 
-        myChart = new Chart(ctx, {
+        
+
+                for (let obj of response) {
+                    for (let key in obj) {
+                        Data3.push(obj[key])
+                    }
+                }
+
+        myChart = new Chart(ctx2, {
             type: 'line',
             responsive: true,
             data: {
-                labels: ["12pm,", "3pm", "6pm", "9pm", "12am", "3am", "6am", "9am"],
+                labels: ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"],
                 datasets: [{
-                    label: "Email Stats",
+                    label: "Doctores",
                     borderColor: "#18ce0f",
                     pointBorderColor: "#FFF",
                     pointBackgroundColor: "#18ce0f",
@@ -410,24 +415,37 @@ demo = {
                     fill: true,
                     backgroundColor: gradientFill,
                     borderWidth: 2,
-                    data: [40, 500, 650, 700, 1200, 1250, 1300, 1900]
+                    data: Data3
                 }]
             },
             options: gradientChartOptionsConfigurationWithNumbersAndGrid
         });
 
+    });
+
+        ctx3 = document.getElementById('lineChartExampleWithNumbersAndGrid').getContext("2d");
         var e = document.getElementById("barChartSimpleGradientsNumbers").getContext("2d");
 
-        gradientFill = ctx.createLinearGradient(0, 170, 0, 50);
+        gradientFill = ctx3.createLinearGradient(0, 170, 0, 50);
         gradientFill.addColorStop(0, "rgba(128, 182, 244, 0)");
         gradientFill.addColorStop(1, hexToRGB('#2CA8FF', 0.6));
 
+        var url4 = route('diagnoses/chart');
+        var Data4 =[];
+
+        $.get(url4, function(response){
+
+                for (let obj of response) {
+                    for (let key in obj) {
+                        Data4.push(obj[key])
+                    }
+                }
         var a = {
             type: "bar",
             data: {
-                labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+                labels: ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"],
                 datasets: [{
-                    label: "Active Countries",
+                    label: "Diagnoticos realizados",
                     backgroundColor: gradientFill,
                     borderColor: "#2CA8FF",
                     pointBorderColor: "#FFF",
@@ -438,7 +456,7 @@ demo = {
                     pointRadius: 4,
                     fill: true,
                     borderWidth: 1,
-                    data: [80, 99, 86, 96, 123, 85, 100, 75, 88, 90, 123, 155]
+                    data: Data4
                 }]
             },
             options: {
@@ -490,6 +508,7 @@ demo = {
         };
 
         var viewsChart = new Chart(e, a);
+    })
     },
 
     initGoogleMaps: function() {

@@ -85,4 +85,19 @@ class UserController extends Controller
 
         return redirect()->route('user.index')->withStatus(__('User successfully deleted.'));
     }
+
+    public function chart()
+    {
+        $months = [];
+        for($i = 1;$i <= 12; $i++){
+            $result = User::orderBy('created_at', 'ASC')
+                ->whereMonth('created_at','=',$i)
+                ->count();
+
+            $month = [ $i => $result ];
+            $monts = array_push($months,$month);
+        }
+        
+        return response()->json($months);
+    }
 }
