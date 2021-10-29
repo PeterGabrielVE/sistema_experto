@@ -134,4 +134,19 @@ class PatientController extends Controller
     {
         //
     }
+
+    public function chart()
+    {
+        $months = [];
+        for($i = 1;$i <= 12; $i++){
+            $result = Patient::orderBy('created_at', 'ASC')
+                ->whereMonth('created_at','=',$i)
+                ->count();
+
+            $month = [ $i => $result ];
+            $monts = array_push($months,$month);
+        }
+        
+        return response()->json($months);
+    }
 }

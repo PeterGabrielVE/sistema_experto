@@ -239,7 +239,7 @@ demo = {
                     }
                 }
                 array.push[Data[0],Data[1], Data[2],Data[3], Data[4], Data[5], Data[6],Data[7], Data[8],Data[9], Data[10], Data[11]]
-       
+    
 
 
         console.log(array)
@@ -334,6 +334,18 @@ demo = {
             }
         });
     });
+
+    var url2 = route('patients/chart');
+    var Data2 =[];
+
+    $.get(url2, function(response){
+
+            for (let obj of response) {
+                for (let key in obj) {
+                    Data2.push(obj[key])
+                }
+            }
+
         var cardStatsMiniLineColor = "#fff",
             cardStatsMiniDotColor = "#fff";
 
@@ -351,9 +363,9 @@ demo = {
             type: 'line',
             responsive: true,
             data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                labels: ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"],
                 datasets: [{
-                    label: "Active Users",
+                    label: "Pacientes Activos",
                     borderColor: "#f96332",
                     pointBorderColor: "#FFF",
                     pointBackgroundColor: "#f96332",
@@ -364,13 +376,13 @@ demo = {
                     fill: true,
                     backgroundColor: gradientFill,
                     borderWidth: 2,
-                    data: [542, 480, 430, 550, 530, 453, 380, 434, 568, 610, 700, 630]
+                    data: Data2
                 }]
             },
             options: gradientChartOptionsConfiguration
+            });
+
         });
-
-
         ctx = document.getElementById('lineChartExampleWithNumbersAndGrid').getContext("2d");
 
         gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);

@@ -35,5 +35,6 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);
 	Route::get('{page}', ['as' => 'page.index', 'uses' => 'PageController@index']);
 	Route::get('diagnoses/chart','DiagnosisController@chart')->name('diagnoses/chart');
+	Route::get('patients/chart','PatientController@chart')->name('patients/chart');
 });
 
