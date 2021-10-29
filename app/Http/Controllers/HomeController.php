@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Recommendation;
+use App\User;
 
 class HomeController extends Controller
 {
@@ -23,6 +25,8 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $recomm = Recommendation::paginate(10);
+        $users = User::paginate(10);
+        return view('home',compact('recomm','users'));
     }
 }
