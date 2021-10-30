@@ -104,4 +104,9 @@ class DiagnosisController extends Controller
         
         return response()->json($months);
     }
+
+    public function getAllByPatientindex(Patient $model)
+    {
+        return view('diagnoses.index', ['patient' => $model]);
+    }
 }

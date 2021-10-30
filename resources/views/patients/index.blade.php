@@ -67,7 +67,7 @@
                         </button>
                       </form>
                       <a href="{{ route('diagnosis.new', $patient->id) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i> Diagnosticar</a>
-                      <button type="button"  class="btn btn-success btn-sm"><i class="fa fa-eye"></i>Historial</button>
+                      <a href="{{ route('diagnosis.all', $patient->id) }}" class="btn btn-success btn-sm"><i class="fa fa-eye"></i> Historial</a>
                     </td>
                   </tr>
                 @endforeach

@@ -137,14 +137,15 @@
                 let imc_deseado = 0;
 
                 if(imc < 18.4){
-                    imc_deseado = 18.5;
+                    imc_deseado = 35;
                 }else if(imc >= 18.4 && imc <= 24.9){
-                    imc_deseado = imc;
+                    imc_deseado = 30;
                 }else if(imc >= 25 && imc <= 29.9){
-                    imc_deseado = 24.4;
+                    imc_deseado = 25;
                 }else{
-                    imc_deseado = 29.9;
+                    imc_deseado = 30;
                 }
+
                 let size = $('#input-size').val();
                 let peso = parseFloat($('#input-weight').val());
                 let edad = $('#input-age').val();
@@ -167,7 +168,7 @@
 
                 let factor = $('#input-physical-activity').val();
 
-                switch(factor) {
+                /*(factor) {
                 case 0:
                     tmb = tmb * 1.2;
                     break;
@@ -185,21 +186,21 @@
                     break;
                 default:
                     break;
-                }
+                }*/
+                let result_pulgar = peso * imc_deseado;
 
 
-                let carbohidrato = parseFloat(tmb) * 0.50;
+                let carbohidrato = parseFloat(result_pulgar) * 0.50;
                 let gramoCarbohidato = parseFloat(carbohidrato)/4;
 
                 let isocalorico = parseFloat(carbohidrato)/3;
 
-                let grasa = parseFloat(tmb) * 0.50;
+                let grasa = parseFloat(result_pulgar) * 0.50;
                 let gramoGrasa = parseFloat(grasa)/9;
 
-                let proteina = parseFloat(tmb) * 0.20;
+                let proteina = parseFloat(result_pulgar) * 0.20;
                 let gramoProteina= parseFloat(proteina)/4;
 
-                let result_pulgar = peso * imc_deseado;
 
                 $('#exampleModal').modal('show');
                 $('#input-carbohidrato').val(gramoCarbohidato.toFixed(2));
