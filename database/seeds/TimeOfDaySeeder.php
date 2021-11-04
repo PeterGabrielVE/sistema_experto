@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Seeder;
 
+App\Time_Of_Day;
+
 class TimeOfDaySeeder extends Seeder
 {
     /**
@@ -11,6 +13,11 @@ class TimeOfDaySeeder extends Seeder
      */
     public function run()
     {
-        //
+        Time_Of_Day::create(['name'=>'Desayuno']);
+        Time_Of_Day::create(['name'=>'Colacion_Matutina']);
+        Time_Of_Day::create(['name'=>'Almuerzo']);
+        Time_Of_Day::create(['name'=>'Colacion_Vespertina']);
+        Time_Of_Day::create(['name'=>'Cena']);
+        Time_Of_Day::create(['name'=>'Colacion_Nocturna']);
     }
 }

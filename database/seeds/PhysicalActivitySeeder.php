@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Seeder;
 
+App\Physical_Activity;
+
 class PhysicalActivitySeeder extends Seeder
 {
     /**
@@ -11,6 +13,9 @@ class PhysicalActivitySeeder extends Seeder
      */
     public function run()
     {
-        //
+        Physical_Activity::create(['name'=>'Resposo']);
+        Physical_Activity::create(['name'=>'Ligera']);
+        Physical_Activity::create(['name'=>'Moderada']);
+        Physical_Activity::create(['name'=>'Intensa']);
     }
 }

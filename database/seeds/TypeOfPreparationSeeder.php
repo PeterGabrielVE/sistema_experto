@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Seeder;
 
+App\Type_Of_Preparation;
+
 class TypeOfPreparationSeeder extends Seeder
 {
     /**
@@ -11,6 +13,8 @@ class TypeOfPreparationSeeder extends Seeder
      */
     public function run()
     {
-        //
+        Type_Of_Preparation::create(['name'=>'Bebida']);
+        Type_Of_Preparation::create(['name'=>'Platillo']);
+
     }
 }
