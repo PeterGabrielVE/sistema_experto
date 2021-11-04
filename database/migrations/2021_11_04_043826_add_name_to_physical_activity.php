@@ -14,7 +14,7 @@ class AddNameToPhysicalActivity extends Migration
     public function up()
     {
         Schema::table('physical_activity', function (Blueprint $table) {
-            $table->string('name,150')->nullable();
+            $table->string('name',150)->nullable();
         });
     }
 

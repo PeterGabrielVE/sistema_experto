@@ -14,7 +14,7 @@ class AddNameToGender extends Migration
     public function up()
     {
         Schema::table('gender', function (Blueprint $table) {
-            $table->string('name,150')->nullable();
+            $table->string('name',150)->nullable();
         });
     }
 
