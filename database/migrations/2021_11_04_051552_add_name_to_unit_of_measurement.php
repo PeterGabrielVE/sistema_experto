@@ -14,7 +14,7 @@ class AddNameToUnitOfMeasurement extends Migration
     public function up()
     {
         Schema::table('unit_of_measurement', function (Blueprint $table) {
-            $table->string('name',150)->nullable();
+            $table->string('name')->nullable();
         });
     }
 

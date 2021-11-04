@@ -14,7 +14,7 @@ class AddNameToTypeOfPreparation extends Migration
     public function up()
     {
         Schema::table('type_of_preparation', function (Blueprint $table) {
-            $table->string('name',150)->nullable();
+            $table->string('name')->nullable();
         });
     }
 

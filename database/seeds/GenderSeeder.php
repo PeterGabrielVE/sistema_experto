@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-
+App\Gender;
 class GenderSeeder extends Seeder
 {
     /**
@@ -11,6 +11,7 @@ class GenderSeeder extends Seeder
      */
     public function run()
     {
-        //
+        Gender::create(['name'=>'Femenino']);
+        Gender::create(['name'=>'Masculino']);
     }
 }
