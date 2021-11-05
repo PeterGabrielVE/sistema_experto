@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-App\Gender;
+use App\Gender;
 
 class GenderSeeder extends Seeder
 {

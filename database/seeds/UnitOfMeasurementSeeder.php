@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-App\Unit_Of_Measurement;
+use App\Unit_Of_Measurement;
 
 class UnitOfMeasurementSeeder extends Seeder
 {

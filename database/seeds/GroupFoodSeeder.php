@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-App\Food_Group;
+use App\Food_Group;
 
 class GroupFoodSeeder extends Seeder
 {
