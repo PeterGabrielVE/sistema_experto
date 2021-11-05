@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-App\Type_Of_Preparation;
+use App\Type_Of_Preparation;
 
 class TypeOfPreparationSeeder extends Seeder
 {

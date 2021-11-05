@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-App\Time_Of_Day;
+use App\Time_Of_Day;
 
 class TimeOfDaySeeder extends Seeder
 {

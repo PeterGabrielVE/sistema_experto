@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-App\Physical_Activity;
+use App\Physical_Activity;
 
 class PhysicalActivitySeeder extends Seeder
 {
