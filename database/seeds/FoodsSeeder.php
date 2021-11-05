@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-use App\Foods;
+use App\Food;
 
 class FoodsSeeder extends Seeder
 {
@@ -13,7 +13,7 @@ class FoodsSeeder extends Seeder
      */
     public function run()
     {
-        Foods::create(['name'=>'Carnes_Y_Huevos']);
+        Foods::create(['id_group'=>'', 'item'=>'', 'portion'=>'', 'kcal'=>'', 'protein'=>'', 'lipid'=>'', 'cho'=>'', 'clna_mg'=>'', 'k_mg'=>'', 'p_mg'=>'', 'ca_mg'=>'']);
         Foods::create(['name'=>'Legumbres']);
         Foods::create(['name'=>'Lácteos']);
         Foods::create(['name'=>'Leche']);
