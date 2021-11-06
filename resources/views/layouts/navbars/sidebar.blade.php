@@ -60,8 +60,8 @@
           <p>{{ __('Horarios') }}</p>
         </a>
       </li>
-      <li class = "@if ($activePage == 'maps') active @endif">
-        <a href="{{ route('page.index','maps') }}">
+      <li class = "@if ($activePage == 'rules') active @endif">
+        <a href="{{ route('rules.index') }}">
           <i class="now-ui-icons business_bulb-63"></i>
           <p>{{ __('Regla de Conocimiento') }}</p>
         </a>

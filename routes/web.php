@@ -28,6 +28,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::resource('diagnosis', 'DiagnosisController', ['except' => ['show']]);
     Route::resource('recommendation', 'RecommendationController', ['except' => ['show']]);
     Route::resource('schedule', 'ScheduleController', ['except' => ['show']]);
+	Route::resource('rules', 'RulesController', ['except' => ['show']]);
 	Route::get('diagnosis/{id}','DiagnosisController@create')->name('diagnosis.new');
 	Route::get('diagnosis/{patient}','DiagnosisController@index')->name('diagnosis.index');
 	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'ProfileController@edit']);
