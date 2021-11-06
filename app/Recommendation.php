@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Recommendation extends Model
 {
-    protected $table='precommendations';
+    protected $table='recommendations';
 
     protected $fillable = ['description'];
 }
