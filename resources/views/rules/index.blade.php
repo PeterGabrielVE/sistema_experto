@@ -13,7 +13,6 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('recommendation.create') }}">{{ __('Agregar recomendaciones') }}</a>
             <h4 class="card-title">{{ __('Regla de Conocimiento') }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')
@@ -39,7 +38,7 @@
                     <td>{{ $ru->name }}</td>
                     <td>
                         <button type="button" class="btn btn-danger btn-round text-white" data-toggle="modal" data-target="#myModal"><i class="now-ui-icons ui-2_settings-90"></i> {{ __('Agregar recomendaciones') }}</button>
-                        <a class="btn btn-primary btn-round text-white pull-right"><i class="now-ui-icons ui-2_settings-90"></i>{{ __('Ver recomendaciones') }}</a>
+                        <a class="btn btn-primary btn-round text-white" href="{{ route('recommendation.show',$ru->id) }}" target="_blank"><i class="now-ui-icons ui-2_settings-90"></i>{{ __('Ver recomendaciones') }}</a>
                     </td>
                 </tr>
               @endforeach

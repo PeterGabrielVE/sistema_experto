@@ -14,7 +14,8 @@ class RulesController extends Controller
      */
     public function index(Rule $model)
     {
-        return view('rules.index', ['rules' => $model->paginate(15)]);
+        $options = Rule::get()->pluck('name','id')->prepend('Seleccione...','');
+        return view('rules.index', ['rules' => $model->paginate(15), 'options'=>$options]);
     }
 
     /**

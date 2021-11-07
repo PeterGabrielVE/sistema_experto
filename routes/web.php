@@ -26,7 +26,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::resource('user', 'UserController', ['except' => ['show']]);
 	Route::resource('patient', 'PatientController', ['except' => ['show']]);
 	Route::resource('diagnosis', 'DiagnosisController', ['except' => ['show']]);
-    Route::resource('recommendation', 'RecommendationController', ['except' => ['show']]);
+    Route::resource('recommendation', 'RecommendationController');
     Route::resource('schedule', 'ScheduleController', ['except' => ['show']]);
 	Route::resource('rules', 'RulesController', ['except' => ['show']]);
 	Route::get('diagnosis/{id}','DiagnosisController@create')->name('diagnosis.new');
