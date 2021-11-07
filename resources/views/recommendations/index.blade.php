@@ -48,7 +48,7 @@
                   <td>{{$re->description}}</td>
                   <td>{{ $re->created_at->format('d/m/Y H:i') }}</td>
                     <td class="text-right">
-                      <a type="button" href="{{route("recommendation.edit",$re->id)}}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
+                      <a type="button" href="{{route('recommendation.edit',$re->id)}}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
                         <i class="now-ui-icons ui-2_settings-90"></i>
                       </a>
                     <form action="{{ route('recommendation.destroy', $re->id) }}" method="post" style="display:inline-block;" class ="delete-form">

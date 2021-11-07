@@ -4,7 +4,7 @@
     'activePage' => 'rules',
     'activeNav' => '',
 ])
-
+@include('rules.create')
 @section('content')
   <div class="panel-header">
   </div>
@@ -37,8 +37,9 @@
                 <tr>
                     <td>{{ $ru->min }} - {{$ru->max }}</td>
                     <td>{{ $ru->name }}</td>
-                    <td><a class="btn btn-danger btn-round text-white pull-right" href="{{ route('recommendation.create') }}">{{ __('Agregar recomendaciones') }}</a>
-                        <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('recommendation.create') }}">{{ __('Ver recomendaciones') }}</a>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-round text-white" data-toggle="modal" data-target="#myModal"><i class="now-ui-icons ui-2_settings-90"></i> {{ __('Agregar recomendaciones') }}</button>
+                        <a class="btn btn-primary btn-round text-white pull-right"><i class="now-ui-icons ui-2_settings-90"></i>{{ __('Ver recomendaciones') }}</a>
                     </td>
                 </tr>
               @endforeach
