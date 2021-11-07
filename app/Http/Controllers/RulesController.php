@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Rule;
 
 class RulesController extends Controller
 {
@@ -11,10 +12,9 @@ class RulesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Rule $model)
     {
-        //return view('schedule.index', ['schedules' => $model->paginate(15)]);
-        return view('rules.index');
+        return view('rules.index', ['rules' => $model->paginate(15)]);
     }
 
     /**
