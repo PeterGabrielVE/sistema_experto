@@ -49,32 +49,16 @@
 
                                         @include('alerts.feedback', ['field' => 'size'])
                                     </div>
-                                    
+
                                     <div class="form-group{{ $errors->has('birthdate') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-birthdate">{{ __('Nivel Actividad Física') }}</label>
                                         {!! Form::select('physical_activity', [0=>'Muy Ligera',1=>'Ligera',2=>'Moderada',3=>'Activa',4=>'Muy Activa'], null, ['class' => 'form-control','required','id'=>'input-physical-activity','autofocus']) !!}
 
                                         @include('alerts.feedback', ['field' => 'birthdate'])
                                     </div>
-                                    <div class="form-group{{ $errors->has('gender') ? ' has-danger' : '' }} col-3">
-                                        <label class="form-control-label" for="input-horario-comida">{{ __('Horario de Comida') }}</label>
-                                        {!! Form::select('gender', ['1'=>'Horario 1','2'=>'Horario 2'], null, ['class' => 'form-control','required','id'=>'input-horario-comida','autofocus']) !!}
 
-                                        @include('alerts.feedback', ['field' => 'gender'])
-                                    </div>
-                                    <div class="form-group{{ $errors->has('gender') ? ' has-danger' : '' }} col-3">
-                                        <label class="form-control-label" for="input-jornada-laboral">{{ __('Jornada Laboral') }}</label>
-                                        {!! Form::select('gender', ['1'=>'Horario 1','2'=>'Horario 2'], null, ['class' => 'form-control','required','id'=>'input-jornada-laboral','autofocus']) !!}
 
-                                        @include('alerts.feedback', ['field' => 'gender'])
-                                    </div>
-                                    <div class="form-group{{ $errors->has('gender') ? ' has-danger' : '' }} col-3">
-                                        <label class="form-control-label" for="input-horario-actividad">{{ __('Horario Actividad') }}</label>
-                                        {!! Form::select('gender', ['1'=>'Horario 1','2'=>'Horario 2'], null, ['class' => 'form-control','required','id'=>'input-horario-actividad','autofocus']) !!}
-
-                                        @include('alerts.feedback', ['field' => 'gender'])
-                                    </div>
-                                    <?php 
+                                    <?php
                                         $nacimiento = new DateTime($patient->birthdate);
                                         $ahora = new DateTime(date("Y-m-d"));
                                         $diferencia = $ahora->diff($nacimiento);
@@ -93,7 +77,7 @@
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
                                 </div>
-                                
+
                                 <div class="text-center">
                                     <a onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Diagnosticar') }}</a>
                                     <!--<button type="submit" class="btn btn-info mt-4">{{ __('Diagnosticar') }}</button>-->
@@ -124,13 +108,13 @@
 
         function diagnosticar(){
 
-        
+
 
             /*if(ingesta === '' || ingesta === null){
                 document.getElementById("input-caloria").focus();
                 document.getElementById('error_ingesta').removeAttribute("hidden");
             }else{*/
-    
+
                 //document.getElementById("error_ingesta").setAttribute("hidden",true);
 
                 let imc = parseFloat($('#input-imc').val());
@@ -153,17 +137,17 @@
 
                 let pulgada = parseFloat(size)/2.54;
                 let pie = pulgada/12;
-                
+
                 let pesoStone = parseFloat(peso)/6.35;
                 let pesoLbs = parseFloat(peso)*2.20;
 
-                let x = calculateAge(edad); 
-                let y = calculateWeight(pesoStone, pesoLbs); 
+                let x = calculateAge(edad);
+                let y = calculateWeight(pesoStone, pesoLbs);
                 let z = calculateHeight(pie, pulgada);
-    
+
                 let tmb = finalResult(x, y, z, sexo);
 
-                
+
                 let peso_deseado = (size*size)*imc_deseado;
 
                 let factor = $('#input-physical-activity').val();
@@ -214,7 +198,7 @@
 
                 copy();
             //}
- 
+
         }
 
         function copy(){
@@ -251,27 +235,27 @@
                 finalAge = age * 5;
                 return finalAge;
             }
-            
+
             function calculateHeight(heightFeet, heightInches){
                 let centimeterHeight = ((heightFeet * 12) + heightInches) * 2.54;
                 let finalHeight = centimeterHeight * 6.25;
                 return finalHeight;
             }
 
-            function calculateWeight(weightStone, weightLbs){ 
+            function calculateWeight(weightStone, weightLbs){
                 let kilogramWeight = ((weightStone * 14) + weightLbs) * 0.453;
                 let finalWeight = kilogramWeight * 10;
                 return finalWeight;
             }
 
             function finalResult(x, y, z, gender){
-                    let result = z + y - x; 
-                    let resultFinal = 0; 
+                    let result = z + y - x;
+                    let resultFinal = 0;
                     if(gender === 'H') {
                         return resultFinal = result + 5;
                     } else {
                         return resultFinal = result - 161;
-                    
+
                     }
             }
 
