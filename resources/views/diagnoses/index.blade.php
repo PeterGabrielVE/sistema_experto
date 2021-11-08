@@ -177,18 +177,23 @@
                 let carbohidrato = parseFloat(result_pulgar) * 0.50;
                 let gramoCarbohidato = parseFloat(carbohidrato)/4;
 
-                let isocalorico = parseFloat(carbohidrato)/3;
-
                 let grasa = parseFloat(result_pulgar) * 0.50;
                 let gramoGrasa = parseFloat(grasa)/9;
 
                 let proteina = parseFloat(result_pulgar) * 0.20;
                 let gramoProteina= parseFloat(proteina)/4;
 
+                let isocal1 = parseFloat(gramoCarbohidato)/3;
+                let isocal2 = parseFloat(gramoGrasa)/3;
+                let isocal3 = parseFloat(gramoProteina)/3;
 
                 $('#exampleModal').modal('show');
                 $('#input-carbohidrato').val(gramoCarbohidato.toFixed(2));
-                $('#input-isocalorico').val(isocalorico.toFixed(2));
+
+                $('#input-isocalorico').val(isocal1.toFixed(2));
+                $('#input-isocalorico2').val(isocal2.toFixed(2));
+                $('#input-isocalorico3').val(isocal3.toFixed(2));
+
                 $('#input-lipido').val(gramoGrasa.toFixed(2));
                 $('#input-proteina').val(gramoProteina.toFixed(2));
 
