@@ -193,7 +193,6 @@
                 $('#input-proteina').val(gramoProteina.toFixed(2));
 
                 $('#input-imc-deseado').val(imc_deseado.toFixed(2));
-                $('#input-result-harry').val(tmb.toFixed(2));
                 $('#input-result-pulgar').val(result_pulgar.toFixed(2));
 
                 copy();
