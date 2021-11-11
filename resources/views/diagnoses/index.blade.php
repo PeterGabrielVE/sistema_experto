@@ -213,10 +213,6 @@
                 let size = $('#input-size').val();
 
                 let actividad_fisica = $('#input-physical-activity').val();
-                let horario_comida = $('#input-horario-comida').val();
-                let jornada_laboral = $('#input-jornada-laboral').val();
-
-                let horario_actividad = $('#input-horario-actividad').val();
                 let edad = $('#input-age').val();
                 let ingesta = $('#input-caloria').val();
                 let imc = $('#input-imc').val();
@@ -226,10 +222,6 @@
                 $('#peso').val(weight);
 
                 $('#actividad_fisica').val(actividad_fisica);
-                $('#horario_comida').val(horario_comida);
-                $('#jornada_laboral').val(jornada_laboral);
-
-                $('#horario_actividad').val(horario_actividad);
                 $('#edad').val(edad);
                 $('#ingesta_calorica').val(ingesta);
                 $('#imc').val(imc);
