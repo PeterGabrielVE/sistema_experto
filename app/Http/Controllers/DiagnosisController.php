@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Patient;
 use App\Diagnosis;
+use App\Food;
 class DiagnosisController extends Controller
 {
     /**
@@ -114,7 +115,9 @@ class DiagnosisController extends Controller
     {
         $diagnosis = Diagnosis::find($id);
         $patient = Patient::find($diagnosis->id_patient);
+        $foods = Food::all();
         //dd($diagnosis);
-        return view('diagnoses.result',['patient' => $patient,'diagnosis' =>$diagnosis]);
+        return view('diagnoses.result',['patient' => $patient,'diagnosis' => $diagnosis,
+        'foods' => $foods]);
     }
 }

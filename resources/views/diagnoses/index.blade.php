@@ -6,7 +6,7 @@
 ])
 
 <link rel="stylesheet" type="text/css" href="{{ asset('css/semantic.min.css') }}">
-<script src="{{ asset('js/semantic.min.js') }}"></script>
+
 @include('diagnoses.create')
 @section('content')
     <div class="panel-header panel-header-sm">

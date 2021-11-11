@@ -5,7 +5,6 @@
     'activeNav' => '',
 ])
 <link rel="stylesheet" type="text/css" href="{{ asset('css/semantic.min.css') }}">
-<script src="{{ asset('js/semantic.min.js') }}"></script>
 @section('content')
     <div class="panel-header panel-header-sm">
     </div>
@@ -152,7 +151,53 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    @if($diagnosis->imc < 18.4)
+                                    <div class="alert alert-warning alert-with-icon" data-notify="container">
+                                        <span data-notify="message">El paciente posee una desnutrición.</span>
+                                    </div>
+                                    @elseif($diagnosis->imc >= 18.5 && $diagnosis->imc <= 24.9)
+                                    <div class="alert alert-success alert-with-icon" data-notify="container">
+                                        <span data-notify="message">El paciente posee peso normal.</span>
+                                    </div>
+                                    @elseif($diagnosis->imc >= 25 && $diagnosis->imc <= 29.9)
+                                    <div class="alert alert-warning alert-with-icon">
+                                        <span data-notify="message">El paciente posee sobrepeso.
+                                        Su peso es algo elevado. Pero con una práctica asidua de ejercicio y un cambio en los hábitos de alimentación, seguro que en pocas semanas consigue mantenerlo a raya. ¡Puedes conseguir su peso ideal!</span>
+                                    </div>
+                                    @else($diagnosis->imc =>30)
+                                    <div class="alert alert-danger alert-with-icon" data-notify="container">
+                                        <span data-notify="message">El paciente posee problema de obesidad.</span>
+                                    </div>
 
+                                    @endif
+                                    <div class="row" style="text-align:center !important; margin:auto;">
+                                    <table id="example" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Alimento</th>
+                                                    <th>Item</th>
+                                                    <th>Porción</th>
+                                                    <th>Kcal</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($foods as $f)
+                                                <tr>
+                                                    <td>{{ $f->name ?? null }}</td>
+                                                    <td>{{ $f->item ?? null }}</td>
+                                                    @if($f->kcal == 0)
+                                                        <td>{{ number_format($diagnosis->isocaloric_carbohydrate/1,2) }}</td>
+                                                    @else 
+                                                        <td>{{ number_format($f->kcal/$diagnosis->isocaloric_carbohydrate,2) }}</td>
+                                                    @endif
+                                                    <td>{{ $f->kcal ?? null }}</td>
+                                                </tr>
+                                             @endforeach
+                                            </tbody>   
+                                        </table>
+                                    </div>
+                                </div>
                                     
                                 </div>
                                 
@@ -166,4 +211,10 @@
             </div>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable();
+        } );
+    </script>
 @endsection
