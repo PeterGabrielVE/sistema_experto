@@ -42,7 +42,7 @@ class DiagnosisController extends Controller
 
         $patient = Patient::find($request->id_patient);
 
-        return redirect()->route('diagnosis.index',$patient)->withStatus(__('Diagnóstico creado correctamente.'));
+        return redirect()->route('result',$diagnosis)->withStatus(__('Diagnóstico creado correctamente.'));
     }
 
     /**
@@ -108,5 +108,13 @@ class DiagnosisController extends Controller
     public function getAllByPatientindex(Patient $model)
     {
         return view('diagnoses.index', ['patient' => $model]);
+    }
+
+    public function result($id)
+    {
+        $diagnosis = Diagnosis::find($id);
+        $patient = Patient::find($diagnosis->id_patient);
+        //dd($diagnosis);
+        return view('diagnoses.result',['patient' => $patient,'diagnosis' =>$diagnosis]);
     }
 }

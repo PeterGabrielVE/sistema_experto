@@ -59,7 +59,7 @@
                 <input type="text" name="imc_desired" id="input-imc-deseado" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>
 
-            <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-4">
+            <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                 <label class="form-control-label" for="input-size">{{ __('Resultado Método Pulgar') }}</label>
                 <input type="text" name="result_pulgar" id="input-result-pulgar" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>

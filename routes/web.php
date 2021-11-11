@@ -31,6 +31,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::resource('rules', 'RulesController', ['except' => ['show']]);
 	Route::get('diagnosis/{id}','DiagnosisController@create')->name('diagnosis.new');
 	Route::get('diagnosis/{patient}','DiagnosisController@index')->name('diagnosis.index');
+	Route::get('result/{diagnosis}','DiagnosisController@result')->name('result');
 	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'ProfileController@edit']);
 	Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
 	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);
