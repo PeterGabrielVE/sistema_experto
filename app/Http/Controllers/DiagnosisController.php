@@ -106,9 +106,10 @@ class DiagnosisController extends Controller
         return response()->json($months);
     }
 
-    public function getAllByPatientindex(Patient $model)
+    public function getAllByPatient($id)
     {
-        return view('diagnoses.index', ['patient' => $model]);
+        $diagnoses = Diagnosis::where('id_patient',$id)->get();
+        return view('diagnoses.show', ['diagnoses' => $diagnoses]);
     }
 
     public function result($id)
