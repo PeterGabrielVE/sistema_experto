@@ -193,7 +193,7 @@
                                                     @endif
                                                     <td>{{ $f->kcal ?? null }}</td>
                                                 </tr>
-                                             @endforeach
+                                            @endforeach
                                             </tbody>   
                                         </table>
                                     </div>
@@ -202,7 +202,7 @@
                                 </div>
                                 
                                 <div class="text-center">
-                                    <button type="submit" class="btn btn-info mt-4">{{ __('Guardar') }}</button>
+                                    <a href="{{ route('download', $diagnosis->id) }}" class="btn btn-info mt-4">{{ __('Descargar') }}</a>
                                 </div>
                             </div>
                         </form>

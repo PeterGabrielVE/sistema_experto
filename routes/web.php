@@ -41,5 +41,6 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('patients/chart','PatientController@chart')->name('patients/chart');
 	Route::get('users/chart','UserController@chart')->name('users/chart');
 	Route::get('diagnoses/all/{id}','DiagnosisController@getAllByPatient')->name('diagnosis.all');
+	Route::get('download/{diagnosis}','DiagnosisController@download')->name('download');
 });
 

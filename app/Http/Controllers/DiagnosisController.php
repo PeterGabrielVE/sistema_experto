@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Patient;
 use App\Diagnosis;
 use App\Food;
+use Barryvdh\DomPDF\Facade as PDF;
 class DiagnosisController extends Controller
 {
     /**
@@ -120,5 +121,15 @@ class DiagnosisController extends Controller
         //dd($diagnosis);
         return view('diagnoses.result',['patient' => $patient,'diagnosis' => $diagnosis,
         'foods' => $foods]);
+    }
+
+    public function download($id)
+    {
+        $diagnosis = Diagnosis::find($id);
+        $patient = Patient::find($diagnosis->id_patient);
+        $foods = Food::all();
+        return PDF::loadView('result-pdf', ['patient' => $patient,'diagnosis' => $diagnosis,
+        'foods' => $foods])
+        ->stream('archivo.pdf');
     }
 }
