@@ -177,8 +177,8 @@
                                                 <tr>
                                                     <th>Alimento</th>
                                                     <th>Item</th>
-                                                    <th>Porción</th>
-                                                    <th>Kcal</th>
+                                                    <th>Gramos</th>
+                                                    <th>Consumir</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -186,12 +186,13 @@
                                                 <tr>
                                                     <td>{{ $f->name ?? null }}</td>
                                                     <td>{{ $f->item ?? null }}</td>
-                                                    @if($f->kcal == 0)
-                                                        <td>{{ number_format($diagnosis->isocaloric_carbohydrate/1,2) }}</td>
+                                                    <td>{{ $f->cho ?? null }}</td>
+                                                    @if($f->cho > 0)
+                                                        <td>{{ round($diagnosis->isocaloric_carbohydrate/$f->cho,0) }} Porciones</td>
                                                     @else 
-                                                        <td>{{ number_format($f->kcal/$diagnosis->isocaloric_carbohydrate,2) }}</td>
+                                                        <td>0 Porciones</td>
                                                     @endif
-                                                    <td>{{ $f->kcal ?? null }}</td>
+                                                    
                                                 </tr>
                                             @endforeach
                                             </tbody>   
@@ -211,10 +212,32 @@
             </div>
         </div>
     </div>
-
-    <script>
-        $(document).ready(function() {
-            $('#example').DataTable();
-        } );
-    </script>
 @endsection
+@push('js')
+<script>
+        $(document).ready(function() {
+            var table = $('#example').DataTable({
+            "dom": 'B<"float-left"i><"float-right"f>t<"float-left"l><"float-right"p><"clearfix">',
+            "responsive": false,
+            "language": {
+                "url": "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+            },
+            "order": [[ 0, "desc" ]],
+            "initComplete": function () {
+                this.api().columns().every( function () {
+                    var that = this;
+
+                    $( 'input', this.footer() ).on( 'keyup change', function () {
+                        if ( that.search() !== this.value ) {
+                            that
+                                .search( this.value )
+                                .draw();
+                            }
+                    });
+                })
+            }
+    });
+
+});
+</script>
+@endpush

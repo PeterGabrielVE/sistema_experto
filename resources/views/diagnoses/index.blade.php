@@ -5,8 +5,6 @@
     'activeNav' => '',
 ])
 
-<link rel="stylesheet" type="text/css" href="{{ asset('css/semantic.min.css') }}">
-
 @include('diagnoses.create')
 @section('content')
     <div class="panel-header panel-header-sm">
@@ -110,7 +108,7 @@
 
         function diagnosticar(){
 
-
+            $('#exampleModal').modal('show');
 
             /*if(ingesta === '' || ingesta === null){
                 document.getElementById("input-caloria").focus();
@@ -189,7 +187,6 @@
                 let isocal2 = parseFloat(gramoGrasa)/3;
                 let isocal3 = parseFloat(gramoProteina)/3;
 
-                $('#exampleModal').modal('show');
                 $('#input-carbohidrato').val(gramoCarbohidato.toFixed(2));
 
                 $('#input-isocalorico').val(isocal1.toFixed(2));

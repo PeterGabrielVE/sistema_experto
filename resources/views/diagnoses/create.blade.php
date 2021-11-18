@@ -40,7 +40,7 @@
                 </div>
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
-                <label class="form-control-label" for="input-size">{{ __('Proteina') }}</label>
+                <label class="form-control-label" for="input-size">{{ __('Proteina') }}</label><br>
                 <div class="ui right labeled input">
                 <input type="text" name="protein" id="input-proteina" class="form-control{{ $errors->has('protein') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
                   <div class="ui basic label">gr</div>
