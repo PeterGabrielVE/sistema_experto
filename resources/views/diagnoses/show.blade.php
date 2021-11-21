@@ -6,15 +6,15 @@
 ])
 
 @section('content')
-  <div class="panel-header">
+  <div class="panel-header"> 
   </div>
   <div class="content">
     <div class="row">
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Agregar paciente') }}</a>
-            <h4 class="card-title">{{ __('Diagnosticos') }}</h4>
+              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Diagnóstico nuevo') }}</a>
+            <h4 class="card-title">{{ __('Diagnósticos') }}: {{ $patient->first_name ?? null }} {{ $patient->last_name ?? null }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')
               @include('alerts.errors')
@@ -27,35 +27,31 @@
             <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
               <thead>
                 <tr>
-                  <th>{{ __('Perfil') }}</th>
-                  <th>{{ __('Nombre Completo') }}</th>
-                  <th>{{ __('Dirección') }}</th>
-                  <th>{{ __('Fecha Nacimiento') }}</th>
+                  <th>{{ __('Peso') }}</th>
+                  <th>{{ __('Talla') }}</th>
+                  <th>{{ __('Resultado Método Pulgar') }}</th>
+                  <th>{{ __('Fecha') }}</th>
                   <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
                 </tr>
               </thead>
               <tfoot>
                 <tr>
-                  <th>{{ __('Perfil') }}</th>
-                  <th>{{ __('Nombre Completo') }}</th>
-                  <th>{{ __('Dirección') }}</th>
-                  <th>{{ __('Fecha Nacimiento') }}</th>
+                  <th>{{ __('Peso') }}</th>
+                  <th>{{ __('Talla') }}</th>
+                  <th>{{ __('Resultado Método Pulgar') }}</th>
+                  <th>{{ __('Fecha') }}</th>
                   <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
                 </tr>
               </tfoot>
               <tbody>
-                @foreach($diagnoses as $patient)
+                @foreach($diagnoses as $d)
                   <tr>
-                    <td>
-                      <span class="avatar avatar-sm rounded-circle">
-                        <img src="{{asset('assets')}}/img/default-avatar.png" alt="" style="max-width: 80px; border-radiu: 100px">
-                      </span>
-                    </td>
-                    <td>{{$patient->first_name ??  null }} {{$patient->last_name ??  null }}</td>
-                    <td>{{$patient->address}}</td>
-                    <td>{{ date('d-m-Y', strtotime($patient->created_at))  ?? null }}</td>
+                    <td>{{ $d->weight ?? null }} </td>
+                    <td>{{ $d->size ?? null }}</td>
+                    <td>{{ $d->result_pulgar ?? null }}</td>
+                    <td>{{ date('d-m-Y', strtotime($d->created_at))  ?? null }}</td>
                       <td class="text-right">
-                      <a href="{{ route('result', $patient->id) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i>Ver</a>
+                      <a href="{{ route('result', $d->id) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i>Ver</a>
                     </td>
                   </tr>
                 @endforeach

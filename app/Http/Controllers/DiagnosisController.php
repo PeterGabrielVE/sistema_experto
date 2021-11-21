@@ -110,7 +110,8 @@ class DiagnosisController extends Controller
     public function getAllByPatient($id)
     {
         $diagnoses = Diagnosis::where('id_patient',$id)->get();
-        return view('diagnoses.show', ['diagnoses' => $diagnoses]);
+        $patient = Patient::find($id);
+        return view('diagnoses.show', ['diagnoses' => $diagnoses,'patient' => $patient]); 
     }
 
     public function result($id)
