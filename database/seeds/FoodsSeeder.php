@@ -19,7 +19,7 @@ class FoodsSeeder extends Seeder
         Food::create(['id_group'=>'2','name'=>'Verduras','item'=>'Verduras en General', 'portion'=>'1', 'kcal'=>'60', 'protein'=>'4', 'lipid'=>'0', 'cho'=>'14', 'clna_mg'=>'16', 'k_mg'=>'400', 'p_mg'=>'28', 'ca_mg'=>'80']);
         Food::create(['id_group'=>'2','name'=>'Verduras','item'=>'Verduras libre consumo', 'portion'=>'1', 'kcal'=>'60', 'protein'=>'4', 'lipid'=>'0', 'cho'=>'14', 'clna_mg'=>'30', 'k_mg'=>'550', 'p_mg'=>'68', 'ca_mg'=>'54']);
 
-        Food::create(['id_group'=>'3','name'=>'Pan Y Cereales','item'=>'Pan', 'portion'=>'1', 'kcal'=>'140', 'protein'=>'3', 'lipid'=>'1', 'cho'=>'30', 'clna_mg'=>'2226', 'k_mg'=>'135', 'p_mg'=>'120', 'ca_mg'=>'63']);
+        Food::create(['id_group'=>'3','name'=>'Pan Marraqueta','item'=>'Pan', 'portion'=>'1', 'kcal'=>'140', 'protein'=>'3', 'lipid'=>'1', 'cho'=>'30', 'clna_mg'=>'2226', 'k_mg'=>'135', 'p_mg'=>'120', 'ca_mg'=>'63','gr'=>'50']);
         Food::create(['id_group'=>'3','name'=>'Pan Y Cereales','item'=>'Cereales', 'portion'=>'1', 'kcal'=>'140', 'protein'=>'3', 'lipid'=>'1', 'cho'=>'30', 'clna_mg'=>'7,5', 'k_mg'=>'69', 'p_mg'=>'75', 'ca_mg'=>'39']);
         Food::create(['id_group'=>'3','name'=>'Pan Y Cereales','item'=>'Papa', 'portion'=>'0', 'kcal'=>'0', 'protein'=>'0', 'lipid'=>'0', 'cho'=>'0', 'clna_mg'=>'0', 'k_mg'=>'0', 'p_mg'=>'0', 'ca_mg'=>'0']);
         Food::create(['id_group'=>'3','name'=>'Pan Y Cereales','item'=>'Galletas altas en grasas', 'portion'=>'1', 'kcal'=>'230', 'protein'=>'3', 'lipid'=>'11', 'cho'=>'30', 'clna_mg'=>'0', 'k_mg'=>'0', 'p_mg'=>'0', 'ca_mg'=>'0']);
