@@ -18,5 +18,14 @@ class GroupFoodSeeder extends Seeder
         Food_Group::create(['name'=>'Cereales']);
         Food_Group::create(['name'=>'Proteinas']);
         Food_Group::create(['name'=>'Otros']);
+        Food_Group::create(['name'=>'Legumbres']);
+        Food_Group::create(['name'=>'Lácteos']);
+        Food_Group::create(['name'=>'Leche']);
+        Food_Group::create(['name'=>'Azúcares']);
+        Food_Group::create(['name'=>'Aceites']);
+        Food_Group::create(['name'=>'Bebidas']);
+
+
+
     }
 }

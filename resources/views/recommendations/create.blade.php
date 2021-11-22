@@ -30,7 +30,11 @@
                             <h6 class="heading-small text-muted mb-4">{{ __('Descripción de la recomendación') }}</h6>
                             <div class="pl-lg-4">
                                 <div class="row">
-
+                                    <div class="form-group{{ $errors->has('description') ? ' has-danger' : '' }} col-12">
+                                        <label class="form-control-label" for="input-description">{{ __('Clasificación') }}</label>
+                                        {!! Form::select('id_rule', $options, null, ['class' => 'form-control','required','id'=>'id_rule','autofocus']) !!}
+                                        @include('alerts.feedback', ['field' => 'description'])
+                                    </div>
 
                                     <div class="form-group{{ $errors->has('description') ? ' has-danger' : '' }} col-12">
                                         <label class="form-control-label" for="input-description">{{ __('Descripción') }}</label>

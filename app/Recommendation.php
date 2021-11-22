@@ -8,5 +8,5 @@ class Recommendation extends Model
 {
     protected $table='recommendations';
 
-    protected $fillable = ['description'];
+    protected $fillable = ['id_rule','description'];
 }

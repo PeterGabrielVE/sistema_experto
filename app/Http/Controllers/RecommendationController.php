@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Recommendation;
+use App\Rule;
 
 class RecommendationController extends Controller
 {
@@ -26,7 +26,8 @@ class RecommendationController extends Controller
      */
     public function create()
     {
-        return view('recommendations.create');
+        $options = Rule::get()->pluck('name','id')->prepend('Seleccione...','');
+        return view('recommendations.create',['options'=>$options]);
     }
 
     /**
@@ -49,7 +50,8 @@ class RecommendationController extends Controller
      */
     public function show($id)
     {
-        //
+        $recommendation = Recommendation::where('id_rule',$id)->paginate(15);
+        return view('recommendations.index', ['recommendations' => $recommendation]);
     }
 
     /**

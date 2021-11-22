@@ -54,12 +54,6 @@
           <p>{{ __('Recomendaciones') }}</p>
         </a>
       </li>
-      <li class = "@if ($activePage == 'schedule') active @endif">
-        <a href="{{ route('schedule.index') }}">
-          <i class="now-ui-icons ui-1_calendar-60"></i>
-          <p>{{ __('Horarios') }}</p>
-        </a>
-      </li>
       <li class = "@if ($activePage == 'rules') active @endif">
         <a href="{{ route('rules.index') }}">
           <i class="now-ui-icons business_bulb-63"></i>

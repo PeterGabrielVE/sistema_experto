@@ -26,11 +26,12 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::resource('user', 'UserController', ['except' => ['show']]);
 	Route::resource('patient', 'PatientController', ['except' => ['show']]);
 	Route::resource('diagnosis', 'DiagnosisController', ['except' => ['show']]);
-    Route::resource('recommendation', 'RecommendationController', ['except' => ['show']]);
+    Route::resource('recommendation', 'RecommendationController');
     Route::resource('schedule', 'ScheduleController', ['except' => ['show']]);
 	Route::resource('rules', 'RulesController', ['except' => ['show']]);
 	Route::get('diagnosis/{id}','DiagnosisController@create')->name('diagnosis.new');
 	Route::get('diagnosis/{patient}','DiagnosisController@index')->name('diagnosis.index');
+	Route::get('result/{diagnosis}','DiagnosisController@result')->name('result');
 	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'ProfileController@edit']);
 	Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
 	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);
@@ -40,5 +41,6 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('patients/chart','PatientController@chart')->name('patients/chart');
 	Route::get('users/chart','UserController@chart')->name('users/chart');
 	Route::get('diagnoses/all/{id}','DiagnosisController@getAllByPatient')->name('diagnosis.all');
+	Route::get('download/{diagnosis}','DiagnosisController@download')->name('download');
 });
 

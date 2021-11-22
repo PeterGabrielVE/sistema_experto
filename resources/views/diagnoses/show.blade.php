@@ -1,19 +1,20 @@
 @extends('layouts.app', [
-    'namePage' => 'Regla de Conocimiento',
+    'namePage' => 'Diagnosticos',
     'class' => 'sidebar-mini',
-    'activePage' => 'rules',
+    'activePage' => 'diagnoses.all',
     'activeNav' => '',
 ])
-@include('rules.create')
+
 @section('content')
-  <div class="panel-header">
+  <div class="panel-header"> 
   </div>
   <div class="content">
     <div class="row">
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-            <h4 class="card-title">{{ __('Regla de Conocimiento') }}</h4>
+              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Diagnóstico nuevo') }}</a>
+            <h4 class="card-title">{{ __('Diagnósticos') }}: {{ $patient->first_name ?? null }} {{ $patient->last_name ?? null }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')
               @include('alerts.errors')
@@ -26,22 +27,34 @@
             <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
               <thead>
                 <tr>
-                  <th>{{ __('IMC') }}</th>
-                  <th>{{ __('Nivel de Peso') }}</th>
-                  <th>{{ __('Acciones') }}</th>
+                  <th>{{ __('Peso') }}</th>
+                  <th>{{ __('Talla') }}</th>
+                  <th>{{ __('Resultado Método Pulgar') }}</th>
+                  <th>{{ __('Fecha') }}</th>
+                  <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
                 </tr>
               </thead>
-              <tbody>
-                @foreach($rules as $ru)
+              <tfoot>
                 <tr>
-                    <td>{{ $ru->min }} - {{$ru->max }}</td>
-                    <td>{{ $ru->name }}</td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-round text-white" data-toggle="modal" data-target="#myModal"><i class="now-ui-icons ui-2_settings-90"></i> {{ __('Agregar recomendaciones') }}</button>
-                        <a class="btn btn-primary btn-round text-white" href="{{ route('recommendation.show',$ru->id) }}" target="_blank"><i class="now-ui-icons ui-2_settings-90"></i>{{ __('Ver recomendaciones') }}</a>
-                    </td>
+                  <th>{{ __('Peso') }}</th>
+                  <th>{{ __('Talla') }}</th>
+                  <th>{{ __('Resultado Método Pulgar') }}</th>
+                  <th>{{ __('Fecha') }}</th>
+                  <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
                 </tr>
-              @endforeach
+              </tfoot>
+              <tbody>
+                @foreach($diagnoses as $d)
+                  <tr>
+                    <td>{{ $d->weight ?? null }} </td>
+                    <td>{{ $d->size ?? null }}</td>
+                    <td>{{ $d->result_pulgar ?? null }}</td>
+                    <td>{{ date('d-m-Y', strtotime($d->created_at))  ?? null }}</td>
+                      <td class="text-right">
+                      <a href="{{ route('result', $d->id) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i>Ver</a>
+                    </td>
+                  </tr>
+                @endforeach
               </tbody>
             </table>
           </div>
@@ -58,7 +71,7 @@
 @push('js')
   <script>
     $(document).ready(function() {
-      $(".delete-button").click(function(){
+      $(".delete-button").click(function(){ 
         var clickedButton = $( this );
         Swal.fire({
         title: 'Are you sure?',
@@ -120,4 +133,3 @@
     });
   </script>
 @endpush
-

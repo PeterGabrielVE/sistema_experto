@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Patient;
 use App\Diagnosis;
+use App\Food;
+use Barryvdh\DomPDF\Facade as PDF;
 class DiagnosisController extends Controller
 {
     /**
@@ -42,7 +44,7 @@ class DiagnosisController extends Controller
 
         $patient = Patient::find($request->id_patient);
 
-        return redirect()->route('diagnosis.index',$patient)->withStatus(__('Diagnóstico creado correctamente.'));
+        return redirect()->route('result',$diagnosis)->withStatus(__('Diagnóstico creado correctamente.'));
     }
 
     /**
@@ -105,8 +107,30 @@ class DiagnosisController extends Controller
         return response()->json($months);
     }
 
-    public function getAllByPatientindex(Patient $model)
+    public function getAllByPatient($id)
     {
-        return view('diagnoses.index', ['patient' => $model]);
+        $diagnoses = Diagnosis::where('id_patient',$id)->get();
+        $patient = Patient::find($id);
+        return view('diagnoses.show', ['diagnoses' => $diagnoses,'patient' => $patient]); 
+    }
+
+    public function result($id)
+    {
+        $diagnosis = Diagnosis::find($id);
+        $patient = Patient::find($diagnosis->id_patient);
+        $foods = Food::all();
+        //dd($diagnosis);
+        return view('diagnoses.result',['patient' => $patient,'diagnosis' => $diagnosis,
+        'foods' => $foods]);
+    }
+
+    public function download($id)
+    {
+        $diagnosis = Diagnosis::find($id);
+        $patient = Patient::find($diagnosis->id_patient);
+        $foods = Food::all();
+        return PDF::loadView('result-pdf', ['patient' => $patient,'diagnosis' => $diagnosis,
+        'foods' => $foods])
+        ->stream('archivo.pdf');
     }
 }
