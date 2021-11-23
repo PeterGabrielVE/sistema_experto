@@ -171,8 +171,9 @@
                                     </div>
 
                                     @endif
-                                    <div class="row" style="text-align:center !important; margin:auto;">
-                                    <table id="example" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                    </div>
+                                    <div class="row text-center" style="text-align:center !important; margin:auto;">
+                                        <table id="example" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                             <thead>
                                                 <tr>
                                                     <th>Alimento</th>
@@ -198,7 +199,7 @@
                                             </tbody>   
                                         </table>
                                     </div>
-                                </div>
+                            
                                     
                                 </div>
                                 
