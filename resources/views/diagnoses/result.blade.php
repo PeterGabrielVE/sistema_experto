@@ -178,23 +178,22 @@
                                                 <tr>
                                                     <th>Alimento</th>
                                                     <th>Item</th>
+                                                    <th>CHO gr.</th>
+                                                    <th>Porciones</th>
                                                     <th>Gramos</th>
-                                                    <th>Consumir</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @foreach($foods as $f)
+                                                @if($f->cho != 0 && $f->cho > 1)
                                                 <tr>
                                                     <td>{{ $f->name ?? null }}</td>
                                                     <td>{{ $f->item ?? null }}</td>
                                                     <td>{{ $f->cho ?? null }}</td>
-                                                    @if($f->cho > 0)
-                                                        <td>{{ round($diagnosis->isocaloric_carbohydrate/$f->cho,0) }} Porciones</td>
-                                                    @else 
-                                                        <td>0 Porciones</td>
-                                                    @endif
-                                                    
+                                                    <td>{{ round($diagnosis->isocaloric_carbohydrate/$f->cho,0) }}</td>
+                                                    <td>{{ round($diagnosis->isocaloric_carbohydrate/$f->cho,0)*$f->gr }}</td>
                                                 </tr>
+                                                @endif
                                             @endforeach
                                             </tbody>   
                                         </table>
