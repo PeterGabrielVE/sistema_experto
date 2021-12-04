@@ -46,9 +46,9 @@
               <tbody>
                 @foreach($diagnoses as $d)
                   <tr>
-                    <td>{{ $d->weight ?? null }} </td>
-                    <td>{{ $d->size ?? null }}</td>
-                    <td>{{ $d->result_pulgar ?? null }}</td>
+                    <td>{{ $d->weight ?? null }} Kg.</td>
+                    <td>{{ $d->size ?? null }} Cm.</td>
+                    <td>{{ $d->result_pulgar ?? null }} Kcal.</td>
                     <td>{{ date('d-m-Y', strtotime($d->created_at))  ?? null }}</td>
                       <td class="text-right">
                       <a href="{{ route('result', $d->id) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i>Ver</a>
