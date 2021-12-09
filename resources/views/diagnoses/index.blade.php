@@ -28,7 +28,7 @@
                             enctype="multipart/form-data">
                             @csrf
 
-                            <h6 class="heading-small text-muted mb-4">{{ __('Diagnosticando al paciente') }}: {{ $patient->first_name }} {{ $patient->last_name }}</h6>
+                            <h6 class="heading-small text-muted mb-4">{{ __('Consultando al paciente') }}: {{ $patient->first_name }} {{ $patient->last_name }}</h6>
                             <div class="pl-lg-4">
                                 <div class="row">
                                     <div class="form-group{{ $errors->has('first_name') ? ' has-danger' : '' }} col-3">
