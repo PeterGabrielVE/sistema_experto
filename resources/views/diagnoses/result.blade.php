@@ -172,31 +172,147 @@
 
                                     @endif
                                     </div>
-                                    <div class="row text-center" style="text-align:center !important; margin:auto;">
-                                        <table id="example" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
-                                            <thead>
-                                                <tr>
-                                                    <th>Alimento</th>
-                                                    <th>Item</th>
-                                                    <th>CHO gr.</th>
-                                                    <th>Porciones</th>
-                                                    <th>Gramos</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($foods as $f)
-                                                @if($f->cho != 0 && $f->cho > 1)
-                                                <tr>
-                                                    <td>{{ $f->name ?? null }}</td>
-                                                    <td>{{ $f->item ?? null }}</td>
-                                                    <td>{{ $f->cho ?? null }}</td>
-                                                    <td>{{ round($diagnosis->isocaloric_carbohydrate/$f->cho,0) }}</td>
-                                                    <td>{{ round($diagnosis->isocaloric_carbohydrate/$f->cho,0)*$f->gr }}</td>
-                                                </tr>
-                                                @endif
-                                            @endforeach
-                                            </tbody>   
-                                        </table>
+                                    <div class="row text-center">
+                                        <h4 class="m-3 p-3">Desayuno</h4><br>
+                                        <div class="col-4">
+                                            <table id="example" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>CHO gr.</th>
+                                                        <th>Gramos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($cereales as $c)
+                                                    @if($c->cho != 0 && $c->cho > 1)
+                                                    <tr>
+                                                        <td>{{ $c->name ?? null }}</td>
+                                                        <td>{{ $c->cho ?? null }}</td>
+                                                        <td>{{ round($diagnosis->isocaloric_carbohydrate/$c->cho,0)*$c->gr }}</td>
+                                                    </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                        <div class="col-4">
+                                            <table id="example1" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>CHO gr.</th>
+                                                        <th>Gramos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($lacteos as $l)
+                                                    @if($l->cho != 0 && $l->cho > 1)
+                                                    <tr>
+                                                        <td>{{ $l->name ?? null }}</td>
+                                                        <td>{{ $l->cho ?? null }}</td>
+                                                        <td>{{ round($diagnosis->isocaloric_carbohydrate/$l->cho,0)*$l->gr }}</td>
+                                                    </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="row text-center m-2" style="text-align:center !important; margin:auto;">
+                                    <h4 class="m-3 p-3">Almuerzo</h4><br>
+                                        <div class="col-4">
+                                            <table id="example2" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>CHO gr.</th>
+                                                        <th>Gramos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($cereal_leg as $c)
+                                                    @if($c->cho != 0 && $c->cho > 1)
+                                                    <tr>
+                                                        <td>{{ $c->name ?? null }}</td>
+                                                        <td>{{ $c->cho ?? null }}</td>
+                                                        <td>{{ round($diagnosis->isocaloric_carbohydrate/$c->cho,0)*$c->gr }}</td>
+                                                    </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                        <div class="col-4">
+                                            <table id="example3" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>CHO gr.</th>
+                                                        <th>Gramos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($verduras as $v)
+                                                    @if($v->cho != 0 && $v->cho > 1)
+                                                    <tr>
+                                                        <td>{{ $v->name ?? null }}</td>
+                                                        <td>{{ $v->cho ?? null }}</td>
+                                                        <td>{{ round($diagnosis->isocaloric_carbohydrate/$v->cho,0)*$v->gr }}</td>
+                                                    </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="row text-center m-2" style="text-align:center !important; margin:auto;">
+                                    <h4 class="m-3 p-3">Cena</h4><br>
+                                        <div class="col-4">
+                                            <table id="example4" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>CHO gr.</th>
+                                                        <th>Gramos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($cereal_leg as $c)
+                                                    @if($c->cho != 0 && $c->cho > 1)
+                                                    <tr>
+                                                        <td>{{ $c->name ?? null }}</td>
+                                                        <td>{{ $c->cho ?? null }}</td>
+                                                        <td>{{ round($diagnosis->isocaloric_carbohydrate/$c->cho,0)*$c->gr }}</td>
+                                                    </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                        <div class="col-4">
+                                            <table id="example5" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>CHO gr.</th>
+                                                        <th>Gramos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($verduras as $v)
+                                                    @if($v->cho != 0 && $v->cho > 1)
+                                                    <tr>
+                                                        <td>{{ $v->name ?? null }}</td>
+                                                        <td>{{ $v->cho ?? null }}</td>
+                                                        <td>{{ round($diagnosis->isocaloric_carbohydrate/$v->cho,0)*$v->gr }}</td>
+                                                    </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
                                     </div>
                             
                                     
@@ -216,9 +332,9 @@
 @push('js')
 <script>
         $(document).ready(function() {
-            var table = $('#example').DataTable({
-            "dom": 'B<"float-left"i><"float-right"f>t<"float-left"l><"float-right"p><"clearfix">',
-            "responsive": false,
+            var table = $('#example,#example1,#example2,#example3,#example4,#example5').DataTable({
+            "dom": '<"float-left"><"float-right">t<"float-left"l><"float-right"p><"clearfix">',
+            "responsive": true,
             "language": {
                 "url": "https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
             },

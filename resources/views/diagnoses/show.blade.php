@@ -14,7 +14,7 @@
         <div class="card">
           <div class="card-header">
               <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Diagnóstico nuevo') }}</a>
-            <h4 class="card-title">{{ __('Diagnósticos') }}: {{ $patient->first_name ?? null }} {{ $patient->last_name ?? null }}</h4>
+            <h4 class="card-title">{{ __('Consultas') }}: {{ $patient->first_name ?? null }} {{ $patient->last_name ?? null }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')
               @include('alerts.errors')
