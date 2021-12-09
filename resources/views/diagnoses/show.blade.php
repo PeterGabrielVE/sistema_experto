@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'namePage' => 'Diagnosticos',
+    'namePage' => 'Consultas',
     'class' => 'sidebar-mini',
     'activePage' => 'diagnoses.all',
     'activeNav' => '',
