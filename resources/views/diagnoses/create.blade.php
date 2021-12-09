@@ -2,7 +2,7 @@
   <div class="modal-dialog  modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Crear Diagnóstico</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Crear Consulta</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -54,7 +54,7 @@
                   <div class="ui basic label">gr</div>
                 </div>
             </div>
-            <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-2">
+            <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                 <label class="form-control-label" for="input-size">{{ __('IMC DESEADO') }}</label>
                 <div class="ui right labeled input">
                 <input type="text" name="imc_desired" id="input-imc-deseado" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
@@ -63,7 +63,7 @@
                
             </div>
 
-            <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
+            <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-2">
                 <label class="form-control-label" for="input-size">{{ __('Resultado Método Pulgar') }}</label>
                 <input type="text" name="result_pulgar" id="input-result-pulgar" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
             </div>

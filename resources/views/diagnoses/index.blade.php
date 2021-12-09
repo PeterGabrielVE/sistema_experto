@@ -1,6 +1,6 @@
 @extends('layouts.app', [
     'class' => 'sidebar-mini ',
-    'namePage' => 'Crear diagnóstico',
+    'namePage' => 'Crear Consulta',
     'activePage' => 'patient',
     'activeNav' => '',
 ])
@@ -79,8 +79,8 @@
                                 </div>
 
                                 <div class="text-center">
-                                    <a onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Diagnosticar') }}</a>
-                                    <!--<button type="submit" class="btn btn-info mt-4">{{ __('Diagnosticar') }}</button>-->
+                                    <a onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Consultar') }}</a>
+            
                                 </div>
                             </div>
                     </div>
