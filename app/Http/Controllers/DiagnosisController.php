@@ -119,9 +119,9 @@ class DiagnosisController extends Controller
         $diagnosis = Diagnosis::find($id);
         $patient = Patient::find($diagnosis->id_patient);
         $foods = Food::all();
-        $foods_cereal = Food::where('item','Cereales')->get();
+        $foods_cereal = Food::where('item','Cereales')->orWhere('item','Pan')->get();
         $foods_lacteos = Food::where('item','Lácteos')->get();
-        $foods_cereal_leg = Food::where('item','Cereales')->orWhere('item','Legumbres')->get();
+        $foods_cereal_leg = Food::where('item','Cereales')->orWhere('item','Pan')->orWhere('item','Legumbres')->get();
         $foods_verduras = Food::where('item','Verduras')->get();
         //dd($foods_cereal_leg);
         return view('diagnoses.result',['patient' => $patient,'diagnosis' => $diagnosis,
