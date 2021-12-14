@@ -189,7 +189,7 @@
                                                     <tr>
                                                         <td>{{ $c->name ?? null }}</td>
                                                         <td>{{ $c->cho ?? null }}</td>
-                                                        <td>{{ round($diagnosis->isocaloric_carbohydrate/$c->cho,0)*$c->gr }}</td>
+                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr),0) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
