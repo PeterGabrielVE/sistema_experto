@@ -79,7 +79,7 @@
                                 </div>
 
                                 <div class="text-center">
-                                    <a onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Consultar') }}</a>
+                                    <a onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Realizar consultar') }}</a>
             
                                 </div>
                             </div>

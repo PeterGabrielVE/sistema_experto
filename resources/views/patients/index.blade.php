@@ -56,14 +56,14 @@
                     <td>{{ date('d-m-Y', strtotime($patient->birthdate))  ?? null }}</td>
                       <td class="text-right">
                     
-                        <a type="button" href="{{route("patient.edit",$patient)}}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
-                          <i class="now-ui-icons ui-2_settings-90"></i>
+                        <a type="button" href="{{route("patient.edit",$patient)}}" rel="tooltip" class="btn btn-success btn-sm" data-original-title="" title="">
+                          <i class="now-ui-icons ui-2_settings-90"></i>Modificar
                         </a>
                       <form action="{{ route('patient.destroy', $patient->id) }}" method="post" style="display:inline-block;" class ="delete-form">
                         @csrf
                         @method('delete')
-                        <button type="button" rel="tooltip" class="btn btn-danger btn-icon btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este paciente?') }}') ? this.parentElement.submit() : ''">
-                          <i class="now-ui-icons ui-1_simple-remove"></i>
+                        <button type="button" rel="tooltip" class="btn btn-danger btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este paciente?') }}') ? this.parentElement.submit() : ''">
+                          <i class="now-ui-icons ui-1_simple-remove"></i>Eliminar
                         </button>
                       </form>
                       <a href="{{ route('diagnosis.new', $patient->id) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i> Consultar</a>
