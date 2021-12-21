@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'namePage' => 'SISTEMA EXPERTO',
+    'namePage' => 'KATRINA',
     'class' => 'login-page sidebar-mini ',
     'activePage' => 'login',
     'backgroundImage' => asset('assets') . "/img/bg14.jpg",
