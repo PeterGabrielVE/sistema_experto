@@ -250,7 +250,9 @@
                                                     <tr>
                                                         <th>Alimento</th>
                                                         <th>CHO gr.</th>
-                                                        <th>Gramos</th>
+                                                        <th>Gramos Carb.</th>
+                                                        <th>Gramos Prot.</th>
+                                                        <th>Gramos Lip.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -259,6 +261,8 @@
                                                     <tr>
                                                         <td>{{ $v->name ?? null }}</td>
                                                         <td>{{ $v->cho ?? null }}</td>
+                                                        <td>{{ round(regla_tres_acompañante($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres_acompañante($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr),0) }}</td>
                                                         <td>{{ round(regla_tres_acompañante($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr),0) }}</td>
                                                     </tr>
                                                     @endif

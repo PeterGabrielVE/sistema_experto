@@ -30,15 +30,21 @@
                             <h6 class="heading-small text-muted mb-4">{{ __('Información del paciente') }}</h6>
                             <div class="pl-lg-4">
                                 <div class="row">
-                                    <div class="form-group{{ $errors->has('first_name') ? ' has-danger' : '' }} col-6">
+                                    <div class="form-group{{ $errors->has('first_name') ? ' has-danger' : '' }} col-4">
                                         <label class="form-control-label" for="input-name">{{ __('Nombre') }}</label>
                                         <input type="text" name="first_name" id="input-first_name" class="form-control{{ $errors->has('first_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Nombre') }}" value="{{ old('first_name') }}" required autofocus>
 
                                         @include('alerts.feedback', ['field' => 'first_name'])
                                     </div>
-                                    <div class="form-group{{ $errors->has('last_name') ? ' has-danger' : '' }} col-6">
+                                    <div class="form-group{{ $errors->has('last_name') ? ' has-danger' : '' }} col-4">
                                         <label class="form-control-label" for="input-name">{{ __('Apellido') }}</label>
                                         <input type="text" name="last_name" id="input-last_name" class="form-control{{ $errors->has('last_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Apellido') }}" value="{{ old('last_name') }}" required autofocus>
+
+                                        @include('alerts.feedback', ['field' => 'last_name'])
+                                    </div>
+                                    <div class="form-group{{ $errors->has('rut') ? ' has-danger' : '' }} col-4">
+                                        <label class="form-control-label" for="input-name">{{ __('RUT') }}</label>
+                                        <input type="text" name="rut" id="input-rut" class="form-control{{ $errors->has('last_name') ? ' is-invalid' : '' }}" placeholder="{{ __('RUT') }}" value="{{ old('RUT') }}" required autofocus>
 
                                         @include('alerts.feedback', ['field' => 'last_name'])
                                     </div>
@@ -48,18 +54,7 @@
 
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
-                                    <div class="form-group{{ $errors->has('id_region') ? ' has-danger' : '' }} col-6">
-                                        <label class="form-control-label" for="input-address">{{ __('Región') }}</label>
-                                        {!! Form::select('id_region', $regions, null, ['class' => 'form-control','required','id'=>'id_region','autofocus']) !!}
 
-                                        @include('alerts.feedback', ['field' => 'id_region'])
-                                    </div>
-                                    <div class="form-group{{ $errors->has('id_comuna') ? ' has-danger' : '' }} col-6">
-                                        <label class="form-control-label" for="input-address">{{ __('Comuna') }}</label>
-                                        {!! Form::select('id_comuna', $comunas, null, ['class' => 'form-control','required','id'=>'id_comuna','autofocus']) !!}
-
-                                        @include('alerts.feedback', ['field' => 'id_comuna'])
-                                    </div>
                                     <div class="form-group{{ $errors->has('birthdate') ? ' has-danger' : '' }} col-6">
                                         <label class="form-control-label" for="input-birthdate">{{ __('Fecha de Nacimiento') }}</label>
                                         <input type="date" name="birthdate" id="input-birthdate" class="form-control{{ $errors->has('birthdate') ? ' is-invalid' : '' }}" placeholder="{{ __('Fecha de Nacimiento') }}" value="{{ old('birthdate') }}" required autofocus>
