@@ -173,14 +173,17 @@
                                     @endif
                                     </div>
                                     <div class="row text-center">
-                                        <h4 class="m-3 p-3">Desayuno</h4><br>
-                                        <div class="col-4">
+                                        <div class="col-12">
+                                            <h4 class="m-3 p-3">Desayuno</h4><br>
+                                        </div>
+                                        <div class="col-6">
                                             <table id="example" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
                                                         <th>Alimento</th>
-                                                        <th>CHO gr.</th>
-                                                        <th>Gramos</th>
+                                                        <th>Carbohidrato Gr.</th>
+                                                        <th>Proteína Gr.</th>
+                                                        <th>Lipído Gr.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -189,6 +192,7 @@
                                                     <tr>
                                                         <td>{{ $c->name ?? null }}</td>
                                                         <td>{{ $c->cho ?? null }}</td>
+                                                        <td>{{ $c->cho ?? null }}</td>
                                                         <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr),0) }}</td>
                                                     </tr>
                                                     @endif
@@ -196,13 +200,14 @@
                                                 </tbody>   
                                             </table>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-6">
                                             <table id="example1" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
                                                         <th>Alimento</th>
-                                                        <th>CHO gr.</th>
-                                                        <th>Gramos</th>
+                                                        <th>Carbohidrato Gr.</th>
+                                                        <th>Proteína Gr.</th>
+                                                        <th>Lipído Gr.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -210,6 +215,7 @@
                                                     @if($l->cho != 0 && $l->cho > 1)
                                                     <tr>
                                                         <td>{{ $l->name ?? null }}</td>
+                                                        <td>{{ $l->cho ?? null }}</td>
                                                         <td>{{ $l->cho ?? null }}</td>
                                                         <td>{{ round(regla_tres_acompañante($diagnosis->isocaloric_carbohydrate, $l->cho,$l->gr),0) }}</td>
                                                     </tr>
@@ -221,14 +227,17 @@
                                         
                                     </div>
                                     <div class="row text-center m-2" style="text-align:center !important; margin:auto;">
-                                    <h4 class="m-3 p-3">Almuerzo</h4><br>
-                                        <div class="col-4">
+                                    <div class="col-12">
+                                        <h4 class="m-3 p-3">Almuerzo</h4><br>
+                                    </div>
+                                    <div class="col-6">
                                             <table id="example2" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
                                                         <th>Alimento</th>
-                                                        <th>CHO gr.</th>
-                                                        <th>Gramos</th>
+                                                        <th>Carbohidrato Gr.</th>
+                                                        <th>Proteína Gr.</th>
+                                                        <th>Lipído Gr.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -237,6 +246,7 @@
                                                     <tr>
                                                         <td>{{ $c->name ?? null }}</td>
                                                         <td>{{ $c->cho ?? null }}</td>
+                                                        <td>{{ $c->cho ?? null }}</td>
                                                         <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr),0) }}</td>
                                                     </tr>
                                                     @endif
@@ -244,15 +254,14 @@
                                                 </tbody>   
                                             </table>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-6">
                                             <table id="example3" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
                                                         <th>Alimento</th>
-                                                        <th>CHO gr.</th>
-                                                        <th>Gramos Carb.</th>
-                                                        <th>Gramos Prot.</th>
-                                                        <th>Gramos Lip.</th>
+                                                        <th>Carbohidrato Gr.</th>
+                                                        <th>Proteína Gr.</th>
+                                                        <th>Lipído Gr.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -263,7 +272,6 @@
                                                         <td>{{ $v->cho ?? null }}</td>
                                                         <td>{{ round(regla_tres_acompañante($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr),0) }}</td>
                                                         <td>{{ round(regla_tres_acompañante($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr),0) }}</td>
-                                                        <td>{{ round(regla_tres_acompañante($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr),0) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
@@ -272,14 +280,17 @@
                                         </div>
                                     </div>
                                     <div class="row text-center m-2" style="text-align:center !important; margin:auto;">
-                                    <h4 class="m-3 p-3">Cena</h4><br>
-                                        <div class="col-4">
+                                        <div class="col-12">
+                                            <h4 class="m-3 p-3">Cena</h4><br>
+                                        </div>
+                                        <div class="col-6">
                                             <table id="example4" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
                                                         <th>Alimento</th>
-                                                        <th>CHO gr.</th>
-                                                        <th>Gramos</th>
+                                                        <th>Carbohidrato Gr.</th>
+                                                        <th>Proteína Gr.</th>
+                                                        <th>Lipído Gr.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -288,6 +299,7 @@
                                                     <tr>
                                                         <td>{{ $c->name ?? null }}</td>
                                                         <td>{{ $c->cho ?? null }}</td>
+                                                        <td>{{ $c->cho ?? null }}</td>
                                                         <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr),0) }}</td>
                                                     </tr>
                                                     @endif
@@ -295,13 +307,14 @@
                                                 </tbody>   
                                             </table>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-6">
                                             <table id="example5" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
                                                         <th>Alimento</th>
-                                                        <th>CHO gr.</th>
-                                                        <th>Gramos</th>
+                                                        <th>Carbohidrato Gr.</th>
+                                                        <th>Proteína Gr.</th>
+                                                        <th>Lipído Gr.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -309,6 +322,7 @@
                                                     @if($v->cho != 0 && $v->cho > 1)
                                                     <tr>
                                                         <td>{{ $v->name ?? null }}</td>
+                                                        <td>{{ $v->cho ?? null }}</td>
                                                         <td>{{ $v->cho ?? null }}</td>
                                                         <td>{{ round(regla_tres_acompañante($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr),0) }}</td>
                                                     </tr>
