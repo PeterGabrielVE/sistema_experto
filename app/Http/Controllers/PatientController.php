@@ -45,7 +45,7 @@ class PatientController extends Controller
             return back()->withInput()->withStatus(__('Solo se permiten imágenes.'));
 
         if ($request->first_name == null OR $request->first_name == "")
-            return back()->withInput()->withStatus(__('Es necesario ingresar el nombre del paciente.'));
+            return back()->withInput()->with('status',__('Es necesario ingresar el nombre del paciente.'));
     
         if ($request->last_name == null OR $request->last_name == "")
             return back()->withInput()->withStatus(__('Es necesario ingresar el apellido del paciente.'));
@@ -53,12 +53,12 @@ class PatientController extends Controller
         if($request->address == null OR $request->address == "")
             return back()->withInput()->withStatus(__('Es necesario ingresar la dirección del paciente.'));
 
-        if($request->id_region== null OR $request->id_region == "")
+        /*if($request->id_region== null OR $request->id_region == "")
             return back()->withInput()->withStatus(__('Es necesario ingresar la región del paciente.'));
 
         if($request->id_comuna == null OR $request->id_comuna == "")
             return back()->withInput()->withStatus(__('Es necesario ingresar la comuna del paciente.'));
-
+        */
         if($request->gender == null OR $request->gender == "")
             return back()->withInput()->withStatus(__('Es necesario ingresar el sexo del paciente.'));
 
@@ -71,6 +71,12 @@ class PatientController extends Controller
         if ( strlen($request->address)<4 )
             return back()->withInput()->withStatus(__('La dirección del paciente debe tener como mínimo 3 caracteres.'));
 
+        $search = Patient::where('rut',$request->rut)->get();
+        //dd($search);
+        if(count($search) > 0){
+           // return back()->withInput()->with('status',__('Es necesario ingresar el nombre del paciente.'));
+            return back()->withInput()->withErrors('Ya existe un paciente con este RUT.'); 
+        }
         $patient = Patient::create($request->all());
         if( $request->file('image') )
         {

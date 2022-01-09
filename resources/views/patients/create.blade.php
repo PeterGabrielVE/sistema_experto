@@ -46,7 +46,9 @@
                                         <label class="form-control-label" for="input-name">{{ __('RUT') }}</label>
                                         <input type="text" name="rut" id="input-rut" class="form-control{{ $errors->has('last_name') ? ' is-invalid' : '' }}" placeholder="{{ __('RUT') }}" value="{{ old('RUT') }}" required autofocus>
 
-                                        @include('alerts.feedback', ['field' => 'last_name'])
+                                        @if($errors->has('rut')) 
+                                                {{ $errors->first('rut') }} 
+                                        @endif
                                     </div>
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-12">
                                         <label class="form-control-label" for="input-address">{{ __('Dirección') }}</label>
