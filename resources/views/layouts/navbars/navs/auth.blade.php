@@ -29,7 +29,7 @@
       </form>
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="#pablo">
+          <a class="nav-link" href="{{ route('users/chart') }}">
             <i class="now-ui-icons media-2_sound-wave"></i>
             <p>
               <span class="d-lg-none d-md-block">{{ __("Ayuda en Linea") }}</span>
