@@ -134,8 +134,13 @@ class DiagnosisController extends Controller
         $diagnosis = Diagnosis::find($id);
         $patient = Patient::find($diagnosis->id_patient);
         $foods = Food::all();
+        $foods_cereal = Food::where('item','Cereales')->orWhere('item','Pan')->get();
+        $foods_lacteos = Food::where('item','Lácteos')->get();
+        $foods_cereal_leg = Food::where('item','Cereales')->orWhere('item','Pan')->orWhere('item','Legumbres')->get();
+        $foods_verduras = Food::where('item','Verduras')->get();
         return PDF::loadView('result-pdf', ['patient' => $patient,'diagnosis' => $diagnosis,
-        'foods' => $foods])
+        'foods' => $foods,'cereales' => $foods_cereal,'lacteos' => $foods_lacteos,
+        'cereal_leg' => $foods_cereal_leg,'verduras' => $foods_verduras])
         ->stream('archivo.pdf');
     }
 }

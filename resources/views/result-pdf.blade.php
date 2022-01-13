@@ -84,61 +84,114 @@ Status: Paid
 
 
 <br/>
+<h4 class="m-3 p-3">Desayuno</h4><br>
+                                        </div>
+<div class="col-6">
+                                            <table id="example" class="table table-striped table-bordered" style="width:96%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>Carbohidrato Gr.</th>
+                                                        <th>Proteína Gr.</th>
+                                                        <th>Lipído Gr.</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($cereales as $c)
+                                                    @if($c->cho != 0 && $c->cho > 1)
+                                                    <tr>
+                                                        <td>{{ $c->name ?? null }}</td>
+                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres_prot($diagnosis->isocaloric_protein, $c->protein,$c->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres_lip($diagnosis->isocaloric_lipido, $c->lipid,$c->gr),0) }}</td>
+                                                    </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                        <div class="col-6">
+                                            <table id="example1" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>Carbohidrato Gr.</th>
+                                                        <th>Proteína Gr.</th>
+                                                        <th>Lipído Gr.</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($lacteos as $l)
+                                                    @if($l->cho != 0 && $l->cho > 1)
+                                                    <tr>
+                                                        <td>{{ $l->name ?? null }}</td>
+                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $l->cho,$c->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres_prot($diagnosis->isocaloric_protein, $l->protein,$c->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres_lip($diagnosis->isocaloric_lipido, $l->lipid,$c->gr),0) }}</td>
+                                                    </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <div class="col-12">
+    </br>
+ <h4 class="m-3 p-3">Almuerzo</h4><br>
+                                    </div>
+  <div class="col-6">
+                                            <table id="example2" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>Carbohidrato Gr.</th>
+                                                        <th>Proteína Gr.</th>
+                                                        <th>Lipído Gr.</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($cereal_leg as $c)
+                                                    @if($c->cho != 0 && $c->cho > 1)
+                                                    <tr>
+                                                        <td>{{ $c->name ?? null }}</td>
+                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres_prot($diagnosis->isocaloric_protein, $c->protein,$c->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres_lip($diagnosis->isocaloric_lipido, $c->lipid,$c->gr),0) }}</td>
+                                                    </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                        <div class="col-6">
+                                            <table id="example3" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>Carbohidrato Gr.</th>
+                                                        <th>Proteína Gr.</th>
+                                                        <th>Lipído Gr.</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($verduras as $v)
+                                                    @if($v->cho != 0 && $v->cho > 1)
+                                                    <tr>
+                                                        <td>{{ $v->name ?? null }}</td>
+                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres_prot($diagnosis->isocaloric_protein, $v->protein,$v->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres_lip($diagnosis->isocaloric_lipido, $v->lipid,$v->gr),0) }}</td>
+                                                    </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                    </div>
 
-<div class="invoice">
-    <h3>Invoice specification #123</h3>
-    <table width="100%">
-        <thead>
-        <tr>
-            <th>Description</th>
-            <th>Quantity</th>
-            <th>Total</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>Item 1</td>
-            <td>1</td>
-            <td align="left">€15,-</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        </tbody>
 
-        <tfoot>
-        <tr>
-            <td colspan="1"></td>
-            <td align="left">Total</td>
-            <td align="left" class="gray">€15,-</td>
-        </tr>
-        </tfoot>
-    </table>
-</div>
 
-<div class="information" style="position: absolute; bottom: 0;">
-    <table width="100%">
-        <tr>
-            <td align="left" style="width: 50%;">
-                &copy; {{ date('Y') }} {{ config('app.url') }} - All rights reserved.
-            </td>
-            <td align="right" style="width: 50%;">
-                Company Slogan
-            </td>
-        </tr>
-
-    </table>
-</div>
 </body>
 </html>
