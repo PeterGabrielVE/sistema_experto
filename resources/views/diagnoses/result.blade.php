@@ -182,8 +182,6 @@
                                                     <tr>
                                                         <th>Alimento</th>
                                                         <th>Carbohidrato Gr.</th>
-                                                        <th>Proteína Gr.</th>
-                                                        <th>Lipído Gr.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -192,8 +190,6 @@
                                                     <tr>
                                                         <td>{{ $c->name ?? null }}</td>
                                                         <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr),0) }}</td>
-                                                        <td>{{ round(regla_tres_prot($diagnosis->isocaloric_protein, $c->protein,$c->gr),0) }}</td>
-                                                        <td>{{ round(regla_tres_lip($diagnosis->isocaloric_lipido, $c->lipid,$c->gr),0) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
@@ -205,9 +201,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Alimento</th>
-                                                        <th>Carbohidrato Gr.</th>
-                                                        <th>Proteína Gr.</th>
-                                                        <th>Lipído Gr.</th>
+                                                        <th>Gr.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
