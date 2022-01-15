@@ -176,12 +176,12 @@
                                         <div class="col-12">
                                             <h4 class="m-3 p-3">Desayuno</h4><br>
                                         </div>
-                                        <div class="col-6">
+                                        <div class="col-3">
                                             <table id="example" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
                                                         <th>Alimento</th>
-                                                        <th>Carbohidrato Gr.</th>
+                                                        <th>Peso Masa</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -196,12 +196,12 @@
                                                 </tbody>   
                                             </table>
                                         </div>
-                                        <div class="col-6">
+                                        <div class="col-3">
                                             <table id="example1" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
                                                         <th>Alimento</th>
-                                                        <th>Gr.</th>
+                                                        <th>Peso Masa</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -210,10 +210,48 @@
                                                     <tr>
                                                         <td>{{ $l->name ?? null }}</td>
                                                         <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $l->cho,$c->gr),0) }}</td>
-                                                        <td>{{ round(regla_tres_prot($diagnosis->isocaloric_protein, $l->protein,$c->gr),0) }}</td>
-                                                        <td>{{ round(regla_tres_lip($diagnosis->isocaloric_lipido, $l->lipid,$c->gr),0) }}</td>
                                                     </tr>
                                                     @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                        <div class="col-3">
+                                            <table id="example6" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>Peso Masa</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($proteinas as $l)
+                                                    @if($l->cho > 0)
+                                                    <tr>
+                                                        <td>{{ $l->name ?? null }}</td>
+                                                        <td>{{ round(regla_tres_prot($diagnosis->isocaloric_protein, $l->protein,$l->gr),0) }}</td>
+                                                    </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                        <div class="col-3">
+                                            <table id="example7" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Alimento</th>
+                                                        <th>Peso Masa</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($lipidos as $l)
+                                            
+                                                    <tr>
+                                                        <td>{{ $l->name ?? null }}</td>
+                                                        <td>{{ round(regla_tres_lip($diagnosis->isocaloric_lipido, $l->lipid,$l->gr),0) }}</td>
+                                                    </tr>
+                                                
                                                 @endforeach
                                                 </tbody>   
                                             </table>
@@ -224,31 +262,27 @@
                                     <div class="col-12">
                                         <h4 class="m-3 p-3">Almuerzo</h4><br>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-3">
                                             <table id="example2" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
                                                         <th>Alimento</th>
-                                                        <th>Carbohidrato Gr.</th>
-                                                        <th>Proteína Gr.</th>
-                                                        <th>Lipído Gr.</th>
+                                                        <th>Peso Masa</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @foreach($cereal_leg as $c)
-                                                    @if($c->cho != 0 && $c->cho > 1)
+                                                    @if($c->cho > 0)
                                                     <tr>
                                                         <td>{{ $c->name ?? null }}</td>
                                                         <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr),0) }}</td>
-                                                        <td>{{ round(regla_tres_prot($diagnosis->isocaloric_protein, $c->protein,$c->gr),0) }}</td>
-                                                        <td>{{ round(regla_tres_lip($diagnosis->isocaloric_lipido, $c->lipid,$c->gr),0) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
                                                 </tbody>   
                                             </table>
                                         </div>
-                                        <div class="col-6">
+                                        <div class="col-3">
                                             <table id="example3" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
@@ -344,7 +378,7 @@
 @push('js')
 <script>
         $(document).ready(function() {
-            var table = $('#example,#example1,#example2,#example3,#example4,#example5').DataTable({
+            var table = $('#example,#example1,#example2,#example3,#example4,#example5,#example6,#example7').DataTable({
             "dom": '<"float-left"><"float-right">t<"float-left"l><"float-right"p><"clearfix">',
             "responsive": true,
             "language": {
