@@ -123,13 +123,17 @@ class DiagnosisController extends Controller
         $foods_lacteos = Food::where('item','Lácteos')->get();
         $foods_cereal_leg = Food::where('item','Cereales')->orWhere('item','Pan')->orWhere('item','Legumbres')->get();
         $foods_verduras = Food::where('item','Verduras')->get();
+        $proteins = Food::where('id_group',4)->get();
         $proteinas = Food::whereIn('id',[3,4,7])->get();
-
+        $aceites = Food::whereIn('id',[72,73,74])->get();
+        $lipids = Food::where('id_group',10)->whereNotIn('id',[72,73,74])->get();
         $lipidos = Food::where('id_group',10)->get();
-        //dd($lipidos);
+    
         return view('diagnoses.result',['patient' => $patient,'diagnosis' => $diagnosis,
         'foods' => $foods,'cereales' => $foods_cereal,'lacteos' => $foods_lacteos,
-        'cereal_leg' => $foods_cereal_leg,'verduras' => $foods_verduras,'proteinas' => $proteinas,'lipidos' => $lipidos]);
+        'cereal_leg' => $foods_cereal_leg,'verduras' => $foods_verduras,'proteinas' => $proteinas,
+        'lipidos' => $lipidos,'proteins' => $proteins,'lipids' => $lipids,
+        'aceites' => $aceites]);
     }
 
     public function download($id)

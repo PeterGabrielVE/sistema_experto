@@ -19,14 +19,33 @@ function regla_tres_acompañante($iso, $cho, $gr){
 }
 
 
-function regla_tres_prot($iso, $pro, $gr){
+function regla_tres_prot($id,$iso, $pro, $gr){
+
     $gr_total = 0;
-    $gr_total = $gr*$pro/$iso;
+    if($id == 11){
+        $gr_total = $iso/$pro;
+    }else{
+        $gr_total = $gr*$iso/$pro;
+    }
     return $gr_total;
 }
 
 function regla_tres_lip($iso, $lip, $gr){
     $gr_total = 0;
     $gr_total = $gr*$lip/$iso;
+    return $gr_total;
+}
+
+function regla_tres_lip_80($iso, $lip, $gr){
+    $iso = $iso * 0.80;
+    $gr_total = 0;
+    $gr_total = $gr*$iso/$lip;
+    return $gr_total;
+}
+
+function regla_tres_lip_20($iso, $lip, $gr){
+    $iso = $iso * 0.20;
+    $gr_total = 0;
+    $gr_total = $gr*$iso/$lip;
     return $gr_total;
 }
