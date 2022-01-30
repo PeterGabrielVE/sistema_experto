@@ -21,6 +21,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('downloadManual','UserController@downloadManualPdf')->name('downloadManual');
 
 Route::group(['middleware' => 'auth'], function () {
 	Route::resource('user', 'UserController', ['except' => ['show']]);
@@ -36,6 +37,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
 	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);
 	Route::get('{page}', ['as' => 'page.index', 'uses' => 'PageController@index']);
+
 
 	Route::get('diagnoses/chart','DiagnosisController@chart')->name('diagnoses/chart');
 	Route::get('patients/chart','PatientController@chart')->name('patients/chart');

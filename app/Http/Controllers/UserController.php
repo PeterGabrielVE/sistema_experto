@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\User;
 use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\Hash;
+use Response;
 
 class UserController extends Controller
 {
@@ -99,5 +100,16 @@ class UserController extends Controller
         }
         
         return response()->json($months);
+    }
+
+    public function downloadManualPdf()
+    {
+        $file= public_path(). "/download/manual_usuario.pdf";
+
+        $headers = array(
+                'Content-Type: application/pdf',
+                );
+
+        return Response::download($file, 'manual_usuario.pdf', $headers);
     }
 }
