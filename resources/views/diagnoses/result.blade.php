@@ -180,8 +180,8 @@
                                             <table id="example" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
-                                                        <th>Alimento</th>
-                                                        <th>Peso Masa</th>
+                                                        <th>Carbohidratos</th>
+                                                        <th>Grs.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -200,8 +200,8 @@
                                             <table id="example1" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
-                                                        <th>Alimento</th>
-                                                        <th>Peso Masa</th>
+                                                        <th>Acompañamientos</th>
+                                                        <th>Grs.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -220,8 +220,8 @@
                                             <table id="example6" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
-                                                        <th>Alimento</th>
-                                                        <th>Peso Masa</th>
+                                                        <th>Proteínas</th>
+                                                        <th>Grs.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -240,8 +240,8 @@
                                             <table id="example7" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
-                                                        <th>Alimento</th>
-                                                        <th>Peso Masa</th>
+                                                        <th>Grasas</th>
+                                                        <th>Cant.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -266,8 +266,8 @@
                                             <table id="example2" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
-                                                        <th>Alimento</th>
-                                                        <th>Peso Masa</th>
+                                                        <th>Carbohidratos</th>
+                                                        <th>Grs.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -282,30 +282,13 @@
                                                 </tbody>   
                                             </table>
                                         </div>
-                                        <div class="col-3">
-                                            <table id="example9" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Alimento</th>
-                                                        <th>Peso Masa</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach($lipids as $l)
-                                                    <tr>
-                                                        <td>{{ $l->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres_lip_80($diagnosis->isocaloric_lipido, $l->lipid,$l->gr),0) }}</td>
-                                                    </tr>
-                                                @endforeach
-                                                </tbody>   
-                                            </table>
-                                        </div>
+                                    
                                         <div class="col-3">
                                             <table id="example3" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
-                                                        <th>Alimento</th>
-                                                        <th>Peso Masa</th>
+                                                        <th>Acompañamientos</th>
+                                                        <th>Grs.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -321,11 +304,29 @@
                                             </table>
                                         </div>
                                         <div class="col-3">
+                                            <table id="example9" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Grasas</th>
+                                                        <th>Cant.</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($lipids as $l)
+                                                    <tr>
+                                                        <td>{{ $l->name ?? null }}</td>
+                                                        <td>{{ round(regla_tres_lip_80($diagnosis->isocaloric_lipido, $l->lipid,$l->gr),0) }}</td>
+                                                    </tr>
+                                                @endforeach
+                                                </tbody>   
+                                            </table>
+                                        </div>
+                                        <div class="col-3">
                                             <table id="example8" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
                                                 <thead>
                                                     <tr>
-                                                        <th>Alimento</th>
-                                                        <th>Peso Masa</th>
+                                                        <th>Proteínas</th>
+                                                        <th>Grs.</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -340,24 +341,7 @@
                                                 </tbody>   
                                             </table>
                                         </div>
-                                        <div class="col-3">
-                                            <table id="example8" class="table table-striped table-bordered" style="width:100%;font-size:12px;">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Alimento</th>
-                                                        <th>Peso Masa</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach($aceites as $a)
-                                                    <tr>
-                                                        <td>{{ $a->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres_lip_20($diagnosis->isocaloric_lipido, $a->lipid,$a->portion),0) }}</td>
-                                                    </tr>
-                                                    @endforeach
-                                                </tbody>   
-                                            </table>
-                                        </div>
+                                    
                                         
                                     </div>
                                     <div class="row text-center m-2" style="text-align:center !important; margin:auto;">
@@ -395,7 +379,7 @@
                                                 </thead>
                                                 <tbody>
                                                     @foreach($verduras as $v)
-                                                    @if($v->cho != 0 && $v->cho > 1)
+                                                    @if($v->cho > 0)
                                                     <tr>
                                                         <td>{{ $v->name ?? null }}</td>
                                                         <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr),0) }}</td>
