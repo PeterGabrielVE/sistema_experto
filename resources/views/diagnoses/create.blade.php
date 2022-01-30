@@ -19,7 +19,7 @@
               </div>
             </div>
             <div class="form-group{{ $errors->has('weight') ? ' has-danger' : '' }} col-3">
-                <label class="form-control-label" for="input-weight">{{ __('Isocalorico Carbohidrato') }}</label>
+                <label class="form-control-label" for="input-weight">{{ __('Isoglucídico') }}</label>
                 <div class="ui right labeled input">
                   <input type="text" name="isocaloric_carbohydrate" id="input-isocalorico" class="form-control{{ $errors->has('weight') ? ' is-invalid' : '' }}" placeholder="{{ __('Peso') }}" value="{{ old('weight') }}" required autofocus onchange="calcularIMC()">
                   <div class="ui basic label">gr</div>
@@ -48,7 +48,7 @@
             
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
-                <label class="form-control-label" for="input-size">{{ __('Isocalorico Proteína') }}</label>
+                <label class="form-control-label" for="input-size">{{ __('Isoproteico') }}</label>
                 <div class="ui right labeled input">
                 <input type="text" name="isocaloric_protein" id="input-isocalorico3" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
                   <div class="ui basic label">gr</div>
