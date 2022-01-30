@@ -229,7 +229,7 @@
                                                     @if($l->cho > 0)
                                                     <tr>
                                                         <td>{{ $l->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres_prot($l->id,$diagnosis->isocaloric_protein, $l->protein,$l->gr),0) }}</td>
+                                                        <td>{{ regla_tres_prot($l->id,$diagnosis->isocaloric_protein, $l->protein,$l->gr) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
@@ -315,7 +315,7 @@
                                                     @foreach($lipids as $l)
                                                     <tr>
                                                         <td>{{ $l->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres_lip_80($diagnosis->isocaloric_lipido, $l->lipid,$l->gr),0) }}</td>
+                                                        <td>{{ regla_tres_lip_80($diagnosis->isocaloric_lipido, $l->lipid,$l->gr,$l->id) }}</td>
                                                     </tr>
                                                 @endforeach
                                                 </tbody>   
@@ -334,7 +334,7 @@
                                                     @if($p->cho > 0)
                                                     <tr>
                                                         <td>{{ $p->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres_prot($p->id,$diagnosis->isocaloric_protein,$p->protein,$p->gr),0) }}</td>
+                                                        <td>{{ regla_tres_prot($p->id,$diagnosis->isocaloric_protein,$p->protein,$p->gr) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
@@ -400,7 +400,7 @@
                                                     @foreach($lipids as $l)
                                                     <tr>
                                                         <td>{{ $l->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres_lip_80($diagnosis->isocaloric_lipido, $l->lipid,$l->gr),0) }}</td>
+                                                        <td>{{ regla_tres_lip_80($diagnosis->isocaloric_lipido, $l->lipid,$l->gr,$l->id) }}</td>
                                                     </tr>
                                                 @endforeach
                                                 </tbody>   
@@ -419,7 +419,7 @@
                                                     @if($p->cho > 0)
                                                     <tr>
                                                         <td>{{ $p->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres_prot($p->id,$diagnosis->isocaloric_protein,$p->protein,$p->gr),0) }}</td>
+                                                        <td>{{ regla_tres_prot($p->id,$diagnosis->isocaloric_protein,$p->protein,$p->gr) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
