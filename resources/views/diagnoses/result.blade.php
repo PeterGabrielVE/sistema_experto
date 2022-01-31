@@ -189,7 +189,7 @@
                                                     @if($c->cho != 0 && $c->cho > 1)
                                                     <tr>
                                                         <td>{{ $c->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr,$c->id),0) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
@@ -209,7 +209,7 @@
                                                     @if($l->cho != 0 && $l->cho > 1)
                                                     <tr>
                                                         <td>{{ $l->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $l->cho,$c->gr),0) }}</td>
+                                                        <td>{{ regla_tres_lac($diagnosis->isocaloric_carbohydrate,$l->cho,$c->gr,$c->id) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
@@ -225,7 +225,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach($proteinas as $l)
+                                                    @foreach($proteins as $l)
                                                     @if($l->cho > 0)
                                                     <tr>
                                                         <td>{{ $l->name ?? null }}</td>
@@ -249,7 +249,7 @@
                                             
                                                     <tr>
                                                         <td>{{ $l->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres_lip($diagnosis->isocaloric_lipido, $l->lipid,$l->gr),0) }}</td>
+                                                        <td>{{ regla_tres_lip($diagnosis->isocaloric_lipido, $l->lipid,$l->gr, $l->id) }}</td>
                                                     </tr>
                                                 
                                                 @endforeach
@@ -275,7 +275,7 @@
                                                     @if($c->cho > 0)
                                                     <tr>
                                                         <td>{{ $c->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr,$c->id),0) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
@@ -296,7 +296,7 @@
                                                     @if($v->cho > 0)
                                                     <tr>
                                                         <td>{{ $v->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr,$v->id),0) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
@@ -361,7 +361,7 @@
                                                     @if($c->cho > 0)
                                                     <tr>
                                                         <td>{{ $c->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr,$c->id),0) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
@@ -381,7 +381,7 @@
                                                     @if($v->cho > 0)
                                                     <tr>
                                                         <td>{{ $v->name ?? null }}</td>
-                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr),0) }}</td>
+                                                        <td>{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr,$v->id),0) }}</td>
                                                     </tr>
                                                     @endif
                                                 @endforeach
