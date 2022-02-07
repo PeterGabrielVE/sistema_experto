@@ -31,6 +31,14 @@
                                 @include('alerts.feedback', ['field' => 'name'])
                         </div>
                     </div>
+                    <div class="col-md-5">
+                      <div class="form-group">
+                          <label class="form-control-label" for="input-rol">{{ __('Rol') }}</label>
+                          {!! Form::select('rol_id', [1=>'Administrador',2=>'Doctor'], auth()->user()->rol_id, ['class' => 'form-control','required','id'=>'rol_id','autofocus']) !!}
+                          @include('alerts.feedback', ['field' => 'rol_id'])
+                          </div>
+                    </div>
+                  
                 </div>
                 <div class="row">
                   <div class="col-md-7 pr-1">
