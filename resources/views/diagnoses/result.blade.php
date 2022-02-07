@@ -432,7 +432,7 @@
                                 </div>
                                 
                                 <div class="text-center">
-                                    <a href="{{ route('download', $diagnosis->id) }}" class="btn btn-info mt-4">{{ __('Descargar') }}</a>
+                                    <a href="{{ route('download', $diagnosis->id) }}" class="btn btn-info mt-4" target="_blank">{{ __('Descargar') }}</a>
                                 </div>
                             </div>
                         </form>

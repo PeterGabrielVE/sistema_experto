@@ -48,18 +48,7 @@
 
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
-                                    <div class="form-group{{ $errors->has('id_region') ? ' has-danger' : '' }} col-6">
-                                        <label class="form-control-label" for="input-address">{{ __('Región') }}</label>
-                                        {!! Form::select('id_region', $regions, $patient->id_region ?? null, ['class' => 'form-control','required','id'=>'id_region','autofocus']) !!}
-
-                                        @include('alerts.feedback', ['field' => 'id_region'])
-                                    </div>
-                                    <div class="form-group{{ $errors->has('id_comuna') ? ' has-danger' : '' }} col-6">
-                                        <label class="form-control-label" for="input-address">{{ __('Comuna') }}</label>
-                                        {!! Form::select('id_comuna', $comunas, $patient->id_comuna ?? nullnull, ['class' => 'form-control','required','id'=>'id_comuna','autofocus']) !!}
-
-                                        @include('alerts.feedback', ['field' => 'id_comuna'])
-                                    </div>
+                                
                                     <div class="form-group{{ $errors->has('birthdate') ? ' has-danger' : '' }} col-6">
                                         <label class="form-control-label" for="input-birthdate">{{ __('Fecha de Nacimiento') }}</label>
                                         <input type="date" name="birthdate" id="input-birthdate" class="form-control{{ $errors->has('birthdate') ? ' is-invalid' : '' }}" placeholder="{{ __('Fecha de Nacimiento') }}" value="{{ $patient->birthdate ?? null }}" required autofocus>
