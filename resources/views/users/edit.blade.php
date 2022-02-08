@@ -1,6 +1,6 @@
 @extends('layouts.app', [
     'class' => 'sidebar-mini ',
-    'namePage' => 'Ediar Usuario',
+    'namePage' => 'Editar Usuario',
     'activePage' => 'user',
     'activeNav' => '',
 ])
@@ -35,9 +35,9 @@
 
                                     @include('alerts.feedback', ['field' => 'name'])
                                 </div>
-                                <div class="form-group{{ $errors->has('rol_id) ? ' has-danger' : '' }} col-3">
+                                <div class="form-group">
                                         <label class="form-control-label" for="input-rol">{{ __('Rol') }}</label>
-                                        {!! Form::select('rol_id', [1=>'Administrador',2=>'Doctor'], null, ['class' => 'form-control','required','id'=>'rol_id','autofocus']) !!}
+                                        {!! Form::select('rol_id', [1=>'Administrador',2=>'Doctor'],$user->rol_id ?? null, ['class' => 'form-control','required','id'=>'rol_id','autofocus']) !!}
 
                                         @include('alerts.feedback', ['field' => 'birthdate'])
                                 </div>

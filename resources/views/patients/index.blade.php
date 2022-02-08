@@ -55,7 +55,7 @@
                     <td>{{$patient->address}}</td>
                     <td>{{ date('d-m-Y', strtotime($patient->birthdate))  ?? null }}</td>
                       <td class="text-right">
-                    
+                      @if(Auth::user()->rol_id == 2)
                         <a type="button" href="{{route("patient.edit",$patient)}}" rel="tooltip" class="btn btn-success btn-sm" data-original-title="" title="">
                           <i class="now-ui-icons ui-2_settings-90"></i>Modificar
                         </a>
@@ -66,7 +66,9 @@
                           <i class="now-ui-icons ui-1_simple-remove"></i>Eliminar
                         </button>
                       </form>
+                      
                       <a href="{{ route('diagnosis.new', $patient->id) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i> Consultar</a>
+                      @endif
                       <a href="{{ route('diagnosis.all', $patient->id) }}" class="btn btn-success btn-sm"><i class="fa fa-eye"></i> Historial</a>
                     </td>
                   </tr>

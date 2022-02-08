@@ -35,6 +35,13 @@
 
                                     @include('alerts.feedback', ['field' => 'name'])
                                 </div>
+
+                                <div class="form-group">
+                                    <label class="form-control-label" for="input-rol">{{ __('Rol') }}</label>
+                                        {!! Form::select('rol_id', [1=>'Administrador',2=>'Doctor'], auth()->user()->rol_id, ['class' => 'form-control','required','id'=>'rol_id','autofocus']) !!}
+                                        @include('alerts.feedback', ['field' => 'rol_id'])
+                                </div>
+
                                 <div class="form-group{{ $errors->has('email') ? ' has-danger' : '' }}">
                                     <label class="form-control-label" for="input-email">{{ __('Correo') }}</label>
                                     <input type="email" name="email" id="input-email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" placeholder="{{ __('Correo') }}" value="{{ old('email') }}" required>

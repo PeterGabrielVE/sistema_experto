@@ -34,33 +34,39 @@
                 <p> {{ __("Perfil Usuario") }} </p>
               </a>
             </li>
+            @if(Auth::user()->rol_id == 1)
             <li class="@if ($activePage == 'users') active @endif">
               <a href="{{ route('user.index') }}">
                 <i class="now-ui-icons design_bullet-list-67"></i>
                 <p> {{ __("Usuarios") }} </p>
               </a>
             </li>
+            @endif
           </ul>
         </div>
+        @if(Auth::user()->rol_id == 1)
       <li class="@if ($activePage == 'patient') active @endif">
         <a href="{{ route('patient.index','patient') }}">
             <i class="now-ui-icons design_bullet-list-67"></i>
               <p> {{ __("Pacientes") }} </p>
         </a>
       </li>
+      @endif
+      @if(Auth::user()->rol_id == 2)
       <li class = "@if ($activePage == 'recommendation') active @endif">
         <a href="{{ route('recommendation.index') }}">
           <i class="now-ui-icons tech_tv"></i>
           <p>{{ __('Recomendaciones') }}</p>
         </a>
       </li>
+      
       <li class = "@if ($activePage == 'rules') active @endif">
         <a href="{{ route('rules.index') }}">
           <i class="now-ui-icons business_bulb-63"></i>
           <p>{{ __('Regla de Conocimiento') }}</p>
         </a>
       </li>
-
+      @endif
     </ul>
   </div>
 </div>
