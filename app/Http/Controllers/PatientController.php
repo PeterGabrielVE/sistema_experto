@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Patient;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use Auth;
 
 class PatientController extends Controller
 {
@@ -87,6 +88,7 @@ class PatientController extends Controller
             $fileName = $patient->id . '.' . $extension;
             $request->file('image')->move($path, $fileName);
             $patient->image = $fileName;
+            $patient->created_by = Auth::user()->id;
         }
         else
             $patient->image = '0.jpg';

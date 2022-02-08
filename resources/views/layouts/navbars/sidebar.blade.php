@@ -44,14 +44,14 @@
             @endif
           </ul>
         </div>
-        @if(Auth::user()->rol_id == 1)
+     
       <li class="@if ($activePage == 'patient') active @endif">
         <a href="{{ route('patient.index','patient') }}">
             <i class="now-ui-icons design_bullet-list-67"></i>
               <p> {{ __("Pacientes") }} </p>
         </a>
       </li>
-      @endif
+
       @if(Auth::user()->rol_id == 2)
       <li class = "@if ($activePage == 'recommendation') active @endif">
         <a href="{{ route('recommendation.index') }}">

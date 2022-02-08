@@ -31,6 +31,7 @@
                   <th>{{ __('Nombre Completo') }}</th>
                   <th>{{ __('Dirección') }}</th>
                   <th>{{ __('Fecha Nacimiento') }}</th>
+                  <th>{{ __('Creado Por') }}</th>
                   <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
                 </tr>
               </thead>
@@ -40,6 +41,7 @@
                   <th>{{ __('Nombre Completo') }}</th>
                   <th>{{ __('Dirección') }}</th>
                   <th>{{ __('Fecha Nacimiento') }}</th>
+                  <th>{{ __('Creado Por') }}</th>
                   <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
                 </tr>
               </tfoot>
@@ -54,7 +56,8 @@
                     <td>{{$patient->first_name ??  null }} {{$patient->last_name ??  null }}</td>
                     <td>{{$patient->address}}</td>
                     <td>{{ date('d-m-Y', strtotime($patient->birthdate))  ?? null }}</td>
-                      <td class="text-right">
+                    <td>{{$patient->user->name ?? null }}</td>
+                    <td class="text-right">
                       @if(Auth::user()->rol_id == 2)
                         <a type="button" href="{{route("patient.edit",$patient)}}" rel="tooltip" class="btn btn-success btn-sm" data-original-title="" title="">
                           <i class="now-ui-icons ui-2_settings-90"></i>Modificar

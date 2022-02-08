@@ -7,6 +7,7 @@ use App\Patient;
 use App\Diagnosis;
 use App\Food;
 use Barryvdh\DomPDF\Facade as PDF;
+use Auth;
 class DiagnosisController extends Controller
 {
     /**
@@ -38,7 +39,7 @@ class DiagnosisController extends Controller
      */
     public function store(Request $request) 
     {
-        $diagnosis = Diagnosis::create($request->all());
+        $diagnosis = Diagnosis::create($request->all() + ['created_by' => Auth::user()->id]);
         
         $diagnosis->save();
 
