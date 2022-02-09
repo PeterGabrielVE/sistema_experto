@@ -49,7 +49,9 @@ function regla_tres_prot($id,$iso, $pro, $gr){
 
 function regla_tres_lip($iso, $lip, $gr, $id){
     $gr_total = 0;
-    if($id == 64 || $id > 71 ){
+    if($id == 71){
+        $gr_total = round($iso*3/$lip,0).' cucharada(s)';
+    }else if($id == 64 || $id > 71 ){
         $gr_total = '1 cucharada';
     }else{
         $gr_total = round($gr*$lip/$iso,0);
@@ -61,7 +63,7 @@ function regla_tres_lip_80($iso, $lip, $gr, $id){
     $iso = $iso * 0.80;
     $gr_total = 0;
     if($id == 71){
-        $gr_total = round($gr*$iso/$lip,0).' (3 cucharadas)';
+        $gr_total = round($iso*3/$lip,0).' cucharada(s)';
     }else if($id == 64 || $id > 71 ){
         $gr_total = '1 cucharada';
     }else{
