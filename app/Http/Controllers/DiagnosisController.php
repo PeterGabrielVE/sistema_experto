@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Patient;
 use App\Diagnosis;
 use App\Food;
+use App\Recommendation;
 use Barryvdh\DomPDF\Facade as PDF;
 use Auth;
 class DiagnosisController extends Controller
@@ -151,12 +152,23 @@ class DiagnosisController extends Controller
         $aceites = Food::whereIn('id',[72,73,74])->get();
         $lipids = Food::where('id_group',10)->whereNotIn('id',[72,73,74])->get();
         $lipidos = Food::where('id_group',10)->get();
+        $rule = 0;
+        if($diagnosis->imc >= 0 && $diagnosis->imc <= 18.4){
+            $rule = 1;
+        }elseif($diagnosis->imc >= 18.5  && $diagnosis->imc <= 24.9){
+            $rule = 2;
+        }elseif($diagnosis->imc >= 25 && $diagnosis->imc <= 29.9){
+            $rule = 3;
+        }else{
+            $rule = 4;
+        }
+        $recomendations = Recommendation::where('id_rule',$rule)->get();
 
         return PDF::loadView('result-pdf', ['patient' => $patient,'diagnosis' => $diagnosis,
         'foods' => $foods,'cereales' => $foods_cereal,'lacteos' => $foods_lacteos,
         'cereal_leg' => $foods_cereal_leg,'verduras' => $foods_verduras,'proteinas' => $proteinas,
         'lipidos' => $lipidos,'proteins' => $proteins,'lipids' => $lipids,
-        'aceites' => $aceites])
+        'aceites' => $aceites,'recomendations' => $recomendations])
         ->stream('archivo.pdf');
     }
 }

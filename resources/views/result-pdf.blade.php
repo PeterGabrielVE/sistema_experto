@@ -141,6 +141,8 @@
         </div>
   </div>
 
+  <div class="container" style="width:90%">
+  
   <table class="contenido" border="0"  width="100%">
     <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
         <tr>
@@ -154,6 +156,26 @@
             <tr>
                 <td style="width: 20px;">{{ $c->name ?? null }}</td>
                 <td style="width: 20px;">{{ round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr,$c->id),0) }}</td>
+            </tr>
+            @endif
+        @endforeach
+    </tbody>
+
+  </table>
+  <hr style="color: #3989c6;">
+  <table class="contenido" border="0"  width="100%">
+    <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
+        <tr>
+            <th>Acompañamientos</th>
+            <th>Grs.</th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach($lacteos as $l)
+            @if($l->cho != 0 && $l->cho > 1)
+            <tr>
+                <td style="width: 20px;">{{ $l->name ?? null }}</td>
+                <td style="width: 20px;">{{ regla_tres_lac($diagnosis->isocaloric_carbohydrate,$l->cho,$c->gr,$c->id) }}</td>
             </tr>
             @endif
         @endforeach
@@ -184,16 +206,181 @@
   <table class="contenido" border="0"  width="100%">
     <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
         <tr>
+            <th>Grasas</th>
+            <th>Cant.</th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach($lipidos as $l)
+            <tr>
+                <td style="width: 20px;">{{ $l->name ?? null }}</td>
+                <td style="width: 20px;">{{ regla_tres_lip($diagnosis->isocaloric_lipido, $l->lipid,$l->gr, $l->id) }}</td>
+            </tr>
+        @endforeach
+    </tbody>
+
+  </table>
+  <hr style="color: #3989c6;">
+  <div>
+        <div class="col-12">
+            <h4 class="m-3 p-3">Almuerzo</h4><br>
+        </div>
+  </div>
+  <table class="contenido" border="0"  width="100%">
+    <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
+        <tr>
+            <th>Carbohidratos</th>
+            <th>Grs.</th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach($cereal_leg as $c)
+            @if($c->cho > 0)
+            <tr>
+                <td style="width: 20px;">{{ $c->name ?? null }}</td>
+                <td style="width: 20px;">{{  round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr,$c->id),0) }}</td>
+            </tr>
+            @endif
+        @endforeach
+    </tbody>
+
+  </table>
+  <hr style="color: #3989c6;">
+  <table class="contenido" border="0"  width="100%">
+    <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
+        <tr>
             <th>Acompañamientos</th>
             <th>Grs.</th>
         </tr>
     </thead>
     <tbody>
-            @foreach($lacteos as $l)
-            @if($l->cho != 0 && $l->cho > 1)
+                @foreach($verduras as $v)
+                @if($v->cho > 0)
+            <tr>
+                <td style="width: 20px;">{{ $v->name ?? null }}</td>
+                <td style="width: 20px;">{{  round(regla_tres($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr,$v->id),0) }}</td>
+            </tr>
+            @endif
+        @endforeach
+    </tbody>
+
+  </table>
+  <hr style="color: #3989c6;">
+  <table class="contenido" border="0"  width="100%">
+    <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
+        <tr>
+            <th>Grasas</th>
+            <th>Cant.</th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach($lipids as $l)
             <tr>
                 <td style="width: 20px;">{{ $l->name ?? null }}</td>
-                <td style="width: 20px;">{{ regla_tres_lac($diagnosis->isocaloric_carbohydrate,$l->cho,$c->gr,$c->id) }}</td>
+                <td style="width: 20px;">{{  regla_tres_lip_80($diagnosis->isocaloric_lipido, $l->lipid,$l->gr,$l->id) }}</td>
+            </tr>
+        @endforeach
+    </tbody>
+
+  </table>
+  <hr style="color: #3989c6;">
+  <table class="contenido" border="0"  width="100%">
+    <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
+        <tr>
+            <th>Proteínas</th>
+            <th>Grs.</th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach($proteins as $p)
+            @if($p->cho > 0)
+            <tr>
+                <td style="width: 20px;">{{ $p->name ?? null }}</td>
+                <td style="width: 20px;">{{  regla_tres_prot($p->id,$diagnosis->isocaloric_protein,$p->protein,$p->gr) }}</td>
+            </tr>
+            @endif
+        @endforeach
+    </tbody>
+
+  </table>
+  <hr style="color: #3989c6;">
+
+  <div>
+        <div class="col-12">
+            <h4 class="m-3 p-3">Cena</h4><br>
+        </div>
+  </div>
+  <table class="contenido" border="0"  width="100%">
+    <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
+        <tr>
+            <th>Carbohidratos</th>
+            <th>Grs.</th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach($cereal_leg as $c)
+            @if($c->cho > 0)
+            <tr>
+                <td style="width: 20px;">{{ $c->name ?? null }}</td>
+                <td style="width: 20px;">{{  round(regla_tres($diagnosis->isocaloric_carbohydrate, $c->cho,$c->gr,$c->id),0) }}</td>
+            </tr>
+            @endif
+        @endforeach
+    </tbody>
+
+  </table>
+  <hr style="color: #3989c6;">
+  <table class="contenido" border="0"  width="100%">
+    <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
+        <tr>
+            <th>Acompañamientos</th>
+            <th>Grs.</th>
+        </tr>
+    </thead>
+    <tbody>
+                @foreach($verduras as $v)
+                @if($v->cho > 0)
+            <tr>
+                <td style="width: 20px;">{{ $v->name ?? null }}</td>
+                <td style="width: 20px;">{{  round(regla_tres($diagnosis->isocaloric_carbohydrate, $v->cho,$v->gr,$v->id),0) }}</td>
+            </tr>
+            @endif
+        @endforeach
+    </tbody>
+
+  </table>
+  <hr style="color: #3989c6;">
+  <table class="contenido" border="0"  width="100%">
+    <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
+        <tr>
+            <th>Grasas</th>
+            <th>Cant.</th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach($lipids as $l)
+            <tr>
+                <td style="width: 20px;">{{ $l->name ?? null }}</td>
+                <td style="width: 20px;">{{  regla_tres_lip_80($diagnosis->isocaloric_lipido, $l->lipid,$l->gr,$l->id) }}</td>
+            </tr>
+        @endforeach
+    </tbody>
+
+  </table>
+  <hr style="color: #3989c6;">
+  <table class="contenido" border="0"  width="100%">
+    <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
+        <tr>
+            <th>Proteínas</th>
+            <th>Grs.</th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach($proteins as $p)
+            @if($p->cho > 0)
+            <tr>
+                <td style="width: 20px;">{{ $p->name ?? null }}</td>
+                <td style="width: 20px;">{{  regla_tres_prot($p->id,$diagnosis->isocaloric_protein,$p->protein,$p->gr) }}</td>
             </tr>
             @endif
         @endforeach
@@ -202,5 +389,32 @@
   </table>
   <hr style="color: #3989c6;">
   
+  <div>
+        <div class="col-12">
+            <h4 class="m-3 p-3">Recomendaciones</h4><br>
+        </div>
+  </div>
+  
+  <table class="contenido" border="0"  width="100%">
+    <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
+        <tr>
+            <th>Recomendaciones</th>
+        </tr>
+    </thead>
+    <tbody>
+            @foreach($recomendations as $r)
+            <tr>
+                <td style="width: 20px;">{{ $r->description ?? null }}</td>
+            </tr>
+        @endforeach
+    </tbody>
+
+  </table>
+  <hr style="color: #3989c6;">
+
+
+
+  </div>
+ 
 </body>
 </html>
