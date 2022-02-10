@@ -402,11 +402,15 @@
         </tr>
     </thead>
     <tbody>
+            <tr>
+                <p><b>General:</b>En los trastornos metabólicos como resistencia a insulina lo primordial es mantener una dieta apropiada sin embargo la actividad física es recomendable, a modo general se sugiere caminar por lo menos 30 minutos al día en caso de tener algún tipo de discapacidad que le impida movilizarse realice estiramientos en el lugar en donde se encuentre.</p>
+            </tr>
             @foreach($recomendations as $r)
             <tr>
                 <td style="width: 20px;">{{ $r->description ?? null }}</td>
             </tr>
-        @endforeach
+            @endforeach
+            
     </tbody>
 
   </table>
