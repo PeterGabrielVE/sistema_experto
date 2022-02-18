@@ -71,7 +71,7 @@
         <div class="card card-chart">
           <div class="card-header">
             <h5 class="card-category">Estadísticas</h5>
-            <h4 class="card-title">Diagnósticos</h4>
+            <h4 class="card-title">Consultas</h4>
           </div>
           <div class="card-body">
             <div class="chart-area">

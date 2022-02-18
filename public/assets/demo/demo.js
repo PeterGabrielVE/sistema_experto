@@ -253,7 +253,7 @@ demo = {
             data: {
                 labels: ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"],
                 datasets: [{
-                    label: "Diagnosticos",
+                    label: "Consultas",
                     borderColor: chartColor,
                     pointBorderColor: chartColor,
                     pointBackgroundColor: "#1e3d60",
@@ -445,7 +445,7 @@ demo = {
             data: {
                 labels: ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"],
                 datasets: [{
-                    label: "Diagnoticos realizados",
+                    label: "Consultas realizadas",
                     backgroundColor: gradientFill,
                     borderColor: "#2CA8FF",
                     pointBorderColor: "#FFF",
