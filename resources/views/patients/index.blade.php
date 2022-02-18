@@ -13,8 +13,10 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
+              @if(Auth::user()->rol_id == 2)
               <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Agregar paciente') }}</a>
-            <h4 class="card-title">{{ __('Pacientes') }}</h4>
+              @endif
+              <h4 class="card-title">{{ __('Pacientes') }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')
               @include('alerts.errors')

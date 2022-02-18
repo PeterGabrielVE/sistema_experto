@@ -18,7 +18,7 @@
                                 <h3 class="mb-0">{{ __('Gestión de paciente') }}</h3>
                             </div>
                             <div class="col-4 text-right">
-                                <a href="{{ route('user.index') }}" class="btn btn-primary btn-round">{{ __('Volver a la lista') }}</a>
+                                <a href="{{ route('patient.index') }}" class="btn btn-primary btn-round">{{ __('Volver a la lista') }}</a>
                             </div>
                         </div>
                     </div>

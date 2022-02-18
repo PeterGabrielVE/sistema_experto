@@ -79,8 +79,9 @@
                                 </div>
 
                                 <div class="text-center">
+                                    @if(Auth::user()->rol_id == 2)
                                     <a onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Realizar consultar') }}</a>
-            
+                                    @endif
                                 </div>
                             </div>
                     </div>

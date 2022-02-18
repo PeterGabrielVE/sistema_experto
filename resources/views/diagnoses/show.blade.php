@@ -13,8 +13,10 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Diagnóstico nuevo') }}</a>
-            <h4 class="card-title">{{ __('Consultas') }}: {{ $patient->first_name ?? null }} {{ $patient->last_name ?? null }}</h4>
+              @if(Auth::user()->rol_id == 2)
+              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('diagnosis.new',$patient->id) }}">{{ __('Consulta nueva') }}</a>
+              @endif
+              <h4 class="card-title">{{ __('Consultas') }}: {{ $patient->first_name ?? null }} {{ $patient->last_name ?? null }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')
               @include('alerts.errors')
