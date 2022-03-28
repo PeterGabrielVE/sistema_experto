@@ -1,5 +1,5 @@
 @extends('layouts.app', [
-    'namePage' => 'Regla de Conocimiento',
+    'namePage' => 'Recomendaciones',
     'class' => 'sidebar-mini',
     'activePage' => 'rules',
     'activeNav' => '',
@@ -13,7 +13,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-            <h4 class="card-title">{{ __('Regla de Conocimiento') }}</h4>
+            <h4 class="card-title">{{ __('Gestion de recomendaciones') }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')
               @include('alerts.errors')

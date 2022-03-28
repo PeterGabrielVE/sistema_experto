@@ -55,7 +55,7 @@
                 </div>
             </div>
             <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
-                <label class="form-control-label" for="input-size">{{ __('IMC DESEADO') }}</label>
+                <label class="form-control-label" for="input-size">{{ __('Factor de Corrección') }}</label>
                 <div class="ui right labeled input">
                 <input type="text" name="imc_desired" id="input-imc-deseado" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
                   <div class="ui basic label">kg/m</div>

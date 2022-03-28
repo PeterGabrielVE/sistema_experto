@@ -96,8 +96,8 @@
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-2">
-                                        <label class="form-control-label" for="input-imc_desired">{{ __('IMC Deseado') }}</label>
-                                        <input type="text" name="imc_desired" id="input-imc_desired" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('IMC Deseado') }}" value="{{ $diagnosis->imc_desired ?? null }}">
+                                        <label class="form-control-label" for="input-imc_desired">{{ __('Factor de Corrección') }}</label>
+                                        <input type="text" name="imc_desired" id="input-imc_desired" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Factor de Corrección') }}" value="{{ $diagnosis->imc_desired ?? null }}">
 
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>

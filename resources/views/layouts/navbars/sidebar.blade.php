@@ -53,17 +53,17 @@
       </li>
 
       @if(Auth::user()->rol_id == 2)
-      <li class = "@if ($activePage == 'recommendation') active @endif">
+      <!--<li class = "@if ($activePage == 'recommendation') active @endif">
         <a href="{{ route('recommendation.index') }}">
           <i class="now-ui-icons tech_tv"></i>
           <p>{{ __('Recomendaciones') }}</p>
         </a>
-      </li>
+      </li>-->
       
       <li class = "@if ($activePage == 'rules') active @endif">
         <a href="{{ route('rules.index') }}">
           <i class="now-ui-icons business_bulb-63"></i>
-          <p>{{ __('Regla de Conocimiento') }}</p>
+          <p>{{ __('Recomendaciones') }}</p>
         </a>
       </li>
       @endif
