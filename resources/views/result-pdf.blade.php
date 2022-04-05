@@ -5,6 +5,11 @@
 <title>Resultado</title>
 
 <style type="text/css">
+
+.page-break {
+    page-break-after: always;
+}
+
 .cajas{
     width: 100%;
 }
@@ -221,6 +226,7 @@
 
   </table>
   <hr style="color: #3989c6;">
+  <div class="page-break"></div>
   <div>
         <div class="col-12">
             <h4 class="m-3 p-3">Almuerzo</h4><br>
@@ -304,7 +310,7 @@
 
   </table>
   <hr style="color: #3989c6;">
-
+  <div class="page-break"></div>
   <div>
         <div class="col-12">
             <h4 class="m-3 p-3">Cena</h4><br>
@@ -388,7 +394,9 @@
 
   </table>
   <hr style="color: #3989c6;">
-  
+  </div>
+    <div class="container">
+  <div class="page-break"></div>
   <div>
         <div class="col-12">
             <h4 class="m-3 p-3">Recomendaciones</h4><br>
@@ -398,7 +406,7 @@
   <table class="contenido" border="0"  width="100%">
     <thead style="font-size:14px; background: #f3f3f3;color: rgb(0, 0, 0);">
         <tr>
-            <th>Recomendaciones</th>
+            <th>Recomendaciones Específica</th>
         </tr>
     </thead>
     <tbody>
