@@ -1,8 +1,8 @@
 @extends('layouts.app', [
     'namePage' => 'KATRINA',
-    'class' => 'login-page sidebar-mini ',
+    'class' => 'login-page sidebar-mini',
     'activePage' => 'login',
-    'backgroundImage' => asset('assets') . "/img/bg14.jpg",
+    'backgroundImage' => asset('assets') . "/img/bg15.png",
 ])
 
 @section('content')
@@ -30,8 +30,8 @@
                 @csrf
             <div class="card card-login card-plain">
                 <div class="card-header ">
-                <div class="logo-container">
-                    
+                <div class="text-center">
+                    <img src="{{ asset('assets/img/sauce-logo.png') }}" alt=""  width="150" height="150">
                 </div>
                 </div>
                 <div class="card-body ">
