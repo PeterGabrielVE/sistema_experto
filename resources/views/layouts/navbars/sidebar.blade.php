@@ -1,8 +1,11 @@
-<div class="sidebar" data-color="blue">
+<div class="sidebar" data-color="green">
   <!--
     Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow"
 -->
   <div class="logo">
+  <div class="text-center">
+      <img src="{{ asset('assets/img/sauce-logo.png') }}" alt=""  width="100" height="100">
+  </div>
     <a href="#" class="simple-text logo-mini">
       {{ __('SE') }}
     </a>
