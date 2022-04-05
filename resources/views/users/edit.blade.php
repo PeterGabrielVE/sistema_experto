@@ -37,7 +37,7 @@
                                 </div>
                                 <div class="form-group">
                                         <label class="form-control-label" for="input-rol">{{ __('Rol') }}</label>
-                                        {!! Form::select('rol_id', [1=>'Administrador',2=>'Doctor'],$user->rol_id ?? null, ['class' => 'form-control','required','id'=>'rol_id','autofocus']) !!}
+                                        {!! Form::select('rol_id', [1=>'Administrador',2=>'Doctor',3=>'Doctor Jefe'],$user->rol_id ?? null, ['class' => 'form-control','required','id'=>'rol_id','autofocus']) !!}
 
                                         @include('alerts.feedback', ['field' => 'birthdate'])
                                 </div>

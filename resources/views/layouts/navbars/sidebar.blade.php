@@ -54,8 +54,14 @@
               <p> {{ __("Pacientes") }} </p>
         </a>
       </li>
+      <li class="@if ($activePage == 'information') active @endif">
+        <a href="{{ route('page.index','information') }}">
+            <i class="now-ui-icons design_bullet-list-67"></i>
+              <p> {{ __("Información") }} </p>
+        </a>
+      </li>
 
-      @if(Auth::user()->rol_id == 2)
+      @if(Auth::user()->rol_id == 3)
       <!--<li class = "@if ($activePage == 'recommendation') active @endif">
         <a href="{{ route('recommendation.index') }}">
           <i class="now-ui-icons tech_tv"></i>
