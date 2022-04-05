@@ -13,7 +13,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-              @if(Auth::user()->rol_id == 2)
+              @if(Auth::user()->rol_id == 2 || Auth::user()->rol_id == 3)
               <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Agregar paciente') }}</a>
               @endif
               <h4 class="card-title">{{ __('Pacientes') }}</h4>
@@ -60,7 +60,7 @@
                     <td>{{ date('d-m-Y', strtotime($patient->birthdate))  ?? null }}</td>
                     <td>{{$patient->user->name ?? null }}</td>
                     <td class="text-right">
-                      @if(Auth::user()->rol_id == 2)
+                      @if(Auth::user()->rol_id == 2 || Auth::user()->rol_id == 3)
                         <a type="button" href="{{route("patient.edit",$patient)}}" rel="tooltip" class="btn btn-success btn-sm" data-original-title="" title="">
                           <i class="now-ui-icons ui-2_settings-90"></i>Modificar
                         </a>

@@ -13,7 +13,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-              @if(Auth::user()->rol_id == 2)
+              @if(Auth::user()->rol_id == 2 || Auth::user()->rol_id == 3)
               <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('diagnosis.new',$patient->id) }}">{{ __('Consulta nueva') }}</a>
               @endif
               <h4 class="card-title">{{ __('Consultas') }}: {{ $patient->first_name ?? null }} {{ $patient->last_name ?? null }}</h4>
