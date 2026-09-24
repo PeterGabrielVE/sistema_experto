@@ -2,33 +2,44 @@
 
 namespace App\Http\Requests;
 
-use App\Models\User;
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
+/**
+ * Users edit their own name and email only. The role is managed by
+ * administrators, so it is intentionally not accepted here.
+ */
 class ProfileRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        return auth()->check();
+        return $this->user() !== null;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'name' => trim((string) $this->name),
+            'email' => mb_strtolower(trim((string) $this->email)),
+        ]);
+    }
+
+    public function rules(): array
     {
         return [
-            'name' => ['required', 'min:3'],
-            'email' => ['required', 'email', Rule::unique((new User)->getTable())->ignore(auth()->id())],
-            'photo' => ['nullable', 'image'],
+            'name' => ['required', 'string', 'min:3', 'max:255'],
+            'email' => [
+                'required', 'string', 'email:rfc', 'max:255',
+                Rule::unique('users', 'email')->ignore($this->user()->id),
+            ],
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'nombre',
+            'email' => 'correo',
         ];
     }
 }

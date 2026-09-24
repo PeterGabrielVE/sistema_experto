@@ -34,8 +34,9 @@
                     <div class="col-md-5">
                       <div class="form-group">
                           <label class="form-control-label" for="input-rol">{{ __('Rol') }}</label>
-                          <x-select name="rol_id" :options="[1=>'Administrador',2=>'Doctor',3=>'Doctor Jefe']" :selected="auth()->user()->rol_id" class="form-control" required id="rol_id" autofocus />
-                          @include('alerts.feedback', ['field' => 'rol_id'])
+                          {{-- The role is managed by administrators and cannot be changed here. --}}
+                          <input type="text" id="input-rol" class="form-control" value="{{ auth()->user()->role()?->label() ?? __('Sin rol') }}" readonly>
+                          <small class="form-text text-muted">{{ __('Solo un administrador puede cambiar el rol.') }}</small>
                       </div>
                     </div>
                   

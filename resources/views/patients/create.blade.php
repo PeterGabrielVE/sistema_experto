@@ -43,12 +43,10 @@
                                         @include('alerts.feedback', ['field' => 'last_name'])
                                     </div>
                                     <div class="form-group{{ $errors->has('rut') ? ' has-danger' : '' }} col-4">
-                                        <label class="form-control-label" for="input-name">{{ __('RUT') }}</label>
-                                        <input type="text" name="rut" id="input-rut" class="form-control{{ $errors->has('last_name') ? ' is-invalid' : '' }}" placeholder="{{ __('RUT') }}" value="{{ old('RUT') }}" required autofocus>
+                                        <label class="form-control-label" for="input-rut">{{ __('RUT') }}</label>
+                                        <input type="text" name="rut" id="input-rut" class="form-control{{ $errors->has('rut') ? ' is-invalid' : '' }}" placeholder="{{ __('12345678-9') }}" value="{{ old('rut') }}" maxlength="12" required>
 
-                                        @if($errors->has('rut')) 
-                                                {{ $errors->first('rut') }} 
-                                        @endif
+                                        @include('alerts.feedback', ['field' => 'rut'])
                                     </div>
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-12">
                                         <label class="form-control-label" for="input-address">{{ __('Dirección') }}</label>
@@ -59,7 +57,7 @@
 
                                     <div class="form-group{{ $errors->has('birthdate') ? ' has-danger' : '' }} col-6">
                                         <label class="form-control-label" for="input-birthdate">{{ __('Fecha de Nacimiento') }}</label>
-                                        <input type="date" name="birthdate" id="input-birthdate" class="form-control{{ $errors->has('birthdate') ? ' is-invalid' : '' }}" placeholder="{{ __('Fecha de Nacimiento') }}" value="{{ old('birthdate') }}" required autofocus>
+                                        <input type="date" name="birthdate" id="input-birthdate" class="form-control{{ $errors->has('birthdate') ? ' is-invalid' : '' }}" placeholder="{{ __('Fecha de Nacimiento') }}" value="{{ old('birthdate') }}" max="{{ now()->subDay()->toDateString() }}" required>
 
                                         @include('alerts.feedback', ['field' => 'birthdate'])
                                     </div>
@@ -71,7 +69,7 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('comment') ? ' has-danger' : '' }} col-12">
                                         <label class="form-control-label" for="input-comment">{{ __('Comentario') }}</label>
-                                        <input type="text" name="comment" id="input-comment" class="form-control{{ $errors->has('comment') ? ' is-invalid' : '' }}" placeholder="{{ __('Comentario') }}" value="{{ old('comment') }}" required autofocus>
+                                        <input type="text" name="comment" id="input-comment" class="form-control{{ $errors->has('comment') ? ' is-invalid' : '' }}" placeholder="{{ __('Comentario (opcional)') }}" value="{{ old('comment') }}" maxlength="255">
 
                                         @include('alerts.feedback', ['field' => 'comment'])
                                     </div>

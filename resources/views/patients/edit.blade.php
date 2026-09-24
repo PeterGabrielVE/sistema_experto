@@ -32,26 +32,26 @@
                                 <div class="row">
                                     <div class="form-group{{ $errors->has('first_name') ? ' has-danger' : '' }} col-6">
                                         <label class="form-control-label" for="input-name">{{ __('Nombre') }}</label>
-                                        <input type="text" name="first_name" id="input-first_name" class="form-control{{ $errors->has('first_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Nombre') }}" value="{{ $patient->first_name }}" required autofocus>
+                                        <input type="text" name="first_name" id="input-first_name" class="form-control{{ $errors->has('first_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Nombre') }}" value="{{ old('first_name', $patient->first_name) }}" required autofocus>
 
                                         @include('alerts.feedback', ['field' => 'first_name'])
                                     </div>
                                     <div class="form-group{{ $errors->has('last_name') ? ' has-danger' : '' }} col-6">
                                         <label class="form-control-label" for="input-name">{{ __('Apellido') }}</label>
-                                        <input type="text" name="last_name" id="input-last_name" class="form-control{{ $errors->has('last_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Apellido') }}" value="{{ $patient->last_name  }}" required autofocus>
+                                        <input type="text" name="last_name" id="input-last_name" class="form-control{{ $errors->has('last_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Apellido') }}" value="{{ old('last_name', $patient->last_name) }}" required>
 
                                         @include('alerts.feedback', ['field' => 'last_name'])
                                     </div>
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-12">
                                         <label class="form-control-label" for="input-address">{{ __('Dirección') }}</label>
-                                        <input type="text" name="address" id="input-address" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Dirección') }}" value="{{ $patient->address  }}" required autofocus>
+                                        <input type="text" name="address" id="input-address" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Dirección') }}" value="{{ old('address', $patient->address) }}" required>
 
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
                                 
                                     <div class="form-group{{ $errors->has('birthdate') ? ' has-danger' : '' }} col-6">
                                         <label class="form-control-label" for="input-birthdate">{{ __('Fecha de Nacimiento') }}</label>
-                                        <input type="date" name="birthdate" id="input-birthdate" class="form-control{{ $errors->has('birthdate') ? ' is-invalid' : '' }}" placeholder="{{ __('Fecha de Nacimiento') }}" value="{{ $patient->birthdate ?? null }}" required autofocus>
+                                        <input type="date" name="birthdate" id="input-birthdate" class="form-control{{ $errors->has('birthdate') ? ' is-invalid' : '' }}" placeholder="{{ __('Fecha de Nacimiento') }}" value="{{ old('birthdate', $patient->birthdate) }}" max="{{ now()->subDay()->toDateString() }}" required>
 
                                         @include('alerts.feedback', ['field' => 'birthdate'])
                                     </div>
@@ -63,7 +63,7 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('comment') ? ' has-danger' : '' }} col-12">
                                         <label class="form-control-label" for="input-comment">{{ __('Comentario') }}</label>
-                                        <input type="text" name="comment" id="input-comment" class="form-control{{ $errors->has('comment') ? ' is-invalid' : '' }}" placeholder="{{ __('Comentario') }}" value="{{ $patient->comment }}" required autofocus>
+                                        <input type="text" name="comment" id="input-comment" class="form-control{{ $errors->has('comment') ? ' is-invalid' : '' }}" placeholder="{{ __('Comentario (opcional)') }}" value="{{ old('comment', $patient->comment) }}" maxlength="255">
 
                                         @include('alerts.feedback', ['field' => 'comment'])
                                     </div>

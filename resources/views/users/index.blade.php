@@ -30,6 +30,7 @@
                   <th>{{ __('Perfil') }}</th>
                   <th>{{ __('Nombre') }}</th>
                   <th>{{ __('Correo') }}</th>
+                  <th>{{ __('Rol') }}</th>
                   <th>{{ __('Fecha Creación') }}</th>
                   <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
                 </tr>
@@ -39,6 +40,7 @@
                   <th>{{ __('Perfil') }}</th>
                   <th>{{ __('Nombre') }}</th>
                   <th>{{ __('Correo') }}</th>
+                  <th>{{ __('Rol') }}</th>
                   <th>{{ __('Fecha Creación') }}</th>
                   <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
                 </tr>
@@ -53,9 +55,10 @@
                     </td>
                     <td>{{$user->name}}</td>
                     <td>{{$user->email}}</td>
-                    <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                    <td>{{ $user->role()?->label() ?? __('Sin rol') }}</td>
+                    <td>{{ $user->created_at?->format('d/m/Y H:i') }}</td>
                       <td class="text-right">
-                      @if($user->id!=auth()->user()->id)
+                      @can('delete', $user)
                         <a type="button" href="{{route("user.edit",$user)}}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
                           <i class="now-ui-icons ui-2_settings-90"></i>
                         </a>
@@ -70,7 +73,7 @@
                       <a type="button" href="{{ route('profile.edit') }}" rel="tooltip" class="btn btn-success btn-icon btn-sm " data-original-title="" title="">
                         <i class="now-ui-icons ui-2_settings-90"></i>
                       </a>
-                    @endif
+                    @endcan
                     </td>
                   </tr>
                 @endforeach

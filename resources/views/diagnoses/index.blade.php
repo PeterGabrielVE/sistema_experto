@@ -79,7 +79,7 @@
                                 </div>
 
                                 <div class="text-center">
-                                    @if(Auth::user()->rol_id == 2 || Auth::user()->rol_id == 3)
+                                    @if(auth()->user()->can('manage-diagnoses'))
                                     <a onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Realizar consultar') }}</a>
                                     @endif
                                 </div>

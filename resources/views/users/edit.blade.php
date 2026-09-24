@@ -37,9 +37,8 @@
                                 </div>
                                 <div class="form-group">
                                         <label class="form-control-label" for="input-rol">{{ __('Rol') }}</label>
-                                        <x-select name="rol_id" :options="[1=>'Administrador',2=>'Doctor',3=>'Doctor Jefe']" :selected="$user->rol_id ?? null" class="form-control" required id="rol_id" autofocus />
-
-                                        @include('alerts.feedback', ['field' => 'birthdate'])
+                                        <x-select name="rol_id" :options="$roles" :selected="$user->rol_id" class="form-control{{ $errors->has('rol_id') ? ' is-invalid' : '' }}" required id="rol_id" />
+                                        @include('alerts.feedback', ['field' => 'rol_id'])
                                 </div>
                                 <div class="form-group{{ $errors->has('email') ? ' has-danger' : '' }}">
                                     <label class="form-control-label" for="input-email">{{ __('Correo') }}</label>

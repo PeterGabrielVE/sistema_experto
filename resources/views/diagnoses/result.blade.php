@@ -187,7 +187,7 @@
                                                 @endswitch
                                             </small>
                                         </div>
-                                        @if(Auth::user()->rol_id == 2 || Auth::user()->rol_id == 3)
+                                        @if(auth()->user()->can('manage-diagnoses'))
                                         {{-- Fields belong to #rule-form (outside the page form) via the form attribute. --}}
                                         <div class="form-group col-md-4">
                                             <label class="form-control-label" for="input-id-rule">{{ __('Corregir categoría') }}</label>

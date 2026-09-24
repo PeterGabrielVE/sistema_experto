@@ -2,89 +2,75 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Enums\Role;
 use App\Http\Requests\UserRequest;
-use Illuminate\Support\Facades\Hash;
-use Response;
+use App\Models\User;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Response;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the users
-     *
-     * @param  \App\Models\User  $model
-     * @return \Illuminate\View\View
      */
-    public function index(User $model)
+    public function index()
     {
-        return view('users.index', ['users' => $model->paginate(15)]);
+        return view('users.index', ['users' => User::orderBy('name')->paginate(15)]);
     }
 
     /**
      * Show the form for creating a new user
-     *
-     * @return \Illuminate\View\View
      */
     public function create()
     {
-        return view('users.create');
+        return view('users.create', ['roles' => Role::options()]);
     }
 
     /**
-     * Store a newly created user in storage
-     *
-     * @param  \App\Http\Requests\UserRequest  $request
-     * @param  \App\Models\User  $model
-     * @return \Illuminate\Http\RedirectResponse
+     * Store a newly created user in storage.
+     * The password is hashed by the User model's "hashed" cast.
      */
-    public function store(UserRequest $request, User $model)
+    public function store(UserRequest $request)
     {
-        $model->create($request->merge(['password' => Hash::make($request->get('password'))])->all());
+        User::create($request->validated());
 
         return redirect()->route('user.index')->withStatus(__('Usuario creado correctamente.'));
     }
 
     /**
      * Show the form for editing the specified user
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\View\View
      */
     public function edit(User $user)
     {
-        return view('users.edit', compact('user'));
+        return view('users.edit', ['user' => $user, 'roles' => Role::options()]);
     }
 
     /**
-     * Update the specified user in storage
-     *
-     * @param  \App\Http\Requests\UserRequest  $request
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\RedirectResponse
+     * Update the specified user in storage. An empty password keeps the current one.
      */
-    public function update(UserRequest $request, User  $user)
+    public function update(UserRequest $request, User $user)
     {
-        $hasPassword = $request->get('password');
-        $user->update(
-            $request->merge([
-                'password' => Hash::make($request->get('password'))
-                ])->except([$hasPassword ? '' : 'password'])
-            );
+        $data = $request->validated();
 
-        return redirect()->route('user.index')->withStatus(__('User successfully updated.'));
+        if (blank($data['password'] ?? null)) {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('user.index')->withStatus(__('Usuario actualizado correctamente.'));
     }
 
     /**
      * Remove the specified user from storage
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(User  $user)
+    public function destroy(User $user)
     {
+        Gate::authorize('delete', $user);
+
         $user->delete();
 
-        return redirect()->route('user.index')->withStatus(__('User successfully deleted.'));
+        return redirect()->route('user.index')->withStatus(__('Usuario eliminado correctamente.'));
     }
 
     public function chart()
@@ -98,7 +84,7 @@ class UserController extends Controller
             $month = [ $i => $result ];
             $monts = array_push($months,$month);
         }
-        
+
         return response()->json($months);
     }
 

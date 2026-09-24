@@ -2,44 +2,29 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\CurrentPasswordCheckRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class PasswordRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        return auth()->check();
+        return $this->user() !== null;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'old_password' => ['required', 'min:6', new CurrentPasswordCheckRule],
-            'password' => ['required', 'min:6', 'confirmed', 'different:old_password'],
-            'password_confirmation' => ['required', 'min:6'],
+            'old_password' => ['required', 'current_password'],
+            'password' => ['required', 'confirmed', 'different:old_password', Password::min(8)->letters()->numbers()],
         ];
     }
 
-    /**
-     * Get the validation attributes that apply to the request.
-     *
-     * @return array
-     */
-    public function attributes()
+    public function attributes(): array
     {
         return [
-            'old_password' => __('current password'),
+            'old_password' => 'contraseña actual',
+            'password' => 'nueva contraseña',
         ];
     }
 }

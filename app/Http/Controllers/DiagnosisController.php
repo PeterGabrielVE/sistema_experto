@@ -176,11 +176,10 @@ class DiagnosisController extends Controller
 
     /**
      * A doctor confirms or corrects the category. These labels feed model retraining.
+     * Access is restricted to doctors by the "manage-diagnoses" gate on the route.
      */
     public function updateRule(Request $request, Diagnosis $diagnosis)
     {
-        abort_unless(in_array(Auth::user()->rol_id, [2, 3]), 403);
-
         $data = $request->validate([
             'id_rule' => ['required', 'integer', 'in:'.implode(',', array_keys(InferenceEngine::CATEGORIES))],
         ]);

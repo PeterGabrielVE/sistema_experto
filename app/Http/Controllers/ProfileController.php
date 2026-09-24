@@ -2,18 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Gate;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use App\Http\Requests\ProfileRequest;
 use App\Http\Requests\PasswordRequest;
+use App\Http\Requests\ProfileRequest;
 
 class ProfileController extends Controller
 {
     /**
      * Show the form for editing the profile.
-     *
-     * @return \Illuminate\View\View
      */
     public function edit()
     {
@@ -21,27 +16,21 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the profile
-     *
-     * @param  \App\Http\Requests\ProfileRequest  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Update the profile (name and email only).
      */
     public function update(ProfileRequest $request)
     {
-        auth()->user()->update($request->all());
+        $request->user()->update($request->validated());
 
         return back()->withStatus(__('Perfil actualizado exitosamente.'));
     }
 
     /**
-     * Change the password
-     *
-     * @param  \App\Http\Requests\PasswordRequest  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Change the password. It is hashed by the User model's "hashed" cast.
      */
     public function password(PasswordRequest $request)
     {
-        auth()->user()->update(['password' => Hash::make($request->get('password'))]);
+        $request->user()->update(['password' => $request->validated('password')]);
 
         return back()->withPasswordStatus(__('Contraseña actualizada exitosamente.'));
     }

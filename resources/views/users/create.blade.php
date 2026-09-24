@@ -38,7 +38,7 @@
 
                                 <div class="form-group">
                                     <label class="form-control-label" for="input-rol">{{ __('Rol') }}</label>
-                                        <x-select name="rol_id" :options="[1=>'Administrador',2=>'Doctor',3=>'Doctor Jefe']" :selected="auth()->user()->rol_id" class="form-control" required id="rol_id" autofocus />
+                                        <x-select name="rol_id" :options="$roles" :selected="\App\Enums\Role::Doctor->value" class="form-control{{ $errors->has('rol_id') ? ' is-invalid' : '' }}" required id="rol_id" />
                                         @include('alerts.feedback', ['field' => 'rol_id'])
                                 </div>
 

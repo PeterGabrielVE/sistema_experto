@@ -37,7 +37,7 @@
                 <p> {{ __("Perfil Usuario") }} </p>
               </a>
             </li>
-            @if(Auth::user()->rol_id == 1)
+            @if(auth()->user()->can('viewAny', \App\Models\User::class))
             <li class="@if ($activePage == 'users') active @endif">
               <a href="{{ route('user.index') }}">
                 <i class="now-ui-icons design_bullet-list-67"></i>
@@ -61,7 +61,7 @@
         </a>
       </li>
 
-      @if(Auth::user()->rol_id == 3)
+      @if(auth()->user()->can('manage-clinical-content'))
       <!--<li class = "@if ($activePage == 'recommendation') active @endif">
         <a href="{{ route('recommendation.index') }}">
           <i class="now-ui-icons tech_tv"></i>
