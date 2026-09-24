@@ -36,6 +36,20 @@ class PatientPolicy
     }
 
     /**
+     * The clinical record is sensitive health data: only the medical team
+     * (not administrators) can read it.
+     */
+    public function viewClinicalRecord(User $user, Patient $patient): bool
+    {
+        return $user->isDoctor();
+    }
+
+    public function updateClinicalRecord(User $user, Patient $patient): bool
+    {
+        return $user->isDoctor();
+    }
+
+    /**
      * Deleting also removes the clinical history: only the doctor who
      * registered the patient or a Doctor Jefe may do it.
      */

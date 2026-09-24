@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Events\ClinicalRecordSaved;
 use App\Events\DiagnosisCategoryConfirmed;
 use App\Events\DiagnosisCreated;
 use App\Events\PatientDeleted;
@@ -30,6 +31,15 @@ class RecordAuditTrail
             'patient_id' => $event->patientId,
             'rut' => $event->rut,
             'diagnoses_deleted' => $event->diagnosesDeleted,
+        ]);
+    }
+
+    public function handleClinicalRecordSaved(ClinicalRecordSaved $event): void
+    {
+        $this->record($event->created ? 'clinical_record.created' : 'clinical_record.updated', $event->actor, [
+            'patient_id' => $event->record->patient_id,
+            'clinical_record_id' => $event->record->id,
+            'fields' => $event->changedFields,
         ]);
     }
 

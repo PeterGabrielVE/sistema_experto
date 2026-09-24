@@ -34,11 +34,12 @@ class PatientManagementTest extends TestCase
 
     public function test_doctor_registers_patient(): void
     {
-        $this->actingAs($this->doctor)->post('/patient', $this->validPatient())
-            ->assertRedirect('/patient')
+        $response = $this->actingAs($this->doctor)->post('/patient', $this->validPatient())
             ->assertSessionHasNoErrors();
 
         $patient = Patient::firstOrFail();
+        // Next step: complete the clinical record.
+        $response->assertRedirect(route('patient.clinical-record.edit', $patient));
         $this->assertSame('Juan', $patient->first_name);
         $this->assertSame('12345678-5', $patient->rut);
         $this->assertSame($this->doctor->id, (int) $patient->created_by);
@@ -74,7 +75,7 @@ class PatientManagementTest extends TestCase
         $this->actingAs($this->doctor)->post('/patient', $this->validPatient([
             'created_by' => 999,
             'oldImage' => '../../index.php',
-        ]))->assertRedirect('/patient');
+        ]))->assertSessionHasNoErrors();
 
         $this->assertSame($this->doctor->id, (int) Patient::firstOrFail()->created_by);
         $this->assertFileExists(public_path('index.php'));

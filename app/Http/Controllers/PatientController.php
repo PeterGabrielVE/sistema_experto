@@ -28,13 +28,14 @@ class PatientController extends Controller
 
     public function store(PatientRequest $request)
     {
-        $this->patients->register(
+        $patient = $this->patients->register(
             $request->safe()->except('image'),
             $request->user(),
             $request->file('image'),
         );
 
-        return redirect()->route('patient.index')->withStatus(__('Paciente creado correctamente.'));
+        return redirect()->route('patient.clinical-record.edit', $patient)
+            ->withStatus(__('Paciente creado correctamente. Complete ahora su ficha clínica.'));
     }
 
     public function edit(Patient $patient)

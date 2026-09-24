@@ -16,6 +16,9 @@
               @if(auth()->user()->can('create', \App\Models\Diagnosis::class))
               <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('diagnosis.new',$patient->id) }}">{{ __('Consulta nueva') }}</a>
               @endif
+              @can('viewClinicalRecord', $patient)
+              <a class="btn btn-warning btn-round text-white pull-right mr-2" href="{{ route('patient.clinical-record.show', $patient) }}">{{ __('Ficha clínica') }}</a>
+              @endcan
               <h4 class="card-title">{{ __('Consultas') }}: {{ $patient->first_name ?? null }} {{ $patient->last_name ?? null }}</h4>
             <div class="col-12 mt-2">
               @include('alerts.success')

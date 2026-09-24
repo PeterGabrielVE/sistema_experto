@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClinicalRecordController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
@@ -49,6 +50,11 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:viewAny,'.Patient::class)->group(function () {
         Route::resource('patient', PatientController::class)->except(['show']);
+
+        // Clinical record (ficha clínica), one per patient.
+        Route::get('patient/{patient}/clinical-record', [ClinicalRecordController::class, 'show'])->name('patient.clinical-record.show');
+        Route::get('patient/{patient}/clinical-record/edit', [ClinicalRecordController::class, 'edit'])->name('patient.clinical-record.edit');
+        Route::put('patient/{patient}/clinical-record', [ClinicalRecordController::class, 'update'])->name('patient.clinical-record.update');
     });
 
     Route::middleware('can:viewAny,'.Diagnosis::class)->group(function () {

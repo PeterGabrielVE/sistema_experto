@@ -77,6 +77,9 @@
                       @can('create', \App\Models\Diagnosis::class)
                       <a href="{{ route('diagnosis.new', $patient->id) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i> Consultar</a>
                       @endcan
+                      @can('viewClinicalRecord', $patient)
+                      <a href="{{ route('patient.clinical-record.show', $patient) }}" class="btn btn-warning btn-sm"><i class="fa fa-notes-medical"></i> Ficha</a>
+                      @endcan
                       <a href="{{ route('diagnosis.all', $patient->id) }}" class="btn btn-success btn-sm"><i class="fa fa-eye"></i> Historial</a>
                     </td>
                   </tr>

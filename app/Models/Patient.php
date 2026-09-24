@@ -18,4 +18,14 @@ class Patient extends Model
     public function user(){
         return $this->belongsTo('App\Models\User','created_by','id');
     }
+
+    public function clinicalRecord()
+    {
+        return $this->hasOne(ClinicalRecord::class);
+    }
+
+    public function fullName(): string
+    {
+        return trim($this->first_name.' '.$this->last_name);
+    }
 }
