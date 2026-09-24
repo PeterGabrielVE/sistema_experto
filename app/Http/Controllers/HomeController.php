@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Recommendation;
-use App\User;
+use App\Models\Recommendation;
+use App\Models\User;
 
 class HomeController extends Controller
 {

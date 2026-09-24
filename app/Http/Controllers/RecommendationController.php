@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Recommendation;
-use App\Rule;
+use App\Models\Recommendation;
+use App\Models\Rule;
 
 class RecommendationController extends Controller
 {

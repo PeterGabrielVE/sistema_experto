@@ -57,7 +57,7 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('gender') ? ' has-danger' : '' }} col-6">
                                         <label class="form-control-label" for="input-gender">{{ __('Sexo') }}</label>
-                                        {!! Form::select('gender', ['H'=>'Hombre','M'=>'Mujer'], $patient->gender ?? null, ['class' => 'form-control','required','id'=>'input-gender','autofocus']) !!}
+                                        <x-select name="gender" :options="['H'=>'Hombre','M'=>'Mujer']" :selected="$patient->gender ?? null" class="form-control" required id="input-gender" autofocus />
 
                                         @include('alerts.feedback', ['field' => 'gender'])
                                     </div>

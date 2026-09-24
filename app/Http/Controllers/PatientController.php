@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Patient;
+use App\Models\Patient;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Auth;

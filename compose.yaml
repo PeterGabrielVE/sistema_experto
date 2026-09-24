@@ -1,0 +1,40 @@
+services:
+  app:
+    build: .
+    image: sistema-experto:latest
+    env_file: .env
+    environment:
+      DB_HOST: db
+      RUN_MIGRATIONS: "true"
+    ports:
+      - "${APP_PORT:-8000}:80"
+    volumes:
+      - storage:/var/www/html/storage
+      - patient-images:/var/www/html/public/patient/images
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    ports:
+      - "${FORWARD_DB_PORT:-3306}:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${DB_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  storage:
+  patient-images:
+  db-data:

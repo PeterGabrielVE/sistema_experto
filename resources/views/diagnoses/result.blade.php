@@ -50,7 +50,7 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('gender') ? ' has-danger' : '' }} col-2">
                                         <label class="form-control-label" for="input-gender">{{ __('Sexo') }}</label>
-                                        {!! Form::select('gender', ['H'=>'Hombre','M'=>'Mujer'], $patient->gender ?? null, ['class' => 'form-control','required','id'=>'input-gender','autofocus']) !!}
+                                        <x-select name="gender" :options="['H'=>'Hombre','M'=>'Mujer']" :selected="$patient->gender ?? null" class="form-control" required id="input-gender" autofocus />
 
                                         @include('alerts.feedback', ['field' => 'gender'])
                                     </div>
@@ -79,7 +79,7 @@
 
                                     <div class="form-group{{ $errors->has('birthdate') ? ' has-danger' : '' }} col-2 ml-4">
                                         <label class="form-control-label" for="input-birthdate">{{ __('Nivel Actividad Física') }}</label>
-                                        {!! Form::select('physical_activity', [0=>'Muy Ligera',1=>'Ligera',2=>'Moderada',3=>'Activa',4=>'Muy Activa'], $diagnosis->physical_activity ?? null, ['class' => 'form-control','required','id'=>'input-physical-activity']) !!}
+                                        <x-select name="physical_activity" :options="[0=>'Muy Ligera',1=>'Ligera',2=>'Moderada',3=>'Activa',4=>'Muy Activa']" :selected="$diagnosis->physical_activity ?? null" class="form-control" required id="input-physical-activity" />
 
                                         @include('alerts.feedback', ['field' => 'birthdate'])
                                     </div>

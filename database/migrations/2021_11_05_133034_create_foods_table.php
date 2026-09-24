@@ -14,7 +14,8 @@ class CreateFoodsTable extends Migration
     public function up()
     {
         Schema::create('foods', function (Blueprint $table) {
-            $table->bigIncrements('id_group');
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('id_group');
             $table->string('item');
             $table->string('portion');
             $table->string('kcal');
@@ -25,6 +26,7 @@ class CreateFoodsTable extends Migration
             $table->string('k_mg');
             $table->string('p_mg');
             $table->string('ca_mg');
+            $table->string('gr')->nullable();
             $table->timestamps();
         });
     }

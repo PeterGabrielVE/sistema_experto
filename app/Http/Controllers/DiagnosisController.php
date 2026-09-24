@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Patient;
-use App\Diagnosis;
-use App\Food;
-use App\Recommendation;
-use Barryvdh\DomPDF\Facade as PDF;
+use App\Models\Patient;
+use App\Models\Diagnosis;
+use App\Models\Food;
+use App\Models\Recommendation;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Auth;
 class DiagnosisController extends Controller
 {

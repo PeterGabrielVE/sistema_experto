@@ -52,7 +52,7 @@
 
                                     <div class="form-group{{ $errors->has('birthdate') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-birthdate">{{ __('Nivel Actividad Física') }}</label>
-                                        {!! Form::select('physical_activity', [0=>'Muy Ligera',1=>'Ligera',2=>'Moderada',3=>'Activa',4=>'Muy Activa'], null, ['class' => 'form-control','required','id'=>'input-physical-activity','autofocus']) !!}
+                                        <x-select name="physical_activity" :options="[0=>'Muy Ligera',1=>'Ligera',2=>'Moderada',3=>'Activa',4=>'Muy Activa']" class="form-control" required id="input-physical-activity" autofocus />
 
                                         @include('alerts.feedback', ['field' => 'birthdate'])
                                     </div>

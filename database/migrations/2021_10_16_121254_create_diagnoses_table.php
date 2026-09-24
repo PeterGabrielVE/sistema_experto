@@ -15,7 +15,7 @@ class CreateDiagnosesTable extends Migration
     {
         Schema::create('diagnoses', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('id_patient');
+            $table->unsignedBigInteger('id_patient');
     
             $table->decimal('carbohydrate')->nullable();
             $table->decimal('isocaloric_carbohydrate')->nullable();

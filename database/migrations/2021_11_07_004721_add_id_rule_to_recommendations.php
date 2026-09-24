@@ -14,7 +14,7 @@ class AddIdRuleToRecommendations extends Migration
     public function up()
     {
         Schema::table('recommendations', function (Blueprint $table) {
-            $table->integer('id_rule')->default(5)->nullable();
+            $table->unsignedBigInteger('id_rule')->default(5)->nullable();
             $table->foreign('id_rule')->references('id')->on('rules')->onDelete('cascade');
         });
     }

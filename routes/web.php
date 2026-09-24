@@ -1,14 +1,21 @@
 <?php
 
+use App\Http\Controllers\DiagnosisController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RecommendationController;
+use App\Http\Controllers\RulesController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
 */
 
 Route::get('/', function () {
@@ -17,32 +24,26 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
-Auth::routes();
+Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('downloadManual', [UserController::class, 'downloadManualPdf'])->name('downloadManual');
 
-Route::get('/home', 'HomeController@index')->name('home');
-Route::get('downloadManual','UserController@downloadManualPdf')->name('downloadManual');
+Route::middleware('auth')->group(function () {
+    Route::resource('user', UserController::class)->except(['show']);
+    Route::resource('patient', PatientController::class)->except(['show']);
+    Route::resource('diagnosis', DiagnosisController::class)->except(['show']);
+    Route::resource('recommendation', RecommendationController::class);
+    Route::resource('schedule', ScheduleController::class)->except(['show']);
+    Route::resource('rules', RulesController::class)->except(['show']);
+    Route::get('diagnosis/{id}', [DiagnosisController::class, 'create'])->name('diagnosis.new');
+    Route::get('result/{diagnosis}', [DiagnosisController::class, 'result'])->name('result');
+    Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('profile/password', [ProfileController::class, 'password'])->name('profile.password');
+    Route::get('{page}', [PageController::class, 'index'])->name('page.index');
 
-Route::group(['middleware' => 'auth'], function () {
-	Route::resource('user', 'UserController', ['except' => ['show']]);
-	Route::resource('patient', 'PatientController', ['except' => ['show']]);
-	Route::resource('diagnosis', 'DiagnosisController', ['except' => ['show']]);
-    Route::resource('recommendation', 'RecommendationController');
-    Route::resource('schedule', 'ScheduleController', ['except' => ['show']]);
-	Route::resource('rules', 'RulesController', ['except' => ['show']]);
-	Route::get('diagnosis/{id}','DiagnosisController@create')->name('diagnosis.new');
-	Route::get('diagnosis/{patient}','DiagnosisController@index')->name('diagnosis.index');
-	Route::get('result/{diagnosis}','DiagnosisController@result')->name('result');
-	Route::get('profile', ['as' => 'profile.edit', 'uses' => 'ProfileController@edit']);
-	Route::put('profile', ['as' => 'profile.update', 'uses' => 'ProfileController@update']);
-	Route::put('profile/password', ['as' => 'profile.password', 'uses' => 'ProfileController@password']);
-	Route::get('{page}', ['as' => 'page.index', 'uses' => 'PageController@index']);
-
-
-	Route::get('diagnoses/chart','DiagnosisController@chart')->name('diagnoses/chart');
-	Route::get('patients/chart','PatientController@chart')->name('patients/chart');
-	Route::get('users/chart','UserController@chart')->name('users/chart');
-	Route::get('diagnoses/all/{id}','DiagnosisController@getAllByPatient')->name('diagnosis.all');
-	Route::get('download/{diagnosis}','DiagnosisController@download')->name('download');
+    Route::get('diagnoses/chart', [DiagnosisController::class, 'chart'])->name('diagnoses/chart');
+    Route::get('patients/chart', [PatientController::class, 'chart'])->name('patients/chart');
+    Route::get('users/chart', [UserController::class, 'chart'])->name('users/chart');
+    Route::get('diagnoses/all/{id}', [DiagnosisController::class, 'getAllByPatient'])->name('diagnosis.all');
+    Route::get('download/{diagnosis}', [DiagnosisController::class, 'download'])->name('download');
 });
-
