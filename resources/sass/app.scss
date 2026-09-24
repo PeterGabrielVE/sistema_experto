@@ -1,8 +1,53 @@
-// Fonts
-@import url('https://fonts.googleapis.com/css?family=Nunito');
+// Argon Dashboard 2 (Creative Tim, MIT) - includes Bootstrap 5.
+@import 'argon/argon-dashboard';
 
-// Variables
-@import 'variables';
+@import 'bs4-compat';
 
-// Bootstrap
-@import 'bootstrap/scss/bootstrap';
+// Flat design: no gradient backgrounds, even if a view asks for one.
+@each $color in (primary, secondary, success, info, warning, danger, light, dark) {
+  .bg-gradient-#{$color} {
+    background-image: none !important;
+    background-color: var(--bs-#{$color}) !important;
+  }
+}
+
+// Argon alerts use a gradient by default: make them flat.
+@each $color in (primary, secondary, success, info, warning, danger, light, dark) {
+  .alert-#{$color} {
+    background-image: none !important;
+    background-color: var(--bs-#{$color});
+    color: #fff;
+    border: 0;
+  }
+}
+
+// Page header band behind the content (flat colour, Argon layout).
+.app-header-band {
+  min-height: 300px;
+}
+
+// Argon hides dropdowns with an opacity animation that leaves the account menu
+// visible in this navbar; use Bootstrap's default (hidden until opened).
+.navbar-main .dropdown-menu:not(.show) {
+  display: none;
+}
+
+// The Argon sidenav uses z-index 9999; modals must stay above it.
+.modal-backdrop { z-index: 10040; }
+.modal { z-index: 10050; }
+
+.sidenav .navbar-brand-img {
+  max-height: 3rem;
+}
+
+// DataTables (jQuery plugin) inside Argon cards
+.dataTables_wrapper {
+  font-size: .875rem;
+
+  .dataTables_filter input,
+  .dataTables_length select {
+    border: 1px solid #d2d6da;
+    border-radius: .5rem;
+    padding: .25rem .5rem;
+  }
+}

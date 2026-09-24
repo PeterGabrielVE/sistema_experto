@@ -142,7 +142,11 @@ class ClinicalRecordTest extends TestCase
         $this->actingAs($admin)->get($this->url())->assertForbidden();
         $this->actingAs($admin)->get($this->url('/edit'))->assertForbidden();
         $this->actingAs($admin)->put($this->url(), $this->payload(['medications' => 'X']))->assertForbidden();
-        $this->actingAs($admin)->get('/patient')->assertOk()->assertDontSee('Ficha</a>', false);
+        $this->actingAs($admin)->get('/patient')->assertOk()
+            ->assertSee('Ana Rojas')
+            ->assertDontSee(route('patient.clinical-record.show', $this->patient));
+        $this->actingAs($this->doctor)->get('/patient')
+            ->assertSee(route('patient.clinical-record.show', $this->patient));
 
         $this->assertSame('Metformina 850 mg', ClinicalRecord::firstOrFail()->medications);
     }

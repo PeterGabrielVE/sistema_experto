@@ -1,73 +1,46 @@
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-transparent  bg-primary  navbar-absolute">
-  <div class="container-fluid">
-    <div class="navbar-wrapper">
-      <div class="navbar-toggle">
-        <button type="button" class="navbar-toggler">
-          <span class="navbar-toggler-bar bar1"></span>
-          <span class="navbar-toggler-bar bar2"></span>
-          <span class="navbar-toggler-bar bar3"></span>
-        </button>
-      </div>
-    <a class="navbar-brand" href="#pablo">{{ $namePage }}</a>
-    </div>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-bar navbar-kebab"></span>
-      <span class="navbar-toggler-bar navbar-kebab"></span>
-      <span class="navbar-toggler-bar navbar-kebab"></span>
-    </button>
-    <div class="collapse navbar-collapse justify-content-end" id="navigation">
-      <form>
-        <div class="input-group no-border">
-          <!--<input type="text" value="" class="form-control" placeholder="Search...">
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <i class="now-ui-icons ui-1_zoom-bold"></i>
-            </div>
-          </div>-->
-        </div>
-      </form>
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ route('downloadManual') }}">
-            <i class="now-ui-icons media-2_sound-wave"></i>
-            <p>
-              <span class="d-lg-none d-md-block">{{ __("Ayuda en Linea") }}</span>
-            </p>
+<nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl" id="navbarBlur" data-scroll="false">
+  <div class="container-fluid py-1 px-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+        <li class="breadcrumb-item text-sm"><a class="opacity-5 text-white" href="{{ route('home') }}">KATRINA</a></li>
+        <li class="breadcrumb-item text-sm text-white active" aria-current="page">{{ $namePage ?? '' }}</li>
+      </ol>
+      <h6 class="font-weight-bolder text-white mb-0">{{ $namePage ?? '' }}</h6>
+    </nav>
+
+    <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+      <div class="ms-md-auto pe-md-3 d-flex align-items-center"></div>
+      <ul class="navbar-nav justify-content-end">
+        <li class="nav-item d-flex align-items-center">
+          <a href="{{ route('downloadManual') }}" class="nav-link text-white font-weight-bold px-0 me-3" title="{{ __('Ayuda en línea') }}">
+            <i class="fa fa-question-circle me-sm-1"></i>
+            <span class="d-sm-inline d-none">{{ __('Ayuda') }}</span>
           </a>
         </li>
-       <!-- <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="now-ui-icons location_world"></i>
-            <p>
-              <span class="d-lg-none d-md-block">{{ __("Some Actions") }}</span>
-            </p>
+        <li class="nav-item dropdown d-flex align-items-center">
+          <a href="#" class="nav-link text-white font-weight-bold px-0" id="accountMenu" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fa fa-user me-sm-1"></i>
+            <span class="d-sm-inline d-none">{{ auth()->user()->name }}</span>
           </a>
-         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item" href="#">{{ __("Action") }}</a>
-            <a class="dropdown-item" href="#">{{ __("Another action") }}</a>
-            <a class="dropdown-item" href="#">{{ __("Something else here") }}</a>
-          </div>
-        </li>-->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="now-ui-icons users_single-02"></i>
-            <p>
-              <span class="d-lg-none d-md-block">{{ __("Cuenta") }}</span>
-            </p>
+          <ul class="dropdown-menu dropdown-menu-end px-2 py-3" aria-labelledby="accountMenu">
+            <li class="px-3 pb-2 text-xs text-secondary">{{ auth()->user()->role()?->label() ?? __('Sin rol') }}</li>
+            <li><a class="dropdown-item border-radius-md" href="{{ route('profile.edit') }}">{{ __('Mi perfil') }}</a></li>
+            <li>
+              <a class="dropdown-item border-radius-md" href="{{ route('logout') }}"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">{{ __('Salir') }}</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+          <a href="#" class="nav-link text-white p-0" id="iconNavbarSidenav" aria-label="{{ __('Menú') }}">
+            <div class="sidenav-toggler-inner">
+              <i class="sidenav-toggler-line bg-white"></i>
+              <i class="sidenav-toggler-line bg-white"></i>
+              <i class="sidenav-toggler-line bg-white"></i>
+            </div>
           </a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item" href="{{ route('profile.edit') }}">{{ __("Mi Perfil") }}</a>
-            <a class="dropdown-item" href="{{ route('profile.edit') }}">{{ __("Editar Perfil") }}</a>
-            <a class="dropdown-item" href="{{ route('logout') }}"
-            onclick="event.preventDefault();
-                          document.getElementById('logout-form').submit();">
-              {{ __('Salir') }}
-            </a>
-          </div>
         </li>
       </ul>
     </div>
   </div>
 </nav>
-  <!-- End Navbar -->

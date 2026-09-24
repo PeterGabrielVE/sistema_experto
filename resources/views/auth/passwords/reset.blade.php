@@ -8,11 +8,11 @@
 @section('content')
   <div class="content">
     <div class="container">
-      <div class="col-md-4 ml-auto mr-auto">
+      <div class="col-xl-4 col-lg-5 col-md-7">
         <form role="form" method="POST" action="{{ route('password.update') }}">
           @csrf
           <input type="hidden" name="token" value="{{ $token }}">
-          <div class="card card-login card-plain">
+          <div class="card z-index-0">
             <div class="card-header ">
               <div class="logo-container">
                 <img src="{{ asset('assets/img/now-logo.png') }}" alt="">
@@ -75,11 +75,3 @@
     </div>
   </div>
 @endsection
-
-@push('js')
-  <script>
-    $(document).ready(function() {
-      demo.checkFullPageBackgroundImage();
-    });
-  </script>
-@endpush

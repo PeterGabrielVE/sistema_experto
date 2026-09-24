@@ -59,12 +59,7 @@
                                     </div>
 
 
-                                    <?php
-                                        $nacimiento = new DateTime($patient->birthdate);
-                                        $ahora = new DateTime(date("Y-m-d"));
-                                        $diferencia = $ahora->diff($nacimiento);
-                                        $edad =  $diferencia->format("%y");
-                                    ?>
+                                    @php($edad = $patient->age)
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-age">{{ __('Edad') }}</label>
                                         <input type="text" name="address" id="input-age" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Edad') }}" value="{{ $edad }}" required autofocus>

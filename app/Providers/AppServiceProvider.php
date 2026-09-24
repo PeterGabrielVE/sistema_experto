@@ -23,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
 
-        // The Now UI dashboard is built on Bootstrap 4; Laravel defaults to Tailwind.
-        Paginator::useBootstrapFour();
+        // Argon Dashboard is built on Bootstrap 5; Laravel defaults to Tailwind.
+        Paginator::useBootstrapFive();
 
         // Authorization lives in App\Policies (auto-discovered: Models\X -> Policies\XPolicy).
     }

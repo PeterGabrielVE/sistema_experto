@@ -1,14 +1,11 @@
-<footer class="footer">
+<footer class="footer pt-3">
   <div class="container-fluid">
-        <nav class="pull-left">
-            <ul>
-                <li>
-                    <a href="#">Gabriela E.</a>
-                </li>
-              </ul>
-            </nav>
-            <div class="copyright pull-right">
-                    &copy; <script>document.write(new Date().getFullYear())</script> El Sauce, Centro Médico. Sistema desarrollado por <a href="#">Gabriela E.</a>
-            </div>
+    <div class="row align-items-center justify-content-lg-between">
+      <div class="col-lg-6 mb-lg-0 mb-4">
+        <div class="copyright text-center text-sm text-muted text-lg-start">
+          &copy; {{ now()->year }} El Sauce, Centro Médico. {{ __('Sistema desarrollado por') }} Gabriela E.
+        </div>
+      </div>
+    </div>
   </div>
 </footer>

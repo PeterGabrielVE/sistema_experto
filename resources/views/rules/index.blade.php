@@ -37,7 +37,7 @@
                     <td>{{ $ru->min }} - {{$ru->max }}</td>
                     <td>{{ $ru->name }}</td>
                     <td>
-                        <button type="button" class="btn btn-danger btn-round text-white" data-toggle="modal" data-target="#myModal"><i class="now-ui-icons ui-2_settings-90"></i> {{ __('Agregar recomendaciones') }}</button>
+                        <button type="button" class="btn btn-danger btn-round text-white" data-bs-toggle="modal" data-bs-target="#myModal"><i class="now-ui-icons ui-2_settings-90"></i> {{ __('Agregar recomendaciones') }}</button>
                         <a class="btn btn-primary btn-round text-white" href="{{ route('recommendation.show',$ru->id) }}" target="_blank"><i class="now-ui-icons ui-2_settings-90"></i>{{ __('Ver recomendaciones') }}</a>
                     </td>
                 </tr>

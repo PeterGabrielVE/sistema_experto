@@ -4,7 +4,6 @@
     'activePage' => 'result',
     'activeNav' => '',
 ])
-<link rel="stylesheet" type="text/css" href="{{ asset('css/semantic.min.css') }}">
 @section('content')
     <div class="panel-header panel-header-sm">
     </div>
@@ -44,7 +43,7 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('birthdate') ? ' has-danger' : '' }} col-2">
                                         <label class="form-control-label" for="input-birthdate">{{ __('Fecha de Nacimiento') }}</label>
-                                        <input type="date" name="birthdate" id="input-birthdate" class="form-control{{ $errors->has('birthdate') ? ' is-invalid' : '' }}" placeholder="{{ __('Fecha de Nacimiento') }}" value="{{ $patient->birthdate ?? null }}" required autofocus>
+                                        <input type="date" name="birthdate" id="input-birthdate" class="form-control{{ $errors->has('birthdate') ? ' is-invalid' : '' }}" placeholder="{{ __('Fecha de Nacimiento') }}" value="{{ $patient->birthdate?->toDateString() }}" required autofocus>
 
                                         @include('alerts.feedback', ['field' => 'birthdate'])
                                     </div>
@@ -62,17 +61,17 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('weight') ? ' has-danger' : '' }} col-1">
                                         <label class="form-control-label" for="input-weight">{{ __('Peso') }}</label>
-                                        <div class="ui right labeled input">
+                                        <div class="input-group">
                                         <input type="text" name="weight" id="input-weight" class="form-control{{ $errors->has('weight') ? ' is-invalid' : '' }}" placeholder="{{ __('Peso') }}" value="{{ $diagnosis->weight ?? null }}">
-                                            <div class="ui basic label">Kg.</div>
+                                            <span class="input-group-text">Kg.</span>
                                         </div>
                                         @include('alerts.feedback', ['field' => 'last_name'])
                                     </div>
                                     <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-1 mr-4">
                                         <label class="form-control-label" for="input-size">{{ __('Talla') }}</label>
-                                        <div class="ui right labeled input">
+                                        <div class="input-group">
                                         <input type="text" name="size" id="input-size" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ $diagnosis->size ?? null }}">
-                                            <div class="ui basic label">cm.</div>
+                                            <span class="input-group-text">cm.</span>
                                         </div>
                                         @include('alerts.feedback', ['field' => 'size'])
                                     </div>
@@ -109,45 +108,45 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('first_name') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-name">{{ __('Carbohidrato') }}</label>
-                                        <div class="ui right labeled input">
+                                        <div class="input-group">
                                         <input type="text" name="carbohydrate" id="input-carbohidrato" class="form-control{{ $errors->has('first_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Indice de Insulina') }}" value="{{ $diagnosis->carbohydrate ?? null }}" required autofocus>
-                                            <div class="ui basic label">gr</div>
+                                            <span class="input-group-text">gr</span>
                                         </div>
                                     </div>
                                     <div class="form-group{{ $errors->has('weight') ? ' has-danger' : '' }} col-3">
                                             <label class="form-control-label" for="input-weight">{{ __('Isoglucídico') }}</label>
-                                            <div class="ui right labeled input">
+                                            <div class="input-group">
                                             <input type="text" name="isocaloric_carbohydrate" id="input-isocalorico" class="form-control{{ $errors->has('weight') ? ' is-invalid' : '' }}" placeholder="{{ __('Peso') }}" value="{{ $diagnosis->isocaloric_carbohydrate ?? null }}" required autofocus onchange="calcularIMC()">
-                                            <div class="ui basic label">gr</div>
+                                            <span class="input-group-text">gr</span>
                                             </div>
                                     </div>
                                     <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-size">{{ __('Lipido') }}</label><br>
-                                        <div class="ui right labeled input">
+                                        <div class="input-group">
                                         <input type="text" name="lipido" id="input-lipido" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ $diagnosis->carbohydrate ?? null }}" required autofocus onchange="calcularIMC()">
-                                        <div class="ui basic label">gr</div>
+                                        <span class="input-group-text">gr</span>
                                         </div>
                                     </div>
                                     <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-size">{{ __('Isocalorico Lípido') }}</label>
-                                        <div class="ui right labeled input">
+                                        <div class="input-group">
                                         <input type="text" name="isocaloric_lipido" id="input-isocalorico2" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ $diagnosis->isocaloric_lipido ?? null }}" required autofocus onchange="calcularIMC()">
-                                        <div class="ui basic label">gr</div>
+                                        <span class="input-group-text">gr</span>
                                         </div>
                                     </div>
                                     <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-size">{{ __('Proteina') }}</label><br>
-                                        <div class="ui right labeled input">
+                                        <div class="input-group">
                                         <input type="text" name="protein" id="input-proteina" class="form-control{{ $errors->has('protein') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ $diagnosis->protein ?? null }}" required autofocus onchange="calcularIMC()">
-                                        <div class="ui basic label">gr</div>
+                                        <span class="input-group-text">gr</span>
                                         </div>
                                     
                                     </div>
                                     <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-size">{{ __('Isoproteico') }}</label>
-                                        <div class="ui right labeled input">
+                                        <div class="input-group">
                                         <input type="text" name="isocaloric_protein" id="input-isocalorico3" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ $diagnosis->isocaloric_protein ?? null }}" required autofocus onchange="calcularIMC()">
-                                        <div class="ui basic label">gr</div>
+                                        <span class="input-group-text">gr</span>
                                         </div>
                                     </div>
                                 </div>

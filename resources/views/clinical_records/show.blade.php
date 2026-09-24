@@ -23,10 +23,13 @@
                                 <h3 class="mb-0">{{ __('Ficha clínica') }}</h3>
                                 <p class="text-muted mb-0">
                                     {{ $patient->fullName() }} · {{ __('RUT') }} {{ $patient->rut }}
-                                    @if($patient->birthdate)
-                                        · {{ \Carbon\Carbon::parse($patient->birthdate)->age }} {{ __('años') }}
+                                    @if($patient->age !== null)
+                                        · {{ $patient->age }} {{ __('años') }}
                                     @endif
-                                    · {{ $patient->gender === 'H' ? __('Hombre') : __('Mujer') }}
+                                    · {{ $patient->genderLabel() }}
+                                    @if($patient->email)
+                                        · {{ $patient->email }}
+                                    @endif
                                 </p>
                             </div>
                             <div class="col-md-5 text-right">

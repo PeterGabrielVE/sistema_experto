@@ -1,88 +1,37 @@
 @extends('layouts.app', [
-    'class' => 'sidebar-mini ',
-    'namePage' => 'Crear paciente',
+    'namePage' => 'Nuevo paciente',
     'activePage' => 'patient',
-    'activeNav' => '',
 ])
 
 @section('content')
-    <div class="panel-header panel-header-sm">
-    </div>
-    <div class="content">
-        <div class="row">
-            <div class="col-xl-12 order-xl-1">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="row align-items-center">
-                            <div class="col-8">
-                                <h3 class="mb-0">{{ __('Gestión de paciente') }}</h3>
-                            </div>
-                            <div class="col-4 text-right">
-                                <a href="{{ route('patient.index') }}" class="btn btn-primary btn-round">{{ __('Volver a la lista') }}</a>
-                            </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h6 class="mb-0">{{ __('Registrar paciente') }}</h6>
+                            <p class="text-sm text-secondary mb-0">{{ __('Después podrá completar su ficha clínica.') }}</p>
                         </div>
+                        <a href="{{ route('patient.index') }}" class="btn btn-outline-primary btn-sm ms-auto mb-0">{{ __('Volver a la lista') }}</a>
                     </div>
-                    <div class="card-body">
-                        <form method="post" action="{{ route('patient.store') }}" autocomplete="off"
-                            enctype="multipart/form-data">
-                            @csrf
-
-                            <h6 class="heading-small text-muted mb-4">{{ __('Información del paciente') }}</h6>
-                            <div class="pl-lg-4">
-                                <div class="row">
-                                    <div class="form-group{{ $errors->has('first_name') ? ' has-danger' : '' }} col-4">
-                                        <label class="form-control-label" for="input-name">{{ __('Nombre') }}</label>
-                                        <input type="text" name="first_name" id="input-first_name" class="form-control{{ $errors->has('first_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Nombre') }}" value="{{ old('first_name') }}" required autofocus>
-
-                                        @include('alerts.feedback', ['field' => 'first_name'])
-                                    </div>
-                                    <div class="form-group{{ $errors->has('last_name') ? ' has-danger' : '' }} col-4">
-                                        <label class="form-control-label" for="input-name">{{ __('Apellido') }}</label>
-                                        <input type="text" name="last_name" id="input-last_name" class="form-control{{ $errors->has('last_name') ? ' is-invalid' : '' }}" placeholder="{{ __('Apellido') }}" value="{{ old('last_name') }}" required autofocus>
-
-                                        @include('alerts.feedback', ['field' => 'last_name'])
-                                    </div>
-                                    <div class="form-group{{ $errors->has('rut') ? ' has-danger' : '' }} col-4">
-                                        <label class="form-control-label" for="input-rut">{{ __('RUT') }}</label>
-                                        <input type="text" name="rut" id="input-rut" class="form-control{{ $errors->has('rut') ? ' is-invalid' : '' }}" placeholder="{{ __('12345678-9') }}" value="{{ old('rut') }}" maxlength="12" required>
-
-                                        @include('alerts.feedback', ['field' => 'rut'])
-                                    </div>
-                                    <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-12">
-                                        <label class="form-control-label" for="input-address">{{ __('Dirección') }}</label>
-                                        <input type="text" name="address" id="input-address" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Dirección') }}" value="{{ old('address') }}" required autofocus>
-
-                                        @include('alerts.feedback', ['field' => 'address'])
-                                    </div>
-
-                                    <div class="form-group{{ $errors->has('birthdate') ? ' has-danger' : '' }} col-6">
-                                        <label class="form-control-label" for="input-birthdate">{{ __('Fecha de Nacimiento') }}</label>
-                                        <input type="date" name="birthdate" id="input-birthdate" class="form-control{{ $errors->has('birthdate') ? ' is-invalid' : '' }}" placeholder="{{ __('Fecha de Nacimiento') }}" value="{{ old('birthdate') }}" max="{{ now()->subDay()->toDateString() }}" required>
-
-                                        @include('alerts.feedback', ['field' => 'birthdate'])
-                                    </div>
-                                    <div class="form-group{{ $errors->has('gender') ? ' has-danger' : '' }} col-6">
-                                        <label class="form-control-label" for="input-gender">{{ __('Sexo') }}</label>
-                                        <x-select name="gender" :options="['H'=>'Hombre','M'=>'Mujer']" class="form-control" required id="input-gender" autofocus />
-
-                                        @include('alerts.feedback', ['field' => 'gender'])
-                                    </div>
-                                    <div class="form-group{{ $errors->has('comment') ? ' has-danger' : '' }} col-12">
-                                        <label class="form-control-label" for="input-comment">{{ __('Comentario') }}</label>
-                                        <input type="text" name="comment" id="input-comment" class="form-control{{ $errors->has('comment') ? ' is-invalid' : '' }}" placeholder="{{ __('Comentario (opcional)') }}" value="{{ old('comment') }}" maxlength="255">
-
-                                        @include('alerts.feedback', ['field' => 'comment'])
-                                    </div>
-                                </div>
-                                
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-info mt-4">{{ __('Guardar') }}</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="patient-form" data-props="{{ json_encode([
+                        'mode' => 'create',
+                        'action' => route('patient.store'),
+                        'cancelUrl' => route('patient.index'),
+                        'genders' => $genders,
+                    ]) }}"></div>
+                    <noscript>
+                        <div class="alert alert-warning text-white">{{ __('Active JavaScript para registrar pacientes.') }}</div>
+                    </noscript>
                 </div>
             </div>
         </div>
     </div>
 @endsection
+
+@push('js')
+    @vite('resources/js/patient-form.js')
+@endpush

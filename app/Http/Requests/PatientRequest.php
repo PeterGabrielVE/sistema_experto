@@ -33,6 +33,10 @@ class PatientRequest extends FormRequest
             $data['rut'] = Rut::normalize($this->input('rut'));
         }
 
+        if ($this->has('email')) {
+            $data['email'] = mb_strtolower(trim((string) $this->input('email'))) ?: null;
+        }
+
         $this->merge($data);
     }
 
@@ -50,9 +54,10 @@ class PatientRequest extends FormRequest
                 new Rut,
                 Rule::unique('patients', 'rut')->ignore($patient),
             ],
+            'email' => ['nullable', 'string', 'email:rfc', 'max:191'],
             'address' => ['required', 'string', 'min:3', 'max:255'],
             'birthdate' => ['required', 'date', 'before:today', 'after:1900-01-01'],
-            'gender' => ['required', Rule::in(['H', 'M'])],
+            'gender' => ['required', Rule::in(array_keys(Patient::GENDERS))],
             'comment' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ];
@@ -64,6 +69,7 @@ class PatientRequest extends FormRequest
             'first_name' => 'nombre',
             'last_name' => 'apellido',
             'rut' => 'RUT',
+            'email' => 'correo',
             'address' => 'dirección',
             'birthdate' => 'fecha de nacimiento',
             'gender' => 'sexo',

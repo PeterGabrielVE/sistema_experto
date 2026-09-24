@@ -1,164 +1,117 @@
 @extends('layouts.app', [
     'namePage' => 'Pacientes',
-    'class' => 'sidebar-mini',
-    'activePage' => 'patients',
-    'activeNav' => '',
+    'activePage' => 'patient',
 ])
 
 @section('content')
-  <div class="panel-header">
-  </div>
-  <div class="content">
-    <div class="row">
-      <div class="col-md-12">
-        <div class="card">
-          <div class="card-header">
-              @if(auth()->user()->can('create', \App\Models\Patient::class))
-              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Agregar paciente') }}</a>
+  <div class="row">
+    <div class="col-12">
+      <div class="card mb-4">
+        <div class="card-header pb-0">
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <div>
+              <h6 class="mb-0">{{ __('Pacientes') }}</h6>
+              <p class="text-sm text-secondary mb-0">{{ trans_choice(':count paciente|:count pacientes', $patients->total(), ['count' => $patients->total()]) }}</p>
+            </div>
+            <form method="get" action="{{ route('patient.index') }}" class="ms-auto d-flex gap-2" role="search">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text"><i class="fas fa-search" aria-hidden="true"></i></span>
+                <input type="search" name="q" value="{{ $search }}" class="form-control" placeholder="{{ __('Nombre, RUT o correo') }}" aria-label="{{ __('Buscar pacientes') }}">
+              </div>
+              @if($search !== '')
+                <a href="{{ route('patient.index') }}" class="btn btn-sm btn-outline-secondary mb-0">{{ __('Limpiar') }}</a>
               @endif
-              <h4 class="card-title">{{ __('Pacientes') }}</h4>
-            <div class="col-12 mt-2">
-              @include('alerts.success')
-              @include('alerts.errors')
-            </div>
+            </form>
+            @can('create', \App\Models\Patient::class)
+              <a class="btn btn-primary btn-sm mb-0" href="{{ route('patient.create') }}">
+                <i class="fas fa-plus me-1"></i>{{ __('Agregar paciente') }}
+              </a>
+            @endcan
           </div>
-          <div class="card-body">
-            <div class="toolbar">
-              <!--        Here you can write extra buttons/actions for the toolbar              -->
-            </div>
-            <table id="datatable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+          <div class="mt-3">
+            @include('alerts.success')
+            @include('alerts.errors')
+          </div>
+        </div>
+
+        <div class="card-body px-0 pt-0 pb-2">
+          <div class="table-responsive p-0">
+            <table class="table align-items-center mb-0">
               <thead>
                 <tr>
-                  <th>{{ __('Perfil') }}</th>
-                  <th>{{ __('Nombre Completo') }}</th>
-                  <th>{{ __('Dirección') }}</th>
-                  <th>{{ __('Fecha Nacimiento') }}</th>
-                  <th>{{ __('Creado Por') }}</th>
-                  <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">{{ __('Paciente') }}</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">{{ __('RUT') }}</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">{{ __('Nacimiento') }}</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">{{ __('Registrado por') }}</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end pe-4">{{ __('Acciones') }}</th>
                 </tr>
               </thead>
-              <tfoot>
-                <tr>
-                  <th>{{ __('Perfil') }}</th>
-                  <th>{{ __('Nombre Completo') }}</th>
-                  <th>{{ __('Dirección') }}</th>
-                  <th>{{ __('Fecha Nacimiento') }}</th>
-                  <th>{{ __('Creado Por') }}</th>
-                  <th class="disabled-sorting text-right">{{ __('Acciones') }}</th>
-                </tr>
-              </tfoot>
               <tbody>
-                @foreach($patients as $patient)
+                @forelse($patients as $patient)
                   <tr>
                     <td>
-                      <span class="avatar avatar-sm rounded-circle">
-                        <img src="{{asset('assets')}}/img/default-avatar.png" alt="" style="max-width: 80px; border-radiu: 100px">
-                      </span>
+                      <div class="d-flex px-3 py-1">
+                        <img src="{{ asset('assets/img/default-avatar.png') }}" class="avatar avatar-sm me-3" alt="">
+                        <div class="d-flex flex-column justify-content-center">
+                          <h6 class="mb-0 text-sm">{{ $patient->fullName() }}</h6>
+                          <p class="text-xs text-secondary mb-0">
+                            {{ $patient->genderLabel() }}@if($patient->email) · {{ $patient->email }}@endif
+                          </p>
+                        </div>
+                      </div>
                     </td>
-                    <td>{{$patient->first_name ??  null }} {{$patient->last_name ??  null }}</td>
-                    <td>{{$patient->address}}</td>
-                    <td>{{ date('d-m-Y', strtotime($patient->birthdate))  ?? null }}</td>
-                    <td>{{$patient->user->name ?? null }}</td>
-                    <td class="text-right">
+                    <td><span class="text-sm">{{ $patient->rut }}</span></td>
+                    <td>
+                      <p class="text-sm mb-0">{{ $patient->birthdate?->format('d-m-Y') }}</p>
+                      @if($patient->age !== null)
+                        <p class="text-xs text-secondary mb-0">{{ $patient->age }} {{ __('años') }}</p>
+                      @endif
+                    </td>
+                    <td><span class="text-sm text-secondary">{{ $patient->user->name ?? '—' }}</span></td>
+                    <td class="text-end pe-4 text-nowrap">
+                      @can('create', \App\Models\Diagnosis::class)
+                        <a href="{{ route('diagnosis.new', $patient->id) }}" class="btn btn-sm btn-primary mb-0 me-1">{{ __('Consultar') }}</a>
+                      @endcan
+                      @can('viewClinicalRecord', $patient)
+                        <a href="{{ route('patient.clinical-record.show', $patient) }}" class="btn btn-sm btn-icon-only btn-outline-warning mb-0" title="{{ __('Ficha clínica') }}" aria-label="{{ __('Ficha clínica de :name', ['name' => $patient->fullName()]) }}">
+                          <i class="fas fa-notes-medical"></i>
+                        </a>
+                      @endcan
+                      <a href="{{ route('diagnosis.all', $patient->id) }}" class="btn btn-sm btn-icon-only btn-outline-info mb-0" title="{{ __('Historial de consultas') }}" aria-label="{{ __('Historial de :name', ['name' => $patient->fullName()]) }}">
+                        <i class="fas fa-history"></i>
+                      </a>
                       @can('update', $patient)
-                        <a type="button" href="{{route("patient.edit",$patient)}}" rel="tooltip" class="btn btn-success btn-sm" data-original-title="" title="">
-                          <i class="now-ui-icons ui-2_settings-90"></i>Modificar
+                        <a href="{{ route('patient.edit', $patient) }}" class="btn btn-sm btn-icon-only btn-outline-success mb-0" title="{{ __('Editar') }}" aria-label="{{ __('Editar a :name', ['name' => $patient->fullName()]) }}">
+                          <i class="fas fa-pen"></i>
                         </a>
                       @endcan
                       @can('delete', $patient)
-                      <form action="{{ route('patient.destroy', $patient->id) }}" method="post" style="display:inline-block;" class ="delete-form">
-                        @csrf
-                        @method('delete')
-                        <button type="button" rel="tooltip" class="btn btn-danger btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este paciente y todo su historial?') }}') ? this.parentElement.submit() : ''">
-                          <i class="now-ui-icons ui-1_simple-remove"></i>Eliminar
-                        </button>
-                      </form>
+                        <form action="{{ route('patient.destroy', $patient) }}" method="post" class="d-inline"
+                          onsubmit="return confirm('{{ __('¿Eliminar a :name y todo su historial? Esta acción no se puede deshacer.', ['name' => addslashes($patient->fullName())]) }}')">
+                          @csrf
+                          @method('delete')
+                          <button type="submit" class="btn btn-sm btn-icon-only btn-outline-danger mb-0" title="{{ __('Eliminar') }}" aria-label="{{ __('Eliminar a :name', ['name' => $patient->fullName()]) }}">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </form>
                       @endcan
-                      @can('create', \App\Models\Diagnosis::class)
-                      <a href="{{ route('diagnosis.new', $patient->id) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i> Consultar</a>
-                      @endcan
-                      @can('viewClinicalRecord', $patient)
-                      <a href="{{ route('patient.clinical-record.show', $patient) }}" class="btn btn-warning btn-sm"><i class="fa fa-notes-medical"></i> Ficha</a>
-                      @endcan
-                      <a href="{{ route('diagnosis.all', $patient->id) }}" class="btn btn-success btn-sm"><i class="fa fa-eye"></i> Historial</a>
                     </td>
                   </tr>
-                @endforeach
+                @empty
+                  <tr>
+                    <td colspan="5" class="text-center text-sm text-secondary py-4">
+                      {{ $search !== '' ? __('No hay pacientes que coincidan con ":q".', ['q' => $search]) : __('Aún no hay pacientes registrados.') }}
+                    </td>
+                  </tr>
+                @endforelse
               </tbody>
             </table>
           </div>
-          <!-- end content-->
+          <div class="px-3 pt-3">
+            {{ $patients->links() }}
+          </div>
         </div>
-        <!--  end card  -->
       </div>
-      <!-- end col-md-12 -->
     </div>
-    <!-- end row -->
   </div>
 @endsection
-
-@push('js')
-  <script>
-    $(document).ready(function() {
-      $(".delete-button").click(function(){ 
-        var clickedButton = $( this );
-        Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonClass: 'btn btn-success',
-        cancelButtonClass: 'btn btn-danger',
-        confirmButtonText: 'Yes, delete it!',
-        buttonsStyling: false
-      }).then((result) => {
-        if (result.value) {
-          clickedButton.parents(".delete-form").submit();
-        }
-      })
-
-      })
-      $('#datatable').DataTable({
-        "pagingType": "full_numbers",
-        "lengthMenu": [
-          [10, 25, 50, -1],
-          [10, 25, 50, "All"]
-        ],
-        responsive: true,
-        language: {
-          search: "_INPUT_",
-          searchPlaceholder: "Search records",
-        }
-
-      });
-
-      var table = $('#datatable').DataTable();
-
-      // Edit record
-      table.on('click', '.edit', function() {
-        $tr = $(this).closest('tr');
-        if ($($tr).hasClass('child')) {
-          $tr = $tr.prev('.parent');
-        }
-
-        var data = table.row($tr).data();
-        alert('You press on Row: ' + data[0] + ' ' + data[1] + ' ' + data[2] + '\'s row.');
-      });
-
-      // Delete a record
-      table.on('click', '.remove', function(e) {
-        $tr = $(this).closest('tr');
-        if ($($tr).hasClass('child')) {
-          $tr = $tr.prev('.parent');
-        }
-        table.row($tr).remove().draw();
-        e.preventDefault();
-      });
-
-      //Like record
-      table.on('click', '.like', function() {
-        alert('You clicked on Like button');
-      });
-    });
-  </script>
-@endpush

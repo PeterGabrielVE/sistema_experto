@@ -8,7 +8,7 @@
       <!-- Modal Header -->
       <div class="modal-header">
         <h4 class="modal-title">Agregar Recomendación</h4>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
       </div>
 
       <!-- Modal body -->
@@ -35,7 +35,7 @@
       <!-- Modal footer -->
       <div class="modal-footer">
         <button type="submit" class="btn btn-info">{{ __('Guardar') }}</button>
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
       </div>
       </form>
     </div>
