@@ -6,6 +6,7 @@ services:
     environment:
       DB_HOST: db
       RUN_MIGRATIONS: "true"
+      INFERENCE_URL: http://inference:8000
     ports:
       - "${APP_PORT:-8000}:80"
     volumes:
@@ -14,6 +15,24 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      # Not required to be healthy: Laravel falls back to the IMC rules.
+      inference:
+        condition: service_started
+    restart: unless-stopped
+
+  inference:
+    build: ./inference
+    image: sistema-experto-inference:latest
+    env_file: .env
+    environment:
+      DB_HOST: db
+    volumes:
+      - models:/models
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   db:
@@ -38,3 +57,4 @@ volumes:
   storage:
   patient-images:
   db-data:
+  models:

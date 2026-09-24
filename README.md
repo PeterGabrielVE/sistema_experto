@@ -34,6 +34,29 @@ Volúmenes persistentes: `db-data` (MySQL), `storage` (logs, sesiones, caché) y
 
 Con `APP_ENV=production` el contenedor ejecuta `php artisan optimize` al arrancar.
 
+## Motor de inferencia (Python + ML)
+
+El servicio `inference` (FastAPI + scikit-learn, carpeta [inference/](inference/)) clasifica
+al paciente en una categoría (`rules.id`: 1 Bajo peso, 2 Normal, 3 Sobrepeso, 4 Obesidad)
+a partir de peso, talla, edad, sexo y actividad física. La categoría determina las
+recomendaciones del PDF.
+
+- Al crear un diagnóstico, Laravel ([app/Services/InferenceEngine.php](app/Services/InferenceEngine.php))
+  llama a `POST /predict` y guarda `id_rule`, `inference_source`, `inference_confidence` y `model_version`.
+- Si el servicio no responde (o `INFERENCE_URL` está vacío), se usan las reglas de IMC en PHP
+  (`inference_source = rules`).
+- Los doctores (rol 2 y 3) pueden corregir la categoría en la pantalla de resultado
+  (`inference_source = manual`). Esas etiquetas son las que aportan información nueva al modelo.
+- El modelo base se entrena con datos sintéticos generados desde las reglas de IMC al construir
+  la imagen. Para reentrenar incluyendo los diagnósticos confirmados:
+
+```bash
+docker compose exec app php artisan inference:train
+```
+
+El modelo se guarda en el volumen `models`. `INFERENCE_TOKEN` (en `.env`) protege la API;
+el servicio solo es accesible dentro de la red de Docker. Tests: `docker compose exec inference python -m pytest tests`.
+
 ## Front-end
 
 Los estilos del dashboard (Now UI) se sirven desde `public/assets`. Vite compila

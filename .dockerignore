@@ -19,3 +19,4 @@ bootstrap/cache/*.php
 .phpunit.result.cache
 compose.yaml
 Dockerfile
+inference

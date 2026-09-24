@@ -1,0 +1,8 @@
+fastapi==0.118.*
+uvicorn[standard]==0.37.*
+scikit-learn==1.7.*
+numpy==2.3.*
+joblib==1.5.*
+PyMySQL==1.1.*
+pytest==8.4.*
+httpx==0.28.*

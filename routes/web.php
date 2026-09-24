@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('rules', RulesController::class)->except(['show']);
     Route::get('diagnosis/{id}', [DiagnosisController::class, 'create'])->name('diagnosis.new');
     Route::get('result/{diagnosis}', [DiagnosisController::class, 'result'])->name('result');
+    Route::put('result/{diagnosis}/rule', [DiagnosisController::class, 'updateRule'])->name('diagnosis.rule');
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('profile/password', [ProfileController::class, 'password'])->name('profile.password');

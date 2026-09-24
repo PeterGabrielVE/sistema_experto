@@ -78,7 +78,7 @@ class PatientController extends Controller
            // return back()->withInput()->with('status',__('Es necesario ingresar el nombre del paciente.'));
             return back()->withInput()->withErrors('Ya existe un paciente con este RUT.'); 
         }
-        $patient = Patient::create($request->all());
+        $patient = Patient::create(array_merge($request->all(), ['created_by' => Auth::user()->id]));
         if( $request->file('image') )
         {
             $path = public_path().'/patient/images';
@@ -88,7 +88,6 @@ class PatientController extends Controller
             $fileName = $patient->id . '.' . $extension;
             $request->file('image')->move($path, $fileName);
             $patient->image = $fileName;
-            $patient->created_by = Auth::user()->id;
         }
         else
             $patient->image = '0.jpg';

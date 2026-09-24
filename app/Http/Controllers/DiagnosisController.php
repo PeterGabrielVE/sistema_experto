@@ -7,6 +7,7 @@ use App\Models\Patient;
 use App\Models\Diagnosis;
 use App\Models\Food;
 use App\Models\Recommendation;
+use App\Services\InferenceEngine;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Auth;
 class DiagnosisController extends Controller
@@ -38,13 +39,23 @@ class DiagnosisController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) 
+    public function store(Request $request, InferenceEngine $engine)
     {
-        $diagnosis = Diagnosis::create($request->all() + ['created_by' => Auth::user()->id]);
-        
-        $diagnosis->save();
+        $patient = Patient::findOrFail($request->id_patient);
 
-        $patient = Patient::find($request->id_patient);
+        $inference = $engine->classify([
+            'weight' => $request->weight,
+            'size' => $request->size,
+            'age' => $request->age,
+            'gender' => $patient->gender,
+            'physical_activity' => $request->physical_activity,
+        ]);
+
+        $diagnosis = Diagnosis::create(array_merge(
+            $request->except(array_keys($inference)),
+            ['created_by' => Auth::user()->id],
+            $inference
+        ));
 
         return redirect()->route('result',$diagnosis)->withStatus(__('Diagnóstico creado correctamente.'));
     }
@@ -135,7 +146,8 @@ class DiagnosisController extends Controller
         'foods' => $foods,'cereales' => $foods_cereal,'lacteos' => $foods_lacteos,
         'cereal_leg' => $foods_cereal_leg,'verduras' => $foods_verduras,'proteinas' => $proteinas,
         'lipidos' => $lipidos,'proteins' => $proteins,'lipids' => $lipids,
-        'aceites' => $aceites]);
+        'aceites' => $aceites,'rule' => $this->ruleFor($diagnosis),
+        'categories' => InferenceEngine::CATEGORIES]);
     }
 
     public function download($id)
@@ -152,17 +164,7 @@ class DiagnosisController extends Controller
         $aceites = Food::whereIn('id',[72,73,74])->get();
         $lipids = Food::where('id_group',10)->whereNotIn('id',[72,73,74])->get();
         $lipidos = Food::where('id_group',10)->get();
-        $rule = 0;
-        if($diagnosis->imc >= 0 && $diagnosis->imc <= 18.4){
-            $rule = 1;
-        }elseif($diagnosis->imc >= 18.5  && $diagnosis->imc <= 24.9){
-            $rule = 2;
-        }elseif($diagnosis->imc >= 25 && $diagnosis->imc <= 29.9){
-            $rule = 3;
-        }else{
-            $rule = 4;
-        }
-        $recomendations = Recommendation::where('id_rule',$rule)->get();
+        $recomendations = Recommendation::where('id_rule',$this->ruleFor($diagnosis))->get();
 
         return PDF::loadView('result-pdf', ['patient' => $patient,'diagnosis' => $diagnosis,
         'foods' => $foods,'cereales' => $foods_cereal,'lacteos' => $foods_lacteos,
@@ -170,5 +172,29 @@ class DiagnosisController extends Controller
         'lipidos' => $lipidos,'proteins' => $proteins,'lipids' => $lipids,
         'aceites' => $aceites,'recomendations' => $recomendations])
         ->stream('archivo.pdf');
+    }
+
+    /**
+     * A doctor confirms or corrects the category. These labels feed model retraining.
+     */
+    public function updateRule(Request $request, Diagnosis $diagnosis)
+    {
+        abort_unless(in_array(Auth::user()->rol_id, [2, 3]), 403);
+
+        $data = $request->validate([
+            'id_rule' => ['required', 'integer', 'in:'.implode(',', array_keys(InferenceEngine::CATEGORIES))],
+        ]);
+
+        $diagnosis->update($data + ['inference_source' => 'manual']);
+
+        return redirect()->route('result', $diagnosis)->withStatus(__('Categoría actualizada.'));
+    }
+
+    /**
+     * Diagnoses created before the inference engine have no stored category.
+     */
+    private function ruleFor(Diagnosis $diagnosis): int
+    {
+        return $diagnosis->id_rule ?? InferenceEngine::ruleForImc((float) $diagnosis->imc);
     }
 }

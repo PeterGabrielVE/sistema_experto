@@ -152,25 +152,51 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    @if($diagnosis->imc < 18.4)
+                                    @if($rule == 1)
                                     <div class="alert alert-warning alert-with-icon" data-notify="container">
                                         <span data-notify="message">El paciente posee una desnutrición.</span>
                                     </div>
-                                    @elseif($diagnosis->imc >= 18.5 && $diagnosis->imc <= 24.9)
+                                    @elseif($rule == 2)
                                     <div class="alert alert-success alert-with-icon" data-notify="container">
                                         <span data-notify="message">El paciente posee peso normal.</span>
                                     </div>
-                                    @elseif($diagnosis->imc >= 25 && $diagnosis->imc <= 29.9)
+                                    @elseif($rule == 3)
                                     <div class="alert alert-warning alert-with-icon">
                                         <span data-notify="message">El paciente posee sobrepeso.
                                         Su peso es algo elevado. Pero con una práctica asidua de ejercicio y un cambio en los hábitos de alimentación, seguro que en pocas semanas consigue mantenerlo a raya. ¡Puedes conseguir su peso ideal!</span>
                                     </div>
-                                    @else($diagnosis->imc =>30)
+                                    @else
                                     <div class="alert alert-danger alert-with-icon" data-notify="container">
                                         <span data-notify="message">El paciente posee problema de obesidad.</span>
                                     </div>
 
                                     @endif
+                                    </div>
+                                    <div class="row align-items-end">
+                                        <div class="col-md-6">
+                                            <small class="text-muted">
+                                                @switch($diagnosis->inference_source)
+                                                    @case('ml')
+                                                        Clasificado por modelo ML (confianza {{ number_format($diagnosis->inference_confidence * 100, 1) }}%, versión {{ $diagnosis->model_version }})
+                                                        @break
+                                                    @case('manual')
+                                                        Categoría confirmada por un doctor
+                                                        @break
+                                                    @default
+                                                        Clasificado por reglas de IMC
+                                                @endswitch
+                                            </small>
+                                        </div>
+                                        @if(Auth::user()->rol_id == 2 || Auth::user()->rol_id == 3)
+                                        {{-- Fields belong to #rule-form (outside the page form) via the form attribute. --}}
+                                        <div class="form-group col-md-4">
+                                            <label class="form-control-label" for="input-id-rule">{{ __('Corregir categoría') }}</label>
+                                            <x-select name="id_rule" :options="$categories" :selected="$rule" class="form-control" id="input-id-rule" form="rule-form" />
+                                        </div>
+                                        <div class="form-group col-md-2">
+                                            <button type="submit" form="rule-form" class="btn btn-primary btn-round">{{ __('Confirmar') }}</button>
+                                        </div>
+                                        @endif
                                     </div>
                                     <div class="row text-center">
                                         <div class="col-12">
@@ -435,6 +461,10 @@
                                     <a href="{{ route('download', $diagnosis->id) }}" class="btn btn-info mt-4" target="_blank">{{ __('Descargar') }}</a>
                                 </div>
                             </div>
+                        </form>
+                        <form id="rule-form" method="post" action="{{ route('diagnosis.rule', $diagnosis) }}">
+                            @csrf
+                            @method('PUT')
                         </form>
                     </div>
                 </div>
