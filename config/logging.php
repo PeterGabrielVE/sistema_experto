@@ -73,6 +73,15 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Clinical audit trail (App\Listeners\RecordAuditTrail).
+        'audit' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/audit.log'),
+            'level' => 'info',
+            'max_files' => env('AUDIT_LOG_DAYS', 365),
+            'replace_placeholders' => true,
+        ],
+
         'monthly' => [
             'driver' => 'monthly',
             'path' => storage_path('logs/laravel.log'),

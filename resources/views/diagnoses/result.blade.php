@@ -187,7 +187,7 @@
                                                 @endswitch
                                             </small>
                                         </div>
-                                        @if(auth()->user()->can('manage-diagnoses'))
+                                        @if(auth()->user()->can('confirmCategory', $diagnosis))
                                         {{-- Fields belong to #rule-form (outside the page form) via the form attribute. --}}
                                         <div class="form-group col-md-4">
                                             <label class="form-control-label" for="input-id-rule">{{ __('Corregir categoría') }}</label>

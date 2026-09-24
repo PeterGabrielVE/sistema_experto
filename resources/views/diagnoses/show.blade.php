@@ -13,7 +13,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-              @if(auth()->user()->can('manage-diagnoses'))
+              @if(auth()->user()->can('create', \App\Models\Diagnosis::class))
               <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('diagnosis.new',$patient->id) }}">{{ __('Consulta nueva') }}</a>
               @endif
               <h4 class="card-title">{{ __('Consultas') }}: {{ $patient->first_name ?? null }} {{ $patient->last_name ?? null }}</h4>

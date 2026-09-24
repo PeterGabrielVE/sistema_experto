@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Patient;
 use App\Rules\Rut;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,7 +11,11 @@ class PatientRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('manage-patients');
+        $patient = $this->route('patient');
+
+        return $patient
+            ? $this->user()->can('update', $patient)
+            : $this->user()->can('create', Patient::class);
     }
 
     protected function prepareForValidation(): void

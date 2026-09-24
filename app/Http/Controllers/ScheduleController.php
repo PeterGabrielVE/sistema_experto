@@ -2,95 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
+use App\Http\Requests\ScheduleRequest;
 use App\Models\Schedule;
+use Illuminate\Support\Facades\Gate;
 
 class ScheduleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Schedule $model)
+    public function index()
     {
-        return view('schedule.index', ['schedules' => $model->paginate(15)]);
+        return view('schedule.index', ['schedules' => Schedule::latest()->paginate(15)]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
+        Gate::authorize('create', Schedule::class);
 
         return view('schedule.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function store(ScheduleRequest $request)
     {
-        $recommendation = Schedule::create($request->all());
+        Schedule::create($request->validated());
+
         return redirect()->route('schedule.index')->withStatus(__('Horario creado correctamente.'));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function edit(Schedule $schedule)
     {
-        //
+        Gate::authorize('update', $schedule);
+
+        return view('schedule.edit', ['sc' => $schedule]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    public function update(ScheduleRequest $request, Schedule $schedule)
     {
-        $sc = Schedule::find($id);
-        return view('schedule.edit', compact('sc'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $sc = Schedule::find($id);
-        $sc->update(
-            $request->all()
-            );
+        $schedule->update($request->validated());
 
         return redirect()->route('schedule.index')->withStatus(__('Horario actualizado exitosamente.'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function destroy(Schedule $schedule)
     {
-        $sc = Schedule::find($id);
-        $sc->delete();
+        Gate::authorize('delete', $schedule);
+
+        $schedule->delete();
 
         return redirect()->route('schedule.index')->withStatus(__('Horario eliminado exitosamente.'));
     }

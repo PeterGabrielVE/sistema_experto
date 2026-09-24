@@ -61,7 +61,7 @@
         </a>
       </li>
 
-      @if(auth()->user()->can('manage-clinical-content'))
+      @if(auth()->user()->can('viewAny', \App\Models\Rule::class))
       <!--<li class = "@if ($activePage == 'recommendation') active @endif">
         <a href="{{ route('recommendation.index') }}">
           <i class="now-ui-icons tech_tv"></i>

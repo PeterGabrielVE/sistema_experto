@@ -1,12 +1,16 @@
+x-laravel-env: &laravel-env
+  DB_HOST: db
+  INFERENCE_URL: http://inference:8000
+  QUEUE_CONNECTION: database
+
 services:
   app:
     build: .
     image: sistema-experto:latest
     env_file: .env
     environment:
-      DB_HOST: db
+      <<: *laravel-env
       RUN_MIGRATIONS: "true"
-      INFERENCE_URL: http://inference:8000
     ports:
       - "${APP_PORT:-8000}:80"
     volumes:
@@ -17,6 +21,34 @@ services:
         condition: service_healthy
       # Not required to be healthy: Laravel falls back to the IMC rules.
       inference:
+        condition: service_started
+    restart: unless-stopped
+
+  # Processes queued jobs and listeners (model retraining, notifications).
+  queue:
+    image: sistema-experto:latest
+    env_file: .env
+    environment: *laravel-env
+    user: www-data
+    command: ["php", "artisan", "queue:work", "--tries=3", "--max-time=3600"]
+    volumes:
+      - storage:/var/www/html/storage
+    depends_on:
+      app:
+        condition: service_started
+    restart: unless-stopped
+
+  # Runs the Laravel scheduler (nightly model retraining).
+  scheduler:
+    image: sistema-experto:latest
+    env_file: .env
+    environment: *laravel-env
+    user: www-data
+    command: ["php", "artisan", "schedule:work"]
+    volumes:
+      - storage:/var/www/html/storage
+    depends_on:
+      app:
         condition: service_started
     restart: unless-stopped
 

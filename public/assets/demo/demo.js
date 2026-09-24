@@ -232,10 +232,8 @@ demo = {
 
         $.get(url, function(response){
 
-                for (let obj of response) {
-                    for (let key in obj) {
-                        Data.push(obj[key])
-                    }
+                for (let item of response.data) {
+                    Data.push(item.count)
                 }
 
         var ctx = document.getElementById('bigDashboardChart').getContext("2d");
@@ -334,11 +332,9 @@ demo = {
 
     $.get(url2, function(response){
 
-            for (let obj of response) {
-                for (let key in obj) {
-                    Data2.push(obj[key])
+            for (let item of response.data) {
+                    Data2.push(item.count)
                 }
-            }
 
         var cardStatsMiniLineColor = "#fff",
             cardStatsMiniDotColor = "#fff";
@@ -392,10 +388,8 @@ demo = {
 
         
 
-                for (let obj of response) {
-                    for (let key in obj) {
-                        Data3.push(obj[key])
-                    }
+                for (let item of response.data) {
+                    Data3.push(item.count)
                 }
 
         myChart = new Chart(ctx2, {
@@ -435,10 +429,8 @@ demo = {
 
         $.get(url4, function(response){
 
-                for (let obj of response) {
-                    for (let key in obj) {
-                        Data4.push(obj[key])
-                    }
+                for (let item of response.data) {
+                    Data4.push(item.count)
                 }
         var a = {
             type: "bar",

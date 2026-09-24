@@ -37,7 +37,7 @@
                                         <label class="form-control-label" for="input-description">{{ __('Descripción') }}</label>
                                         <input type="text" name="description" id="input-comment" class="form-control{{ $errors->has('description') ? ' is-invalid' : '' }}" placeholder="{{ __('Descripción') }}" value="{{$re->description  }}" required autofocus>
 
-                                        @include('alerts.feedback', ['field' => 'comment'])
+                                        @include('alerts.feedback', ['field' => 'description'])
                                     </div>
                                 </div>
 

@@ -24,6 +24,7 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        @include('alerts.errors')
                         <form method="post" action="{{ route('patient.store') }}" autocomplete="off"
                             enctype="multipart/form-data">
                             @csrf
@@ -79,7 +80,7 @@
                                 </div>
 
                                 <div class="text-center">
-                                    @if(auth()->user()->can('manage-diagnoses'))
+                                    @if(auth()->user()->can('create', \App\Models\Diagnosis::class))
                                     <a onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Realizar consultar') }}</a>
                                     @endif
                                 </div>

@@ -13,7 +13,7 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-              @if(auth()->user()->can('manage-patients'))
+              @if(auth()->user()->can('create', \App\Models\Patient::class))
               <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('patient.create') }}">{{ __('Agregar paciente') }}</a>
               @endif
               <h4 class="card-title">{{ __('Pacientes') }}</h4>
@@ -60,20 +60,23 @@
                     <td>{{ date('d-m-Y', strtotime($patient->birthdate))  ?? null }}</td>
                     <td>{{$patient->user->name ?? null }}</td>
                     <td class="text-right">
-                      @if(auth()->user()->can('manage-patients'))
+                      @can('update', $patient)
                         <a type="button" href="{{route("patient.edit",$patient)}}" rel="tooltip" class="btn btn-success btn-sm" data-original-title="" title="">
                           <i class="now-ui-icons ui-2_settings-90"></i>Modificar
                         </a>
+                      @endcan
+                      @can('delete', $patient)
                       <form action="{{ route('patient.destroy', $patient->id) }}" method="post" style="display:inline-block;" class ="delete-form">
                         @csrf
                         @method('delete')
-                        <button type="button" rel="tooltip" class="btn btn-danger btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este paciente?') }}') ? this.parentElement.submit() : ''">
+                        <button type="button" rel="tooltip" class="btn btn-danger btn-sm delete-button" data-original-title="" title="" onclick="confirm('{{ __('¿Está seguro de que desea eliminar este paciente y todo su historial?') }}') ? this.parentElement.submit() : ''">
                           <i class="now-ui-icons ui-1_simple-remove"></i>Eliminar
                         </button>
                       </form>
-                      
+                      @endcan
+                      @can('create', \App\Models\Diagnosis::class)
                       <a href="{{ route('diagnosis.new', $patient->id) }}" class="btn btn-info btn-sm"><i class="fa fa-eye"></i> Consultar</a>
-                      @endif
+                      @endcan
                       <a href="{{ route('diagnosis.all', $patient->id) }}" class="btn btn-success btn-sm"><i class="fa fa-eye"></i> Historial</a>
                     </td>
                   </tr>

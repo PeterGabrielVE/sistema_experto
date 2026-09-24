@@ -2,99 +2,69 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\RecommendationRequest;
 use App\Models\Recommendation;
 use App\Models\Rule;
+use Illuminate\Support\Facades\Gate;
 
 class RecommendationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-
-    public function index(Recommendation $model)
+    public function index()
     {
-        return view('recommendations.index', ['recommendations' => $model->paginate(15)]);
+        return view('recommendations.index', ['recommendations' => Recommendation::latest()->paginate(15)]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        $options = Rule::get()->pluck('name','id')->prepend('Seleccione...','');
-        return view('recommendations.create',['options'=>$options]);
+        Gate::authorize('create', Recommendation::class);
+
+        return view('recommendations.create', ['options' => $this->ruleOptions()]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function store(RecommendationRequest $request)
     {
-        $recommendation = Recommendation::create($request->all());
+        Recommendation::create($request->validated());
+
         return redirect()->route('recommendation.index')->withStatus(__('Recomendación creada correctamente.'));
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Recommendations of one category (rules.id).
      */
-    public function show($id)
+    public function show(Rule $recommendation)
     {
-        $recommendation = Recommendation::where('id_rule',$id)->paginate(15);
-        return view('recommendations.index', ['recommendations' => $recommendation]);
+        Gate::authorize('view', $recommendation);
+
+        return view('recommendations.index', [
+            'recommendations' => Recommendation::where('id_rule', $recommendation->id)->latest()->paginate(15),
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    public function edit(Recommendation $recommendation)
     {
-        $re = Recommendation::find($id);
-        return view('recommendations.edit', compact('re'));
+        Gate::authorize('update', $recommendation);
+
+        return view('recommendations.edit', ['re' => $recommendation]);
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+    public function update(RecommendationRequest $request, Recommendation $recommendation)
     {
-        $re = Recommendation::find($id);
-        $re->update(
-            $request->all()
-            );
+        $recommendation->update($request->validated());
 
-        return redirect()->route('recommendation.index')->withStatus(__('Recomendación actualizado exitosamente.'));
+        return redirect()->route('recommendation.index')->withStatus(__('Recomendación actualizada exitosamente.'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function destroy(Recommendation $recommendation)
     {
-        $re = Recommendation::find($id);
-        $re->delete();
+        Gate::authorize('delete', $recommendation);
 
-        return redirect()->route('recommendation.index')->withStatus(__('Recomendación eliminado exitosamente.'));
+        $recommendation->delete();
+
+        return redirect()->route('recommendation.index')->withStatus(__('Recomendación eliminada exitosamente.'));
+    }
+
+    private function ruleOptions()
+    {
+        return Rule::pluck('name', 'id')->prepend('Seleccione...', '');
     }
 }

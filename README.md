@@ -57,6 +57,21 @@ docker compose exec app php artisan inference:train
 El modelo se guarda en el volumen `models`. `INFERENCE_TOKEN` (en `.env`) protege la API;
 el servicio solo es accesible dentro de la red de Docker. Tests: `docker compose exec inference python -m pytest tests`.
 
+## Colas, eventos y auditoría
+
+Docker levanta un worker (`queue`) y el scheduler (`scheduler`) con la cola `database`.
+
+| Evento | Listeners |
+|---|---|
+| `PatientRegistered`, `PatientDeleted`, `DiagnosisCreated`, `UserRoleChanged` | `RecordAuditTrail` |
+| `DiagnosisCategoryConfirmed` | `RecordAuditTrail`, `ScheduleModelRetraining` (encola `RetrainInferenceModel` con 10 min de espera) |
+| `UserAccountCreated` | `RecordAuditTrail`, `SendAccountCreatedNotification` (en cola) |
+
+- `RetrainInferenceModel` es único: varias correcciones seguidas generan un solo reentrenamiento.
+  También corre cada noche a las 03:00. Manual: `php artisan inference:train [--queue]`.
+- La bitácora clínica queda en `storage/logs/audit-YYYY-MM-DD.log` (365 días, `AUDIT_LOG_DAYS`).
+- Los permisos están en `app/Policies` (una policy por modelo).
+
 ## Front-end
 
 Los estilos del dashboard (Now UI) se sirven desde `public/assets`. Vite compila
