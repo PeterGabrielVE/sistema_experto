@@ -47,10 +47,9 @@ class LabResultController extends Controller
 
     public function store(LabResultRequest $request, Patient $patient)
     {
-        $this->labResults->create($patient, $request->validated(), $request->user());
+        $labResult = $this->labResults->create($patient, $request->validated(), $request->user());
 
-        return redirect()->route('patient.lab-results.index', $patient)
-            ->withStatus(__('Examen registrado correctamente.'));
+        return $this->saved($request, $patient, $labResult, __('Examen registrado correctamente.'), 201);
     }
 
     public function edit(Patient $patient, LabResult $labResult)
@@ -68,8 +67,7 @@ class LabResultController extends Controller
     {
         $this->labResults->update($labResult, $request->validated(), $request->user());
 
-        return redirect()->route('patient.lab-results.index', $patient)
-            ->withStatus(__('Examen actualizado correctamente.'));
+        return $this->saved($request, $patient, $labResult, __('Examen actualizado correctamente.'));
     }
 
     public function destroy(Request $request, Patient $patient, LabResult $labResult)
@@ -80,5 +78,25 @@ class LabResultController extends Controller
 
         return redirect()->route('patient.lab-results.index', $patient)
             ->withStatus(__('Examen eliminado.'));
+    }
+
+    /**
+     * The Vue form sends JSON and receives where to go next; a classic form post receives a redirect.
+     */
+    private function saved(Request $request, Patient $patient, LabResult $labResult, string $message, int $status = 200)
+    {
+        $redirect = route('patient.lab-results.index', $patient);
+
+        if (! $request->expectsJson()) {
+            return redirect($redirect)->withStatus($message);
+        }
+
+        // Shown by the page the Vue form navigates to.
+        $request->session()->flash('status', $message);
+
+        return response()->json([
+            'data' => ['id' => $labResult->id],
+            'meta' => ['message' => $message, 'redirect' => $redirect],
+        ], $status);
     }
 }

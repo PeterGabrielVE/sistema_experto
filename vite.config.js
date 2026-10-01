@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/js/dashboard.js',
                 'resources/js/patient-form.js',
                 'resources/js/evolution-chart.js',
+                'resources/js/lab-result-form.js',
             ],
             refresh: true,
         }),

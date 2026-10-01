@@ -36,6 +36,11 @@ class LabResultRequest extends FormRequest
     {
         $patient = $this->route('patient');
 
+        $analytes = array_map(
+            fn (array $analyte) => ['nullable', 'numeric', 'between:'.implode(',', $analyte['limits'])],
+            LabResult::ANALYTES
+        );
+
         return [
             'taken_at' => array_filter([
                 'required', 'date', 'before_or_equal:today',
@@ -45,13 +50,7 @@ class LabResultRequest extends FormRequest
             // Only a consultation of the same patient.
             'diagnosis_id' => ['nullable', 'integer', Rule::exists('diagnoses', 'id')->where('id_patient', $patient->id)],
 
-            'fasting_glucose' => ['nullable', 'numeric', 'between:20,600'],
-            'fasting_insulin' => ['nullable', 'numeric', 'between:0.5,300'],
-            'hba1c' => ['nullable', 'numeric', 'between:3,20'],
-            'total_cholesterol' => ['nullable', 'numeric', 'between:50,600'],
-            'hdl' => ['nullable', 'numeric', 'between:5,200'],
-            'ldl' => ['nullable', 'numeric', 'between:10,500'],
-            'triglycerides' => ['nullable', 'numeric', 'between:20,5000'],
+            ...$analytes,
 
             'notes' => ['nullable', 'string', 'max:2000'],
         ];

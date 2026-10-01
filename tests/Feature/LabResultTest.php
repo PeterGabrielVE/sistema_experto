@@ -81,6 +81,35 @@ class LabResultTest extends TestCase
         $this->assertSame($this->doctor->id, $r->created_by);
     }
 
+    public function test_vue_form_saves_with_json(): void
+    {
+        $this->actingAs($this->doctor)->get($this->url('/create'))
+            ->assertSee('id="lab-result-form"', false);
+
+        $this->actingAs($this->doctor)->postJson($this->url(), [
+            'taken_at' => now()->toDateString(), 'diagnosis_id' => null,
+            'fasting_glucose' => 92.5, 'hdl' => null, 'notes' => null,
+        ])
+            ->assertCreated()
+            ->assertJsonPath('meta.redirect', route('patient.lab-results.index', $this->patient))
+            ->assertSessionHas('status', 'Examen registrado correctamente.');
+        $this->assertSame(92.5, $this->patient->labResults()->firstOrFail()->fasting_glucose);
+
+        $this->actingAs($this->doctor)->postJson($this->url(), ['taken_at' => now()->toDateString(), 'hdl' => null])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['analytes' => 'Registre al menos un resultado de examen.']);
+
+        $r = $this->labResult(['hba1c' => 6.1]);
+        $this->actingAs($this->doctor)->get($this->url("/{$r->id}/edit"))
+            ->assertSee('&quot;taken_at&quot;:&quot;'.$r->taken_at->toDateString().'&quot;', false)
+            ->assertSee('&quot;hba1c&quot;:6.1', false);
+
+        $this->actingAs($this->doctor)->putJson($this->url("/{$r->id}"), ['taken_at' => $r->taken_at->toDateString(), 'hba1c' => 6.3])
+            ->assertOk()
+            ->assertJsonPath('meta.message', 'Examen actualizado correctamente.');
+        $this->assertSame(6.3, $r->fresh()->hba1c);
+    }
+
     public function test_history_shows_indicators_and_out_of_range_values(): void
     {
         $this->labResult();
@@ -159,7 +188,7 @@ class LabResultTest extends TestCase
         // The form preselects the consultation it comes from.
         $this->actingAs($this->doctor)->get($this->url("/create?diagnosis={$consultation->id}"))
             ->assertOk()
-            ->assertSee('<option value="'.$consultation->id.'" selected', false);
+            ->assertSee('&quot;diagnosis_id&quot;:'.$consultation->id, false);
 
         $this->actingAs($this->doctor)->post($this->url(), $this->payload(['diagnosis_id' => $this->consultation($other)->id]))
             ->assertSessionHasErrors('diagnosis_id');

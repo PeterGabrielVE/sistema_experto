@@ -13,16 +13,25 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LabResult extends Model
 {
     /**
-     * Analytes with label, unit and reference range (adults, reference only).
+     * Analytes with label, unit, reference range (adults, reference only) and
+     * the plausible values accepted by validation ('limits').
      */
     public const ANALYTES = [
-        'fasting_glucose' => ['label' => 'Glicemia en ayunas', 'unit' => 'mg/dL', 'max' => 99],
-        'fasting_insulin' => ['label' => 'Insulina basal', 'unit' => 'µU/mL', 'max' => 25],
-        'hba1c' => ['label' => 'HbA1c', 'unit' => '%', 'max' => 5.6],
-        'total_cholesterol' => ['label' => 'Colesterol total', 'unit' => 'mg/dL', 'max' => 199],
-        'hdl' => ['label' => 'Colesterol HDL', 'unit' => 'mg/dL', 'min' => 40],
-        'ldl' => ['label' => 'Colesterol LDL', 'unit' => 'mg/dL', 'max' => 129],
-        'triglycerides' => ['label' => 'Triglicéridos', 'unit' => 'mg/dL', 'max' => 149],
+        'fasting_glucose' => ['label' => 'Glicemia en ayunas', 'unit' => 'mg/dL', 'max' => 99, 'limits' => [20, 600]],
+        'fasting_insulin' => ['label' => 'Insulina basal', 'unit' => 'µU/mL', 'max' => 25, 'limits' => [0.5, 300]],
+        'hba1c' => ['label' => 'HbA1c', 'unit' => '%', 'max' => 5.6, 'limits' => [3, 20]],
+        'total_cholesterol' => ['label' => 'Colesterol total', 'unit' => 'mg/dL', 'max' => 199, 'limits' => [50, 600]],
+        'hdl' => ['label' => 'Colesterol HDL', 'unit' => 'mg/dL', 'min' => 40, 'limits' => [5, 200]],
+        'ldl' => ['label' => 'Colesterol LDL', 'unit' => 'mg/dL', 'max' => 129, 'limits' => [10, 500]],
+        'triglycerides' => ['label' => 'Triglicéridos', 'unit' => 'mg/dL', 'max' => 149, 'limits' => [20, 5000]],
+    ];
+
+    /**
+     * Analytes grouped as shown in the form.
+     */
+    public const PANELS = [
+        'Metabolismo de la glucosa' => ['fasting_glucose', 'fasting_insulin', 'hba1c'],
+        'Perfil lipídico' => ['total_cholesterol', 'hdl', 'ldl', 'triglycerides'],
     ];
 
     /**
