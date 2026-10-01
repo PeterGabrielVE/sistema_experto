@@ -63,7 +63,7 @@ Docker levanta un worker (`queue`) y el scheduler (`scheduler`) con la cola `dat
 
 | Evento | Listeners |
 |---|---|
-| `PatientRegistered`, `PatientDeleted`, `DiagnosisCreated`, `UserRoleChanged` | `RecordAuditTrail` |
+| `PatientRegistered`, `PatientDeleted`, `DiagnosisCreated`, `UserRoleChanged`, `ClinicalRecordSaved`, `ClinicalMeasurementRecorded` | `RecordAuditTrail` |
 | `DiagnosisCategoryConfirmed` | `RecordAuditTrail`, `ScheduleModelRetraining` (encola `RetrainInferenceModel` con 10 min de espera) |
 | `UserAccountCreated` | `RecordAuditTrail`, `SendAccountCreatedNotification` (en cola) |
 
@@ -71,6 +71,18 @@ Docker levanta un worker (`queue`) y el scheduler (`scheduler`) con la cola `dat
   También corre cada noche a las 03:00. Manual: `php artisan inference:train [--queue]`.
 - La bitácora clínica queda en `storage/logs/audit-YYYY-MM-DD.log` (365 días, `AUDIT_LOG_DAYS`).
 - Los permisos están en `app/Policies` (una policy por modelo).
+
+## Registro de mediciones clínicas
+
+`/patient/{id}/measurements` guarda el historial de controles del paciente (varios por paciente,
+a diferencia de la ficha clínica que es única): peso, talla, cintura, cadera, % de grasa,
+presión arterial, frecuencia cardíaca y glicemia capilar.
+
+- Calcula IMC (mismas categorías que `rules.id`), cintura/talla (> 0,5 = riesgo cardiometabólico),
+  cintura/cadera y la categoría de presión arterial (ACC/AHA 2017). Valores referenciales.
+- Muestra la última medición con su variación respecto a la anterior y un gráfico de evolución.
+- Solo el equipo médico (roles 2 y 3) ve y registra mediciones; eliminar queda restringido a
+  quien la registró o a un Doctor Jefe. Cada cambio se audita (solo nombres de campos, sin valores).
 
 ## Front-end
 

@@ -6,6 +6,12 @@
 ])
 
 @include('diagnoses.create')
+@php
+    // Last weight / height of the clinical measurements registry (may come from different controls).
+    $lastWeight = $anthropometry['weight'] ?? null;
+    $lastHeight = $anthropometry['height'] ?? null;
+@endphp
+
 @section('content')
     <div class="panel-header panel-header-sm">
     </div>
@@ -40,13 +46,19 @@
                                     </div>
                                     <div class="form-group{{ $errors->has('weight') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-weight">{{ __('Peso') }}</label>
-                                        <input type="text" name="weight" id="input-weight" class="form-control{{ $errors->has('weight') ? ' is-invalid' : '' }}" placeholder="{{ __('Peso') }}" value="{{ old('weight') }}" required autofocus onchange="calcularIMC()">
+                                        <input type="text" name="weight" id="input-weight" class="form-control{{ $errors->has('weight') ? ' is-invalid' : '' }}" placeholder="{{ __('Peso') }}" value="{{ old('weight', $lastWeight?->weight_kg) }}" required autofocus onchange="calcularIMC()">
+                                        @if($lastWeight)
+                                            <small class="text-muted">{{ __('Medición del :date', ['date' => $lastWeight->measured_at->format('d/m/Y')]) }}</small>
+                                        @endif
 
-                                        @include('alerts.feedback', ['field' => 'last_name'])
+                                        @include('alerts.feedback', ['field' => 'weight'])
                                     </div>
                                     <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-size">{{ __('Talla') }}</label>
-                                        <input type="text" name="size" id="input-size" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('address') }}" required autofocus onchange="calcularIMC()">
+                                        <input type="text" name="size" id="input-size" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ old('size', $lastHeight?->height_cm) }}" required autofocus onchange="calcularIMC()">
+                                        @if($lastHeight)
+                                            <small class="text-muted">{{ __('Medición del :date', ['date' => $lastHeight->measured_at->format('d/m/Y')]) }}</small>
+                                        @endif
 
                                         @include('alerts.feedback', ['field' => 'size'])
                                     </div>
@@ -74,6 +86,17 @@
                                     </div>
                                 </div>
 
+                                @can('viewClinicalRecord', $patient)
+                                    <p class="text-muted small mb-0">
+                                        @if($lastWeight || $lastHeight)
+                                            {{ __('Peso y talla tomados del registro de mediciones; puede modificarlos.') }}
+                                        @else
+                                            {{ __('El paciente no tiene mediciones registradas.') }}
+                                        @endif
+                                        <a href="{{ route('patient.measurements.index', $patient) }}">{{ __('Ver mediciones') }}</a>
+                                    </p>
+                                @endcan
+
                                 <div class="text-center">
                                     @if(auth()->user()->can('create', \App\Models\Diagnosis::class))
                                     <a onclick="diagnosticar()" class="btn btn-info mt-4">{{ __('Realizar consultar') }}</a>
@@ -86,6 +109,9 @@
         </div>
     </div>
     <script>
+        // Weight and height may come pre-filled from the measurements registry.
+        document.addEventListener('DOMContentLoaded', calcularIMC);
+
         function calcularIMC(){
 
             let weight = $('#input-weight').val();

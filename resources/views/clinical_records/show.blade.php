@@ -36,6 +36,7 @@
                                 @can('updateClinicalRecord', $patient)
                                     <a href="{{ route('patient.clinical-record.edit', $patient) }}" class="btn btn-info btn-round">{{ __('Editar ficha') }}</a>
                                 @endcan
+                                <a href="{{ route('patient.measurements.index', $patient) }}" class="btn btn-warning btn-round">{{ __('Mediciones') }}</a>
                                 <a href="{{ route('diagnosis.all', $patient) }}" class="btn btn-success btn-round">{{ __('Consultas') }}</a>
                                 <a href="{{ route('patient.index') }}" class="btn btn-primary btn-round">{{ __('Volver') }}</a>
                             </div>

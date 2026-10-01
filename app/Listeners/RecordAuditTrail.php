@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Events\ClinicalMeasurementRecorded;
 use App\Events\ClinicalRecordSaved;
 use App\Events\DiagnosisCategoryConfirmed;
 use App\Events\DiagnosisCreated;
@@ -39,6 +40,16 @@ class RecordAuditTrail
         $this->record($event->created ? 'clinical_record.created' : 'clinical_record.updated', $event->actor, [
             'patient_id' => $event->record->patient_id,
             'clinical_record_id' => $event->record->id,
+            'fields' => $event->changedFields,
+        ]);
+    }
+
+    public function handleClinicalMeasurementRecorded(ClinicalMeasurementRecorded $event): void
+    {
+        $this->record('clinical_measurement.'.$event->action, $event->actor, [
+            'patient_id' => $event->measurement->patient_id,
+            'clinical_measurement_id' => $event->measurement->id,
+            'measured_at' => $event->measurement->measured_at?->toDateString(),
             'fields' => $event->changedFields,
         ]);
     }

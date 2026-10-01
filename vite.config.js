@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/dashboard.js',
                 'resources/js/patient-form.js',
+                'resources/js/measurements.js',
             ],
             refresh: true,
         }),

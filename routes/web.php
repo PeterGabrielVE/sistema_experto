@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClinicalMeasurementController;
 use App\Http\Controllers\ClinicalRecordController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\HomeController;
@@ -55,6 +56,11 @@ Route::middleware('auth')->group(function () {
         Route::get('patient/{patient}/clinical-record', [ClinicalRecordController::class, 'show'])->name('patient.clinical-record.show');
         Route::get('patient/{patient}/clinical-record/edit', [ClinicalRecordController::class, 'edit'])->name('patient.clinical-record.edit');
         Route::put('patient/{patient}/clinical-record', [ClinicalRecordController::class, 'update'])->name('patient.clinical-record.update');
+
+        // Clinical measurements (registro de mediciones), many per patient.
+        Route::resource('patient.measurements', ClinicalMeasurementController::class)
+            ->except(['show'])
+            ->scoped();
     });
 
     Route::middleware('can:viewAny,'.Diagnosis::class)->group(function () {

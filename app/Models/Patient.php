@@ -71,6 +71,11 @@ class Patient extends Model
         return $this->hasOne(ClinicalRecord::class);
     }
 
+    public function measurements(): HasMany
+    {
+        return $this->hasMany(ClinicalMeasurement::class);
+    }
+
     public function diagnoses(): HasMany
     {
         return $this->hasMany(Diagnosis::class, 'id_patient');

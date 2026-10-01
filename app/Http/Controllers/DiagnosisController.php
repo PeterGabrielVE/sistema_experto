@@ -6,6 +6,7 @@ use App\Http\Requests\ConfirmDiagnosisCategoryRequest;
 use App\Http\Requests\StoreDiagnosisRequest;
 use App\Models\Diagnosis;
 use App\Models\Patient;
+use App\Services\ClinicalMeasurementService;
 use App\Services\DiagnosisService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Gate;
@@ -17,13 +18,17 @@ class DiagnosisController extends Controller
     }
 
     /**
-     * New consultation form for a patient.
+     * New consultation form for a patient, pre-filled with the last weight and
+     * height of the clinical measurements registry.
      */
-    public function create(Patient $patient)
+    public function create(Patient $patient, ClinicalMeasurementService $measurements)
     {
         Gate::authorize('create', Diagnosis::class);
 
-        return view('diagnoses.index', ['patient' => $patient]);
+        return view('diagnoses.index', [
+            'patient' => $patient,
+            'anthropometry' => $measurements->latestAnthropometry($patient),
+        ]);
     }
 
     public function store(StoreDiagnosisRequest $request)
