@@ -100,7 +100,7 @@ class ClinicalMeasurementTest extends TestCase
             ->assertSee('Riesgo cardiometabólico')
             ->assertSee('132/84')
             ->assertSee('Hipertensión etapa 1')
-            ->assertSee('chart-measurements');
+            ->assertSee('evolution-chart');
     }
 
     public function test_empty_history(): void
@@ -108,7 +108,7 @@ class ClinicalMeasurementTest extends TestCase
         $this->actingAs($this->doctor)->get($this->url())
             ->assertOk()
             ->assertSee('Aún no hay mediciones registradas')
-            ->assertDontSee('chart-measurements');
+            ->assertDontSee('evolution-chart');
     }
 
     public function test_doctor_edits_a_measurement(): void
@@ -247,6 +247,29 @@ class ClinicalMeasurementTest extends TestCase
             ->assertSee('value="168"', false)
             ->assertSee('Medición del '.now()->subWeek()->format('d/m/Y'))
             ->assertSee('Peso y talla tomados del registro de mediciones');
+    }
+
+    public function test_measurement_links_to_a_consultation_of_the_same_patient(): void
+    {
+        $consultation = \App\Models\Diagnosis::create(['id_patient' => $this->patient->id, 'age' => 36]);
+        $foreign = \App\Models\Diagnosis::create(['id_patient' => Patient::create([
+            'first_name' => 'Luis', 'last_name' => 'Soto', 'rut' => '22222222-2',
+            'address' => 'Calle 2', 'gender' => 'H', 'birthdate' => '1985-05-05',
+        ])->id, 'age' => 40]);
+
+        $this->actingAs($this->doctor)->get($this->url("/create?diagnosis={$consultation->id}"))
+            ->assertOk()
+            ->assertSee('<option value="'.$consultation->id.'" selected', false);
+
+        $this->actingAs($this->doctor)->post($this->url(), $this->payload(['diagnosis_id' => $foreign->id]))
+            ->assertSessionHasErrors('diagnosis_id');
+
+        $this->actingAs($this->doctor)->post($this->url(), $this->payload(['diagnosis_id' => $consultation->id]))
+            ->assertSessionHasNoErrors();
+        $this->assertCount(1, $consultation->measurements);
+
+        $this->actingAs($this->doctor)->get($this->url())
+            ->assertSee(route('result', $consultation->id));
     }
 
     public function test_new_consultation_without_measurements(): void

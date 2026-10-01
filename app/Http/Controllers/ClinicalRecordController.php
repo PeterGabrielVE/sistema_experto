@@ -28,6 +28,8 @@ class ClinicalRecordController extends Controller
         return view('clinical_records.show', [
             'patient' => $patient,
             'record' => $patient->clinicalRecord->load(['author', 'editor']),
+            'labResult' => $patient->labResults()->latestFirst()->first(),
+            'lastWaist' => $patient->measurements()->whereNotNull('waist_cm')->latestFirst()->first(),
         ]);
     }
 

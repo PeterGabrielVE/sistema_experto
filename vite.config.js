@@ -10,7 +10,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/dashboard.js',
                 'resources/js/patient-form.js',
-                'resources/js/measurements.js',
+                'resources/js/evolution-chart.js',
             ],
             refresh: true,
         }),

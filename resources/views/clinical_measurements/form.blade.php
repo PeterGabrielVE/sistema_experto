@@ -34,6 +34,7 @@
                         <div class="row">
                             <x-form-field name="measured_at" type="date" :label="__('Fecha de medición')" :value="$measurement->measured_at?->toDateString()"
                                 col="col-md-3" max="{{ now()->toDateString() }}" required />
+                            <x-consultation-select :consultations="$consultations" :selected="$measurement->diagnosis_id" />
                         </div>
 
                         <h6 class="text-uppercase text-secondary text-xs font-weight-bolder mb-3 mt-2">{{ __('Antropometría') }}</h6>

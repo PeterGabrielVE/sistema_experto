@@ -76,8 +76,25 @@ class Patient extends Model
         return $this->hasMany(ClinicalMeasurement::class);
     }
 
+    public function labResults(): HasMany
+    {
+        return $this->hasMany(LabResult::class);
+    }
+
     public function diagnoses(): HasMany
     {
         return $this->hasMany(Diagnosis::class, 'id_patient');
+    }
+
+    /**
+     * Consultations to link a measurement or lab result to, most recent first.
+     *
+     * @return array<int, string>
+     */
+    public function consultationOptions(): array
+    {
+        return $this->diagnoses()->latest()->latest('id')->get(['id', 'created_at'])
+            ->mapWithKeys(fn (Diagnosis $d) => [$d->id => __('Consulta del :date', ['date' => $d->created_at->format('d/m/Y H:i')])])
+            ->all();
     }
 }

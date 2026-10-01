@@ -35,7 +35,7 @@ class ClinicalMeasurementController extends Controller
         ]);
     }
 
-    public function create(Patient $patient)
+    public function create(Request $request, Patient $patient)
     {
         Gate::authorize('updateClinicalRecord', $patient);
 
@@ -47,7 +47,10 @@ class ClinicalMeasurementController extends Controller
             'measurement' => new ClinicalMeasurement([
                 'measured_at' => now(),
                 'height_cm' => $lastHeight,
+                // Coming from a consultation ("Registrar medición" on its result page).
+                'diagnosis_id' => $request->integer('diagnosis') ?: null,
             ]),
+            'consultations' => $patient->consultationOptions(),
         ]);
     }
 
@@ -66,6 +69,7 @@ class ClinicalMeasurementController extends Controller
         return view('clinical_measurements.form', [
             'patient' => $patient,
             'measurement' => $measurement,
+            'consultations' => $patient->consultationOptions(),
         ]);
     }
 

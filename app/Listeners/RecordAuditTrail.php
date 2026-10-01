@@ -6,6 +6,7 @@ use App\Events\ClinicalMeasurementRecorded;
 use App\Events\ClinicalRecordSaved;
 use App\Events\DiagnosisCategoryConfirmed;
 use App\Events\DiagnosisCreated;
+use App\Events\LabResultRecorded;
 use App\Events\PatientDeleted;
 use App\Events\PatientRegistered;
 use App\Events\UserAccountCreated;
@@ -49,7 +50,19 @@ class RecordAuditTrail
         $this->record('clinical_measurement.'.$event->action, $event->actor, [
             'patient_id' => $event->measurement->patient_id,
             'clinical_measurement_id' => $event->measurement->id,
+            'diagnosis_id' => $event->measurement->diagnosis_id,
             'measured_at' => $event->measurement->measured_at?->toDateString(),
+            'fields' => $event->changedFields,
+        ]);
+    }
+
+    public function handleLabResultRecorded(LabResultRecorded $event): void
+    {
+        $this->record('lab_result.'.$event->action, $event->actor, [
+            'patient_id' => $event->labResult->patient_id,
+            'lab_result_id' => $event->labResult->id,
+            'diagnosis_id' => $event->labResult->diagnosis_id,
+            'taken_at' => $event->labResult->taken_at?->toDateString(),
             'fields' => $event->changedFields,
         ]);
     }

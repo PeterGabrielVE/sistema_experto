@@ -77,23 +77,15 @@
                             </div>
 
                             <h6 class="heading-small text-muted mb-3 mt-4">{{ __('Antropometría') }}</h6>
-                            <div class="row">
-                                <x-form-field name="waist_cm" :label="__('Circunferencia de cintura')" unit="cm" :value="$record->waist_cm" col="col-md-3" inputmode="decimal" />
-                            </div>
+                            <p class="text-muted small">
+                                {{ __('Peso, talla, cintura y demás mediciones se registran con su fecha en el registro de mediciones.') }}
+                                <a href="{{ route('patient.measurements.index', $patient) }}">{{ __('Ir a mediciones') }}</a>
+                            </p>
 
                             <h6 class="heading-small text-muted mb-3 mt-4">{{ __('Exámenes de laboratorio') }}</h6>
-                            <div class="row">
-                                <x-form-field name="lab_date" type="date" :label="__('Fecha de exámenes')" :value="$record->lab_date?->toDateString()" col="col-md-3" max="{{ now()->toDateString() }}" />
-                                <x-form-field name="fasting_glucose" :label="__('Glicemia en ayunas')" unit="mg/dL" :value="$record->fasting_glucose" col="col-md-3" inputmode="decimal" />
-                                <x-form-field name="fasting_insulin" :label="__('Insulina basal')" unit="µU/mL" :value="$record->fasting_insulin" col="col-md-3" inputmode="decimal" />
-                                <x-form-field name="hba1c" :label="__('HbA1c')" unit="%" :value="$record->hba1c" col="col-md-3" inputmode="decimal" />
-                                <x-form-field name="total_cholesterol" :label="__('Colesterol total')" unit="mg/dL" :value="$record->total_cholesterol" col="col-md-3" inputmode="decimal" />
-                                <x-form-field name="hdl" :label="__('HDL')" unit="mg/dL" :value="$record->hdl" col="col-md-3" inputmode="decimal" />
-                                <x-form-field name="ldl" :label="__('LDL')" unit="mg/dL" :value="$record->ldl" col="col-md-3" inputmode="decimal" />
-                                <x-form-field name="triglycerides" :label="__('Triglicéridos')" unit="mg/dL" :value="$record->triglycerides" col="col-md-3" inputmode="decimal" />
-                            </div>
                             <p class="text-muted small">
-                                {{ __('Con glicemia e insulina basal el sistema calcula el HOMA-IR automáticamente.') }}
+                                {{ __('Los exámenes se registran con su fecha en el historial de exámenes de laboratorio.') }}
+                                <a href="{{ route('patient.lab-results.index', $patient) }}">{{ __('Ir a exámenes') }}</a>
                             </p>
 
                             <h6 class="heading-small text-muted mb-3 mt-4">{{ __('Observaciones') }}</h6>

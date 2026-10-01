@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Diagnosis extends Model
 {
@@ -14,5 +15,21 @@ class Diagnosis extends Model
 
     public function user(){
         return $this->belongsTo('App\Models\User','created_by','id');
+    }
+
+    /**
+     * Measurements taken in this consultation.
+     */
+    public function measurements(): HasMany
+    {
+        return $this->hasMany(ClinicalMeasurement::class);
+    }
+
+    /**
+     * Lab results reviewed in this consultation.
+     */
+    public function labResults(): HasMany
+    {
+        return $this->hasMany(LabResult::class);
     }
 }

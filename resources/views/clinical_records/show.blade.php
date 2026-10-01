@@ -7,7 +7,6 @@
 
 @php
     $value = fn ($v, $unit = '') => $v === null || $v === '' ? '—' : rtrim(rtrim(number_format($v, 1, ',', '.'), '0'), ',').($unit ? ' '.$unit : '');
-    $homa = $record->homaIr();
 @endphp
 
 @section('content')
@@ -37,6 +36,7 @@
                                     <a href="{{ route('patient.clinical-record.edit', $patient) }}" class="btn btn-info btn-round">{{ __('Editar ficha') }}</a>
                                 @endcan
                                 <a href="{{ route('patient.measurements.index', $patient) }}" class="btn btn-warning btn-round">{{ __('Mediciones') }}</a>
+                                <a href="{{ route('patient.lab-results.index', $patient) }}" class="btn btn-danger btn-round">{{ __('Exámenes') }}</a>
                                 <a href="{{ route('diagnosis.all', $patient) }}" class="btn btn-success btn-round">{{ __('Consultas') }}</a>
                                 <a href="{{ route('patient.index') }}" class="btn btn-primary btn-round">{{ __('Volver') }}</a>
                             </div>
@@ -71,50 +71,67 @@
                                     <dt>{{ __('Alcohol') }}</dt><dd>{{ $record->alcohol?->label() ?? '—' }}</dd>
                                     <dt>{{ __('Sueño') }}</dt><dd>{{ $value($record->sleep_hours, 'h/día') }}</dd>
                                     <dt>{{ __('Agua') }}</dt><dd>{{ $value($record->water_liters, 'L/día') }}</dd>
-                                    <dt>{{ __('Circunferencia de cintura') }}</dt><dd>{{ $value($record->waist_cm, 'cm') }}</dd>
+                                    <dt>{{ __('Circunferencia de cintura') }}</dt>
+                                    <dd>
+                                        @if($lastWaist)
+                                            {{ $value($lastWaist->waist_cm, 'cm') }}
+                                            <small class="text-muted">({{ __('medición del :date', ['date' => $lastWaist->measured_at->format('d/m/Y')]) }})</small>
+                                        @else
+                                            —
+                                        @endif
+                                        <a href="{{ route('patient.measurements.index', $patient) }}" class="small ml-1">{{ __('Ver mediciones') }}</a>
+                                    </dd>
                                 </dl>
                             </div>
                         </div>
 
                         <h6 class="heading-small text-muted mt-4">
-                            {{ __('Exámenes de laboratorio') }}
-                            @if($record->lab_date)
-                                <small>({{ $record->lab_date->format('d/m/Y') }})</small>
+                            {{ __('Último examen de laboratorio') }}
+                            @if($labResult)
+                                <small>({{ $labResult->taken_at->format('d/m/Y') }})</small>
                             @endif
+                            <a href="{{ route('patient.lab-results.index', $patient) }}" class="small ml-2">{{ __('Ver historial de exámenes') }}</a>
                         </h6>
-                        <div class="row">
-                            <div class="col-md-8">
-                                <table class="table table-sm">
-                                    <tbody>
-                                        <tr><td>{{ __('Glicemia en ayunas') }}</td><td>{{ $value($record->fasting_glucose, 'mg/dL') }}</td></tr>
-                                        <tr><td>{{ __('Insulina basal') }}</td><td>{{ $value($record->fasting_insulin, 'µU/mL') }}</td></tr>
-                                        <tr><td>{{ __('HbA1c') }}</td><td>{{ $value($record->hba1c, '%') }}</td></tr>
-                                        <tr><td>{{ __('Colesterol total') }}</td><td>{{ $value($record->total_cholesterol, 'mg/dL') }}</td></tr>
-                                        <tr><td>{{ __('HDL') }}</td><td>{{ $value($record->hdl, 'mg/dL') }}</td></tr>
-                                        <tr><td>{{ __('LDL') }}</td><td>{{ $value($record->ldl, 'mg/dL') }}</td></tr>
-                                        <tr><td>{{ __('Triglicéridos') }}</td><td>{{ $value($record->triglycerides, 'mg/dL') }}</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card card-stats text-center p-3">
-                                    <h6 class="text-muted mb-1">HOMA-IR</h6>
-                                    @if($homa === null)
-                                        <p class="text-muted mb-0">{{ __('Requiere glicemia e insulina basal') }}</p>
-                                    @else
-                                        <h2 class="mb-1">{{ number_format($homa, 2, ',', '.') }}</h2>
-                                        @if($record->suggestsInsulinResistance())
-                                            <span class="badge badge-danger">{{ __('Sugiere resistencia a la insulina') }}</span>
-                                        @else
-                                            <span class="badge badge-success">{{ __('Dentro de rango') }}</span>
-                                        @endif
-                                        <p class="small text-muted mt-2 mb-0">
-                                            {{ __('Referencial: > :t sugiere resistencia a la insulina.', ['t' => number_format(\App\Models\ClinicalRecord::HOMA_IR_THRESHOLD, 1, ',', '.')]) }}
-                                        </p>
-                                    @endif
+                        @if(! $labResult)
+                            <p class="text-muted">
+                                {{ __('Sin exámenes registrados.') }}
+                                @can('updateClinicalRecord', $patient)
+                                    <a href="{{ route('patient.lab-results.create', $patient) }}">{{ __('Registrar examen') }}</a>
+                                @endcan
+                            </p>
+                        @else
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <table class="table table-sm">
+                                        <tbody>
+                                            @foreach (\App\Models\LabResult::ANALYTES as $field => $analyte)
+                                                <tr>
+                                                    <td>{{ __($analyte['label']) }}</td>
+                                                    <td>@include('lab_results._value', ['result' => $labResult, 'field' => $field]) {{ $labResult->{$field} !== null ? $analyte['unit'] : '' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card card-stats text-center p-3">
+                                        <h6 class="text-muted mb-1">{{ __('Resistencia a la insulina') }}</h6>
+                                        @forelse ($labResult->insulinResistanceIndicators() as $name => $indicator)
+                                            <p class="mb-1">
+                                                <strong>{{ $name }}</strong> {{ number_format($indicator['value'], 2, ',', '.') }}
+                                                @if($indicator['high'])
+                                                    <span class="badge badge-danger">{{ __('Sugiere resistencia a la insulina') }}</span>
+                                                @else
+                                                    <span class="badge badge-success">{{ __('Dentro de rango') }}</span>
+                                                @endif
+                                            </p>
+                                        @empty
+                                            <p class="text-muted mb-0">{{ __('Requiere glicemia con insulina, o triglicéridos con glicemia o HDL') }}</p>
+                                        @endforelse
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
 
                         @if($record->notes)
                             <h6 class="heading-small text-muted mt-4">{{ __('Observaciones') }}</h6>

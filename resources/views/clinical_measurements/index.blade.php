@@ -43,6 +43,7 @@
                   <i class="fas fa-plus me-1"></i>{{ __('Registrar medición') }}
                 </a>
               @endcan
+              <a href="{{ route('patient.lab-results.index', $patient) }}" class="btn btn-outline-danger btn-sm mb-0">{{ __('Exámenes') }}</a>
               <a href="{{ route('patient.clinical-record.show', $patient) }}" class="btn btn-outline-warning btn-sm mb-0">{{ __('Ficha clínica') }}</a>
               <a href="{{ route('patient.index') }}" class="btn btn-outline-primary btn-sm mb-0">{{ __('Volver') }}</a>
             </div>
@@ -129,7 +130,7 @@
         <div class="card mb-4">
           <div class="card-header pb-0 pt-3 bg-transparent d-flex flex-wrap align-items-center gap-2">
             <h6 class="mb-0">{{ __('Evolución') }}</h6>
-            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="{{ __('Indicador') }}" id="measurement-metrics">
+            <div class="btn-group btn-group-sm ms-auto" role="group" aria-label="{{ __('Indicador') }}" data-chart-metrics>
               <button type="button" class="btn btn-outline-primary mb-0 active" data-metric="weight_kg">{{ __('Peso') }}</button>
               <button type="button" class="btn btn-outline-primary mb-0" data-metric="bmi">{{ __('IMC') }}</button>
               <button type="button" class="btn btn-outline-primary mb-0" data-metric="waist_cm">{{ __('Cintura') }}</button>
@@ -139,7 +140,16 @@
           </div>
           <div class="card-body p-3">
             <div class="chart">
-              <canvas id="chart-measurements" class="chart-canvas" height="280" data-series="{{ json_encode($series) }}"></canvas>
+              <canvas id="evolution-chart" class="chart-canvas" height="280" data-series="{{ json_encode($series) }}" data-metrics="{{ json_encode([
+                'weight_kg' => [['key' => 'weight_kg', 'label' => __('Peso (kg)')]],
+                'bmi' => [['key' => 'bmi', 'label' => __('IMC (kg/m²)')]],
+                'waist_cm' => [['key' => 'waist_cm', 'label' => __('Cintura (cm)')]],
+                'blood_pressure' => [
+                    ['key' => 'systolic_bp', 'label' => __('Sistólica (mmHg)')],
+                    ['key' => 'diastolic_bp', 'label' => __('Diastólica (mmHg)')],
+                ],
+                'capillary_glucose' => [['key' => 'capillary_glucose', 'label' => __('Glicemia capilar (mg/dL)')]],
+              ]) }}"></canvas>
             </div>
           </div>
         </div>
@@ -179,6 +189,9 @@
                       <span class="text-sm">{{ $m->measured_at->format('d/m/Y') }}</span>
                       @if($m->notes)
                         <i class="fas fa-comment-medical text-secondary ms-1" title="{{ $m->notes }}" aria-label="{{ __('Observaciones') }}: {{ $m->notes }}"></i>
+                      @endif
+                      @if($m->diagnosis_id)
+                        <a href="{{ route('result', $m->diagnosis_id) }}" class="ms-1" title="{{ __('Ver consulta asociada') }}" aria-label="{{ __('Ver consulta asociada') }}"><i class="fas fa-stethoscope"></i></a>
                       @endif
                     </td>
                     <td class="text-sm">{{ $value($m->weight_kg, 'kg') }}</td>
@@ -237,6 +250,6 @@
 
 @if(count($series) >= 2)
   @push('js')
-    @vite('resources/js/measurements.js')
+    @vite('resources/js/evolution-chart.js')
   @endpush
 @endif

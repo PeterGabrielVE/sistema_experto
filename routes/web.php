@@ -4,6 +4,7 @@ use App\Http\Controllers\ClinicalMeasurementController;
 use App\Http\Controllers\ClinicalRecordController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
@@ -59,6 +60,12 @@ Route::middleware('auth')->group(function () {
 
         // Clinical measurements (registro de mediciones), many per patient.
         Route::resource('patient.measurements', ClinicalMeasurementController::class)
+            ->except(['show'])
+            ->scoped();
+
+        // Lab results (exámenes de laboratorio), many per patient.
+        Route::resource('patient.lab-results', LabResultController::class)
+            ->parameters(['lab-results' => 'lab_result'])
             ->except(['show'])
             ->scoped();
     });

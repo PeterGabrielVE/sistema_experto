@@ -63,7 +63,7 @@ Docker levanta un worker (`queue`) y el scheduler (`scheduler`) con la cola `dat
 
 | Evento | Listeners |
 |---|---|
-| `PatientRegistered`, `PatientDeleted`, `DiagnosisCreated`, `UserRoleChanged`, `ClinicalRecordSaved`, `ClinicalMeasurementRecorded` | `RecordAuditTrail` |
+| `PatientRegistered`, `PatientDeleted`, `DiagnosisCreated`, `UserRoleChanged`, `ClinicalRecordSaved`, `ClinicalMeasurementRecorded`, `LabResultRecorded` | `RecordAuditTrail` |
 | `DiagnosisCategoryConfirmed` | `RecordAuditTrail`, `ScheduleModelRetraining` (encola `RetrainInferenceModel` con 10 min de espera) |
 | `UserAccountCreated` | `RecordAuditTrail`, `SendAccountCreatedNotification` (en cola) |
 
@@ -83,6 +83,19 @@ presión arterial, frecuencia cardíaca y glicemia capilar.
 - Muestra la última medición con su variación respecto a la anterior y un gráfico de evolución.
 - Solo el equipo médico (roles 2 y 3) ve y registra mediciones; eliminar queda restringido a
   quien la registró o a un Doctor Jefe. Cada cambio se audita (solo nombres de campos, sin valores).
+
+## Exámenes de laboratorio
+
+`/patient/{id}/lab-results` guarda el historial de exámenes (tabla `lab_results`, un registro por
+fecha de toma de muestra): glicemia en ayunas, insulina basal, HbA1c, colesterol total, HDL, LDL y
+triglicéridos.
+
+- Calcula HOMA-IR (> 2,5), índice TyG = ln(TG × glicemia / 2) (> 8,5) y TG/HDL (> 3) como
+  indicadores de resistencia a la insulina, y marca los valores fuera del rango de referencia.
+- Mediciones y exámenes pueden asociarse a una consulta (`diagnosis_id`, opcional y del mismo
+  paciente). La pantalla de resultado de la consulta los muestra y permite registrarlos desde ahí.
+  Si se elimina la consulta, los registros se conservan sin vínculo.
+- Mismos permisos y auditoría que el registro de mediciones.
 
 ## Front-end
 

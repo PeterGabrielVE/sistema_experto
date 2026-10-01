@@ -44,12 +44,6 @@ class ClinicalRecordTest extends TestCase
             'medications' => 'Metformina 850 mg',
             'smoking' => 'never',
             'sleep_hours' => '6,5',
-            'waist_cm' => '94',
-            'lab_date' => now()->subWeek()->toDateString(),
-            'fasting_glucose' => '105',
-            'fasting_insulin' => '18,2',
-            'hba1c' => '5,9',
-            'triglycerides' => '180',
         ], $overrides);
     }
 
@@ -68,7 +62,6 @@ class ClinicalRecordTest extends TestCase
         $this->assertFalse($record->has_diabetes); // unchecked box
         $this->assertSame(Smoking::Never, $record->smoking);
         $this->assertSame(6.5, $record->sleep_hours); // decimal comma accepted
-        $this->assertSame(18.2, $record->fasting_insulin);
         $this->assertSame($this->doctor->id, $record->created_by);
     }
 
@@ -95,17 +88,35 @@ class ClinicalRecordTest extends TestCase
         $this->assertDatabaseCount('clinical_records', 1); // still one per patient
     }
 
-    public function test_show_page_displays_homa_ir_and_interpretation(): void
+    public function test_show_page_displays_the_latest_waist_and_lab_result(): void
     {
         $this->actingAs($this->doctor)->put($this->url(), $this->payload());
 
-        // 105 × 18.2 / 405 = 4.72
         $this->actingAs($this->doctor)->get($this->url())
             ->assertOk()
-            ->assertSee('4,72')
-            ->assertSee('Sugiere resistencia a la insulina')
             ->assertSee('Prediabetes')
-            ->assertSee('Madre con diabetes tipo 2');
+            ->assertSee('Madre con diabetes tipo 2')
+            ->assertSee('Sin exámenes registrados.');
+
+        $this->patient->measurements()->create(['measured_at' => now()->subMonth(), 'waist_cm' => 98]);
+        $this->patient->measurements()->create(['measured_at' => now()->subDays(3), 'waist_cm' => 94.5]);
+        $this->patient->measurements()->create(['measured_at' => now(), 'weight_kg' => 80]); // no waist
+
+        $this->actingAs($this->doctor)->get($this->url())
+            ->assertSee('94,5 cm')
+            ->assertSee('medición del '.now()->subDays(3)->format('d/m/Y'))
+            ->assertDontSee('98 cm');
+
+        $this->patient->labResults()->create(['taken_at' => now()->subYear(), 'fasting_glucose' => 90, 'fasting_insulin' => 5]);
+        $this->patient->labResults()->create(['taken_at' => now()->subWeek(), 'fasting_glucose' => 105, 'fasting_insulin' => 18.2]);
+
+        // Latest: 105 × 18.2 / 405 = 4.72
+        $this->actingAs($this->doctor)->get($this->url())
+            ->assertSee('Último examen de laboratorio')
+            ->assertSee(now()->subWeek()->format('d/m/Y'))
+            ->assertSee('4,72')
+            ->assertDontSee('1,11')
+            ->assertSee('Sugiere resistencia a la insulina');
     }
 
     public function test_show_without_record_goes_to_the_form(): void
@@ -118,18 +129,12 @@ class ClinicalRecordTest extends TestCase
         $this->actingAs($this->doctor)->put($this->url(), [
             'consultation_reason' => '',
             'smoking' => 'mucho',
-            'fasting_glucose' => '2000',
-            'hba1c' => 'abc',
+            'water_liters' => 'abc',
             'sleep_hours' => '30',
-            'lab_date' => '',
         ])->assertSessionHasErrors([
             'consultation_reason' => 'El campo motivo de consulta es obligatorio.',
-            'smoking', 'fasting_glucose', 'hba1c', 'sleep_hours',
-            'lab_date' => 'Indique la fecha de los exámenes de laboratorio.',
+            'smoking', 'water_liters', 'sleep_hours',
         ]);
-
-        $this->actingAs($this->doctor)->put($this->url(), $this->payload(['lab_date' => now()->addDay()->toDateString()]))
-            ->assertSessionHasErrors(['lab_date' => 'La fecha de exámenes no puede ser futura.']);
 
         $this->assertDatabaseCount('clinical_records', 0);
     }
@@ -158,11 +163,11 @@ class ClinicalRecordTest extends TestCase
         $this->actingAs($this->doctor)->put($this->url(), $this->payload());
         Event::assertDispatched(ClinicalRecordSaved::class, fn ($e) => $e->created && in_array('medications', $e->changedFields));
 
-        $this->actingAs($this->doctor)->put($this->url(), $this->payload(['hba1c' => '6,1']));
-        Event::assertDispatched(ClinicalRecordSaved::class, fn ($e) => ! $e->created && $e->changedFields === ['hba1c']);
+        $this->actingAs($this->doctor)->put($this->url(), $this->payload(['sleep_hours' => '7']));
+        Event::assertDispatched(ClinicalRecordSaved::class, fn ($e) => ! $e->created && $e->changedFields === ['sleep_hours']);
 
         // Saving without changes does not create an audit entry.
-        $this->actingAs($this->doctor)->put($this->url(), $this->payload(['hba1c' => '6,1']));
+        $this->actingAs($this->doctor)->put($this->url(), $this->payload(['sleep_hours' => '7']));
         Event::assertDispatchedTimes(ClinicalRecordSaved::class, 2);
     }
 
@@ -173,12 +178,5 @@ class ClinicalRecordTest extends TestCase
         $this->actingAs(User::factory()->chiefDoctor()->create())->delete("/patient/{$this->patient->id}");
 
         $this->assertDatabaseCount('clinical_records', 0);
-    }
-
-    public function test_homa_ir_calculation(): void
-    {
-        $this->assertNull((new ClinicalRecord(['fasting_glucose' => 90]))->homaIr());
-        $this->assertSame(1.78, (new ClinicalRecord(['fasting_glucose' => 90, 'fasting_insulin' => 8]))->homaIr());
-        $this->assertFalse((new ClinicalRecord(['fasting_glucose' => 90, 'fasting_insulin' => 8]))->suggestsInsulinResistance());
     }
 }

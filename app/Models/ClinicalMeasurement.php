@@ -29,10 +29,10 @@ class ClinicalMeasurement extends Model
     ];
 
     /**
-     * Fields filled from the form (MEASURES plus date and notes).
+     * Fields filled from the form (MEASURES plus date, consultation and notes).
      */
     public const CLINICAL_FIELDS = [
-        'measured_at',
+        'measured_at', 'diagnosis_id',
         'weight_kg', 'height_cm', 'waist_cm', 'hip_cm', 'body_fat_pct',
         'systolic_bp', 'diastolic_bp', 'heart_rate', 'capillary_glucose',
         'notes',
@@ -55,6 +55,7 @@ class ClinicalMeasurement extends Model
     {
         return [
             'measured_at' => 'date',
+            'diagnosis_id' => 'integer',
             'weight_kg' => 'float',
             'height_cm' => 'float',
             'waist_cm' => 'float',
@@ -70,6 +71,11 @@ class ClinicalMeasurement extends Model
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);
+    }
+
+    public function diagnosis(): BelongsTo
+    {
+        return $this->belongsTo(Diagnosis::class);
     }
 
     public function author(): BelongsTo

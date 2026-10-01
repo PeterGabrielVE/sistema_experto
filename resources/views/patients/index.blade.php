@@ -79,6 +79,9 @@
                         <a href="{{ route('patient.measurements.index', $patient) }}" class="btn btn-sm btn-icon-only btn-outline-primary mb-0" title="{{ __('Mediciones clínicas') }}" aria-label="{{ __('Mediciones clínicas de :name', ['name' => $patient->fullName()]) }}">
                           <i class="fas fa-weight"></i>
                         </a>
+                        <a href="{{ route('patient.lab-results.index', $patient) }}" class="btn btn-sm btn-icon-only btn-outline-danger mb-0" title="{{ __('Exámenes de laboratorio') }}" aria-label="{{ __('Exámenes de laboratorio de :name', ['name' => $patient->fullName()]) }}">
+                          <i class="fas fa-vial"></i>
+                        </a>
                       @endcan
                       <a href="{{ route('diagnosis.all', $patient->id) }}" class="btn btn-sm btn-icon-only btn-outline-info mb-0" title="{{ __('Historial de consultas') }}" aria-label="{{ __('Historial de :name', ['name' => $patient->fullName()]) }}">
                         <i class="fas fa-history"></i>

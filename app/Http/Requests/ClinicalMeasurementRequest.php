@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\ClinicalMeasurement;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class ClinicalMeasurementRequest extends FormRequest
@@ -40,6 +41,9 @@ class ClinicalMeasurementRequest extends FormRequest
                 'required', 'date', 'before_or_equal:today',
                 $patient->birthdate ? 'after_or_equal:'.$patient->birthdate->toDateString() : null,
             ]),
+
+            // Only a consultation of the same patient.
+            'diagnosis_id' => ['nullable', 'integer', Rule::exists('diagnoses', 'id')->where('id_patient', $patient->id)],
 
             'weight_kg' => ['nullable', 'numeric', 'between:2,400'],
             'height_cm' => ['nullable', 'numeric', 'between:40,250'],
@@ -81,6 +85,7 @@ class ClinicalMeasurementRequest extends FormRequest
     {
         return [
             'measured_at' => 'fecha de medición',
+            'diagnosis_id' => 'consulta',
             'weight_kg' => 'peso',
             'height_cm' => 'talla',
             'waist_cm' => 'circunferencia de cintura',

@@ -89,6 +89,9 @@ class DiagnosisService
             'rule' => $rule,
             'categories' => InferenceEngine::CATEGORIES,
             'recomendations' => Recommendation::where('id_rule', $rule)->get(),
+            // Linked clinical data (shown to the medical team only).
+            'measurements' => $diagnosis->measurements()->latestFirst()->get(),
+            'labResults' => $diagnosis->labResults()->latestFirst()->get(),
         ];
     }
 }

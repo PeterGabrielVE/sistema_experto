@@ -465,6 +465,10 @@
                             @csrf
                             @method('PUT')
                         </form>
+
+                        @can('viewClinicalRecord', $patient)
+                            @include('diagnoses._clinical-data')
+                        @endcan
                     </div>
                 </div>
             </div>
