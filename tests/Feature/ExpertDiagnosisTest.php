@@ -59,6 +59,7 @@ class ExpertDiagnosisTest extends TestCase
                 'glycemic_status' => ['status' => 'prediabetes', 'evidence' => ['Glicemia en ayunas 105 mg/dL']],
                 'insulin_resistance' => ['status' => 'probable', 'positive' => 3, 'evaluated' => 3, 'evidence' => []],
                 'metabolic_syndrome' => ['status' => 'presente', 'met' => 4, 'unknown' => 0, 'criteria' => []],
+                'atherogenic_profile' => ['status' => 'limitrofe', 'positive' => 0, 'evaluated' => 1, 'evidence' => []],
             ],
             'findings' => [
                 ['rule_id' => 'SM-01', 'severity' => 'alert', 'title' => 'Síndrome metabólico (4 de 5 criterios)', 'evidence' => ['Cintura ≥ 80 cm: 98 cm'], 'recommendation' => 'Abordar todos los factores de riesgo.'],
@@ -96,7 +97,7 @@ class ExpertDiagnosisTest extends TestCase
 
         $this->visitResult()
             ->assertOk()
-            ->assertSeeInOrder(['Evaluación del sistema experto', 'Prediabetes', 'Probable', '3 de 3 indicadores alterados', 'Presente', '4 de 5 criterios'])
+            ->assertSeeInOrder(['Evaluación del sistema experto', 'Prediabetes', 'Probable', '3 de 3 indicadores alterados', 'Presente', '4 de 5 criterios', 'Perfil aterogénico', 'Limítrofe', '0 de 1 índices alterados'])
             ->assertSeeInOrder(['Alerta', 'Síndrome metabólico (4 de 5 criterios)', 'Atención', 'Resistencia a la insulina probable'])
             ->assertSee('4,72')
             ->assertSee('medición del '.now()->subMonth()->format('d/m/Y'));
@@ -114,6 +115,34 @@ class ExpertDiagnosisTest extends TestCase
                 && $facts['conditions']['hypertension'] === true
                 && $facts['conditions']['diabetes'] === false;
         });
+    }
+
+    public function test_sends_the_findrisc_answers_and_ggt(): void
+    {
+        ClinicalRecord::create([
+            'patient_id' => $this->patient->id, 'consultation_reason' => 'Control',
+            'daily_physical_activity' => false, 'daily_fruit_vegetables' => true,
+            'family_history_diabetes' => 'first_degree', // antihypertensive_medication and high_glucose_history not asked
+        ]);
+        $this->patient->labResults()->create(['taken_at' => now()->subMonth(), 'triglycerides' => 180, 'ggt' => 62]);
+        Http::fake(['*' => Http::response($this->evaluation())]);
+
+        $this->visitResult()->assertOk();
+
+        Http::assertSent(fn (Request $request) => $this->sentFacts($request)['risk_factors'] === [
+            'daily_physical_activity' => false,
+            'daily_fruit_vegetables' => true,
+            'family_history_diabetes' => 'first_degree',
+        ] && $this->sentFacts($request)['labs'] == ['triglycerides' => 180, 'ggt' => 62]);
+    }
+
+    public function test_result_of_an_older_ruleset_without_the_atherogenic_profile(): void
+    {
+        $evaluation = $this->evaluation();
+        unset($evaluation['assessments']['atherogenic_profile']);
+        Http::fake(['*' => Http::response($evaluation)]);
+
+        $this->visitResult()->assertOk()->assertSee('Síndrome metabólico')->assertDontSee('Perfil aterogénico');
     }
 
     public function test_without_linked_data_uses_the_latest_up_to_the_consultation_date(): void

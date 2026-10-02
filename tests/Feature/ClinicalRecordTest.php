@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\FamilyHistoryDiabetes;
 use App\Enums\Smoking;
 use App\Events\ClinicalRecordSaved;
 use App\Models\ClinicalRecord;
@@ -117,6 +118,38 @@ class ClinicalRecordTest extends TestCase
             ->assertSee('4,72')
             ->assertDontSee('1,11')
             ->assertSee('Sugiere resistencia a la insulina');
+    }
+
+    public function test_findrisc_answers(): void
+    {
+        $this->actingAs($this->doctor)->put($this->url(), $this->payload([
+            'daily_physical_activity' => '0',
+            'daily_fruit_vegetables' => '1',
+            'antihypertensive_medication' => '',
+            'family_history_diabetes' => 'first_degree',
+        ]))->assertSessionHasNoErrors();
+
+        $record = ClinicalRecord::firstOrFail();
+        $this->assertFalse($record->daily_physical_activity);
+        $this->assertTrue($record->daily_fruit_vegetables);
+        $this->assertNull($record->antihypertensive_medication); // not asked
+        $this->assertNull($record->high_glucose_history);
+        $this->assertSame(FamilyHistoryDiabetes::FirstDegree, $record->family_history_diabetes);
+
+        // "No" stays selected: false is not the empty option.
+        $this->actingAs($this->doctor)->get($this->url('/edit'))
+            ->assertOk()
+            ->assertSee('Cuestionario FINDRISC')
+            ->assertSee('<option value="0" selected>No</option>', false)
+            ->assertSee('<option value="first_degree" selected>', false);
+
+        $this->actingAs($this->doctor)->get($this->url())
+            ->assertSeeInOrder(['Cuestionario FINDRISC', '30 minutos', 'No', 'verduras o frutas', 'Sí', 'Sí: padres, hermanos o hijos']);
+
+        $this->actingAs($this->doctor)->put($this->url(), $this->payload([
+            'daily_physical_activity' => 'quizás',
+            'family_history_diabetes' => 'neighbours',
+        ]))->assertSessionHasErrors(['daily_physical_activity', 'family_history_diabetes']);
     }
 
     public function test_show_without_record_goes_to_the_form(): void

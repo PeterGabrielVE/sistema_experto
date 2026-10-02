@@ -4,8 +4,8 @@
     $labels = \App\Services\ExpertDiagnosisService::STATUS_LABELS;
     $tone = [
         'normal' => 'success', 'no_sugerida' => 'success', 'ausente' => 'success',
-        'prediabetes' => 'warning', 'posible' => 'warning',
-        'rango_diabetes' => 'danger', 'diabetes_conocida' => 'danger', 'probable' => 'danger', 'presente' => 'danger',
+        'prediabetes' => 'warning', 'posible' => 'warning', 'limitrofe' => 'warning',
+        'rango_diabetes' => 'danger', 'diabetes_conocida' => 'danger', 'probable' => 'danger', 'presente' => 'danger', 'alterado' => 'danger',
         'indeterminado' => 'secondary',
     ];
     $severity = [
@@ -21,11 +21,15 @@
             : null,
         'metabolic_syndrome' => __(':met de 5 criterios', ['met' => $a['metabolic_syndrome']['met']])
             .($a['metabolic_syndrome']['unknown'] ? ' · '.__(':n sin datos', ['n' => $a['metabolic_syndrome']['unknown']]) : ''),
+        'atherogenic_profile' => ($a['atherogenic_profile']['evaluated'] ?? 0)
+            ? __(':positive de :evaluated índices alterados', ['positive' => $a['atherogenic_profile']['positive'], 'evaluated' => $a['atherogenic_profile']['evaluated']])
+            : null,
     ];
     $titles = [
         'glycemic_status' => __('Estado glicémico'),
         'insulin_resistance' => __('Resistencia a la insulina'),
         'metabolic_syndrome' => __('Síndrome metabólico'),
+        'atherogenic_profile' => __('Perfil aterogénico'),
     ];
     $measurement = $expert['sources']['measurement'];
     $labResult = $expert['sources']['labResult'];
@@ -46,9 +50,10 @@
     </p>
 
     <div class="row g-3 mb-3">
-        @foreach ($titles as $key => $title)
+        {{-- Results of an older ruleset may lack an assessment. --}}
+        @foreach (array_intersect_key($titles, $a) as $key => $title)
             @php($status = $a[$key]['status'])
-            <div class="col-md-4">
+            <div class="col-md-6 col-xl-3">
                 <div class="border border-radius-lg p-3 h-100">
                     <p class="text-xs text-uppercase text-secondary font-weight-bolder mb-1">{{ $title }}</p>
                     <span class="badge bg-gradient-{{ $tone[$status] ?? 'secondary' }}">{{ $labels[$key][$status] ?? $status }}</span>

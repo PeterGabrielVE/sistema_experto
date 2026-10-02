@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ClinicalMeasurement;
+use App\Models\ClinicalRecord;
 use App\Models\Diagnosis;
 use App\Models\LabResult;
 use App\Models\Patient;
@@ -36,6 +37,12 @@ class ExpertDiagnosisService
             'ausente' => 'Ausente',
             'presente' => 'Presente',
             'indeterminado' => 'Indeterminado',
+        ],
+        'atherogenic_profile' => [
+            'normal' => 'Normal',
+            'limitrofe' => 'Limítrofe',
+            'alterado' => 'Alterado',
+            'indeterminado' => 'Sin datos',
         ],
     ];
 
@@ -73,7 +80,7 @@ class ExpertDiagnosisService
         }
 
         // Missing values are left out; objects so that an empty group is sent as {} and not [].
-        foreach (['anthropometry', 'vitals', 'labs'] as $group) {
+        foreach (['anthropometry', 'vitals', 'labs', 'risk_factors'] as $group) {
             $facts[$group] = (object) array_filter((array) ($facts[$group] ?? []), fn ($v) => $v !== null);
         }
         $facts['conditions'] = (object) ($facts['conditions'] ?? []);
@@ -125,6 +132,11 @@ class ExpertDiagnosisService
                 'hypertension' => (bool) $record?->has_hypertension,
                 'dyslipidemia' => (bool) $record?->has_dyslipidemia,
                 'pcos' => (bool) $record?->has_pcos,
+            ],
+            // FINDRISC answers; null (not asked) is left out.
+            'risk_factors' => [
+                ...($record?->only(array_keys(ClinicalRecord::FINDRISC_QUESTIONS)) ?? []),
+                'family_history_diabetes' => $record?->family_history_diabetes?->value,
             ],
         ];
     }

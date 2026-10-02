@@ -76,6 +76,26 @@
                                 <x-form-field name="water_liters" :label="__('Agua')" unit="L/día" :value="$record->water_liters" col="col-md-3" inputmode="decimal" />
                             </div>
 
+                            <h6 class="heading-small text-muted mb-1 mt-4">{{ __('Cuestionario FINDRISC') }}</h6>
+                            <p class="text-muted small">
+                                {{ __('Riesgo de diabetes tipo 2 a 10 años. Edad, IMC y cintura se toman de la consulta y las mediciones. No aplica con diabetes registrada.') }}
+                            </p>
+                            <div class="row">
+                                @foreach ($findriscQuestions as $field => $question)
+                                    <div class="form-group col-md-6">
+                                        <label class="form-control-label" for="input-{{ $field }}">{{ __($question) }}</label>
+                                        {{-- false must be selected as "0", not as the empty "Sin información" option. --}}
+                                        <x-select :name="$field" :options="$yesNoOptions" :selected="$record->{$field} === null ? null : (int) $record->{$field}" class="form-control" id="input-{{ $field }}" />
+                                        @include('alerts.feedback', ['field' => $field])
+                                    </div>
+                                @endforeach
+                                <div class="form-group col-md-6">
+                                    <label class="form-control-label" for="input-family_history_diabetes">{{ __('¿Algún familiar ha sido diagnosticado con diabetes?') }}</label>
+                                    <x-select name="family_history_diabetes" :options="$familyHistoryDiabetesOptions" :selected="$record->family_history_diabetes?->value" class="form-control" id="input-family_history_diabetes" />
+                                    @include('alerts.feedback', ['field' => 'family_history_diabetes'])
+                                </div>
+                            </div>
+
                             <h6 class="heading-small text-muted mb-3 mt-4">{{ __('Antropometría') }}</h6>
                             <p class="text-muted small">
                                 {{ __('Peso, talla, cintura y demás mediciones se registran con su fecha en el registro de mediciones.') }}

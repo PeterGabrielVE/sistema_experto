@@ -71,11 +71,22 @@ el servicio responde.
 | `GET /health` | Estado y versión de las reglas (sin token) |
 
 - **Índices:** IMC, cintura/talla, cintura/cadera, HOMA-IR, índice TyG, TG/HDL, colesterol no HDL,
-  LDL de Friedewald (si el laboratorio no informó LDL) y categoría de presión arterial. El redondeo
-  es "half up", igual que `round()` de PHP, así que los valores coinciden con los de la app.
+  LDL de Friedewald (si el laboratorio no informó LDL), categoría de presión arterial y:
+  - **Perfil aterogénico:** Castelli I (CT/HDL), Castelli II (LDL/HDL, con LDL informado o de Friedewald)
+    y el índice aterogénico del plasma, AIP = log10(TG/HDL en mmol/L).
+  - **FLI** (Fatty Liver Index, Bedogni 2006): triglicéridos, IMC, cintura y GGT. < 30 descarta y ≥ 60
+    sugiere esteatosis hepática.
+  - **FINDRISC** (riesgo de diabetes tipo 2 a 10 años, 0 a 26 puntos): edad, IMC y cintura de la consulta
+    más el cuestionario de la ficha clínica (actividad física, verduras o frutas, antihipertensivos,
+    glucosa alta alguna vez y familiares con diabetes). Prediabetes registrada cuenta como glucosa alta.
+    Solo se calcula en adultos sin diabetes registrada y con todas las respuestas; si falta alguna, el
+    hallazgo `DAT-01` indica cuáles.
+
+  El redondeo es "half up", igual que `round()` de PHP, así que los valores coinciden con los de la app.
 - **Evaluaciones:** estado glicémico (ADA), resistencia a la insulina (probable con 2 o más de
-  HOMA-IR, TyG y TG/HDL alterados; posible con 1) y síndrome metabólico (criterios armonizados 2009,
-  cintura ≥ 90/80 cm). Con datos incompletos el resultado es `indeterminado`, nunca `ausente` por omisión.
+  HOMA-IR, TyG y TG/HDL alterados; posible con 1), síndrome metabólico (criterios armonizados 2009,
+  cintura ≥ 90/80 cm) y perfil aterogénico (alterado con Castelli I o II, AIP o colesterol no HDL sobre
+  el corte; limítrofe con AIP intermedio). Con datos incompletos el resultado es `indeterminado`, nunca `ausente` por omisión.
 - **Hallazgos:** cada regla (`GLU-01`, `RI-01`, `SM-01`…) entrega severidad, evidencia y acción
   sugerida, incluidos los exámenes que faltan para completar la evaluación.
 - La página de resultado de la consulta muestra la evaluación al equipo médico. Usa las mediciones y
@@ -111,7 +122,10 @@ reglas de IMC), sus recomendaciones y la evaluación del servicio `expert`.
   revoca el anterior. Solo se guarda su hash SHA-256 (`users.api_token`).
 - Los parámetros siguen el esquema del servicio experto ([expert/app/schemas.py](expert/app/schemas.py))
   más `physical_activity` (0 a 4). Obligatorios: `sex` (`H`/`M`), `age`, `physical_activity`,
-  `anthropometry.weight_kg` y `anthropometry.height_cm`.
+  `anthropometry.weight_kg` y `anthropometry.height_cm`. Para FLI se envía `labs.ggt` (U/L) y para
+  FINDRISC el grupo `risk_factors`: `daily_physical_activity`, `daily_fruit_vegetables`,
+  `antihypertensive_medication`, `high_glucose_history` (booleanos) y `family_history_diabetes`
+  (`none`, `second_degree` o `first_degree`).
 - `evaluation` es `null` si el servicio experto no está configurado o no responde; la categoría
   se entrega igual.
 

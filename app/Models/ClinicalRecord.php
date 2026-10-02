@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Alcohol;
+use App\Enums\FamilyHistoryDiabetes;
 use App\Enums\Smoking;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,6 +23,8 @@ class ClinicalRecord extends Model
         'has_diabetes', 'has_prediabetes', 'has_hypertension', 'has_dyslipidemia', 'has_pcos',
         'other_conditions', 'family_history', 'medications', 'food_allergies',
         'smoking', 'alcohol', 'sleep_hours', 'water_liters',
+        'daily_physical_activity', 'daily_fruit_vegetables', 'antihypertensive_medication',
+        'high_glucose_history', 'family_history_diabetes',
         'notes',
     ];
 
@@ -31,6 +34,17 @@ class ClinicalRecord extends Model
         'has_hypertension' => 'Hipertensión',
         'has_dyslipidemia' => 'Dislipidemia',
         'has_pcos' => 'Síndrome de ovario poliquístico',
+    ];
+
+    /**
+     * Yes/no questions of the FINDRISC questionnaire (null: not asked). The
+     * family history question is family_history_diabetes (FamilyHistoryDiabetes).
+     */
+    public const FINDRISC_QUESTIONS = [
+        'daily_physical_activity' => '¿Realiza al menos 30 minutos de actividad física al día?',
+        'daily_fruit_vegetables' => '¿Come verduras o frutas todos los días?',
+        'antihypertensive_medication' => '¿Toma fármacos para la presión arterial?',
+        'high_glucose_history' => '¿Le han encontrado alguna vez la glucosa alta?',
     ];
 
     protected $fillable = [...self::CLINICAL_FIELDS, 'patient_id', 'created_by', 'updated_by'];
@@ -47,6 +61,11 @@ class ClinicalRecord extends Model
             'alcohol' => Alcohol::class,
             'sleep_hours' => 'float',
             'water_liters' => 'float',
+            'daily_physical_activity' => 'boolean',
+            'daily_fruit_vegetables' => 'boolean',
+            'antihypertensive_medication' => 'boolean',
+            'high_glucose_history' => 'boolean',
+            'family_history_diabetes' => FamilyHistoryDiabetes::class,
         ];
     }
 

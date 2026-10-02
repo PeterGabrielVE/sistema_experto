@@ -1,7 +1,7 @@
 """Expert rules: from facts and indices to explained clinical findings.
 
-Three assessments summarize the patient (glycemic status, insulin resistance,
-metabolic syndrome); the rules turn facts, indices and assessments into findings
+Four assessments summarize the patient (glycemic status, insulin resistance,
+metabolic syndrome, atherogenic profile); the rules turn facts, indices and assessments into findings
 with evidence and a suggested action. Findings support, never replace, the
 doctor's judgement.
 """
@@ -15,7 +15,7 @@ from . import indices
 from .indices import fmt
 from . import thresholds as t
 
-RULESET_VERSION = "2026.10.1"
+RULESET_VERSION = "2026.10.2"
 
 Severity = Literal["info", "warning", "alert"]
 SEVERITY_ORDER = {"alert": 0, "warning": 1, "info": 2}
@@ -131,6 +131,29 @@ def metabolic_syndrome(facts: dict) -> dict:
     return {"status": status, "met": met, "unknown": unknown, "criteria": criteria}
 
 
+def atherogenic_profile(computed: dict) -> dict:
+    """Castelli I and II, AIP and non-HDL cholesterol: altered with any above the cut-off,
+    borderline with only the AIP in the intermediate band."""
+    available = {k: computed[k] for k in ("castelli_i", "castelli_ii", "aip", "non_hdl") if k in computed}
+    positive = [k for k, index in available.items() if index["high"]]
+
+    if not available:
+        status = "indeterminado"
+    elif positive:
+        status = "alterado"
+    elif "aip" in available and available["aip"]["value"] >= t.AIP_INTERMEDIATE:
+        status = "limitrofe"
+    else:
+        status = "normal"
+
+    return {
+        "status": status,
+        "positive": len(positive),
+        "evaluated": len(available),
+        "evidence": [f"{i['label']} {fmt(i['value'])}{' ' + i['unit'] if i['unit'] else ''} (referencia {i['reference']})" for i in available.values()],
+    }
+
+
 # --------------------------------------------------------------------------- rules
 
 
@@ -239,6 +262,42 @@ def _ldl(ctx):
                     "Evaluar riesgo cardiovascular global.")]
 
 
+def _atherogenic_profile(ctx):
+    ap = ctx["assessments"]["atherogenic_profile"]
+    if ap["status"] == "alterado":
+        return [finding("LIP-03", "warning", f"Perfil aterogénico alterado ({ap['positive']} de {ap['evaluated']} índices)", ap["evidence"],
+                        "Evaluar riesgo cardiovascular global; reducir grasas saturadas y trans, azúcares simples y alcohol.")]
+    if ap["status"] == "limitrofe":
+        return [finding("LIP-03", "info", "Índice aterogénico del plasma en riesgo intermedio", ap["evidence"],
+                        "Controlar el perfil lipídico y reforzar alimentación y actividad física.")]
+    return []
+
+
+def _fatty_liver(ctx):
+    index = ctx["indices"].get("fli")
+    if index is None or index["value"] < t.FLI_RULE_OUT:
+        return []
+    evidence = [f"FLI {fmt(index['value'])} ({index['category'].lower()})"]
+    if index["high"]:
+        return [finding("HEP-01", "warning", "Esteatosis hepática probable (FLI)", evidence,
+                        "Considerar ecografía abdominal y perfil hepático; una baja de peso de 7 a 10 % mejora la esteatosis.")]
+    return [finding("HEP-01", "info", "FLI en zona indeterminada", evidence,
+                    "No permite descartar esteatosis; considerar ecografía si hay otros factores de riesgo.")]
+
+
+def _findrisc(ctx):
+    index = ctx["indices"].get("findrisc")
+    if index is None or index["value"] < t.FINDRISC_RISK[1]["from"]:
+        return []
+    points = indices.findrisc_points(ctx["facts"])
+    evidence = [f"{label}: {points[k]} pts" for k, label in indices.FINDRISC_ITEMS.items() if points[k]]
+    title = f"FINDRISC {index['value']} pts: {index['category'].lower()}"
+    if index["high"]:
+        return [finding("FIN-01", "warning", title, evidence,
+                        "Tamizaje con glicemia en ayunas o HbA1c (o PTGO) e intervención intensiva en estilo de vida.")]
+    return [finding("FIN-01", "info", title, evidence, "Reforzar hábitos saludables y repetir el cuestionario en los controles.")]
+
+
 def _blood_pressure(ctx):
     index = ctx["indices"].get("blood_pressure")
     if index is None or not index["category"].startswith("Hipertensión"):
@@ -259,11 +318,18 @@ MISSING_DATA = [
     ("confirmar el estado glicémico", ("labs", "hba1c"), "Solicitar HbA1c."),
     ("síndrome metabólico y cintura/talla", ("anthropometry", "waist_cm"), "Medir el perímetro de cintura."),
     ("síndrome metabólico", ("vitals", "systolic_bp"), "Registrar la presión arterial."),
+    ("FLI (hígado graso)", ("labs", "ggt"), "Solicitar GGT para calcular el FLI."),
 ]
 
 
 def _missing_data(ctx):
     missing = [(needed, suggestion) for needed, (group, field), suggestion in MISSING_DATA if ctx["facts"][group][field] is None]
+    if indices.findrisc_applies(ctx["facts"]):
+        points = indices.findrisc_points(ctx["facts"])
+        # Age, BMI and waist come from the consultation and measurements, not from the questionnaire.
+        unanswered = [label.lower() for k, label in indices.FINDRISC_ITEMS.items() if points[k] is None and k not in ("age", "bmi", "waist")]
+        if unanswered:
+            missing.append((f"FINDRISC ({', '.join(unanswered)})", "Completar el cuestionario FINDRISC en la ficha clínica."))
     if not missing:
         return []
     return [finding("DAT-01", "info", "Datos faltantes para completar la evaluación",
@@ -290,6 +356,9 @@ RULES: list[Rule] = [
     Rule("LIP-01", "Lípidos", "Dislipidemia aterogénica", "Triglicéridos altos con HDL bajo.", "NCEP ATP III", _atherogenic_dyslipidemia),
     Rule("LIP-02", "Lípidos", "LDL alto", f"LDL (informado o Friedewald) ≥ {t.LDL_HIGH} mg/dL; ≥ {t.LDL_HIGH_DIABETES} mg/dL con diabetes registrada.", "NCEP ATP III; ADA Standards of Care", _ldl),
     Rule("PA-01", "Presión arterial", "Hipertensión", f"Presión ≥ {t.BP_STAGE1['systolic']}/{t.BP_STAGE1['diastolic']} mmHg.", "ACC/AHA 2017", _blood_pressure),
+    Rule("LIP-03", "Lípidos", "Perfil aterogénico", f"Castelli I > {fmt(t.CASTELLI_I['H'])}/{fmt(t.CASTELLI_I['M'])}, Castelli II > {fmt(t.CASTELLI_II['H'])}/{fmt(t.CASTELLI_II['M'])} (hombres/mujeres), AIP > {fmt(t.AIP_HIGH)} o colesterol no HDL ≥ {t.NON_HDL_HIGH} mg/dL; limítrofe con AIP {fmt(t.AIP_INTERMEDIATE)} a {fmt(t.AIP_HIGH)}.", "Millán et al. 2009; Dobiásová 2001; NCEP ATP III", _atherogenic_profile),
+    Rule("HEP-01", "Hígado", "Hígado graso (FLI)", f"Fatty Liver Index ≥ {t.FLI_RULE_IN} sugiere esteatosis; {t.FLI_RULE_OUT} a {t.FLI_RULE_IN - 1} es zona indeterminada.", "Bedogni et al. 2006", _fatty_liver),
+    Rule("FIN-01", "Glicemia", "Riesgo de diabetes tipo 2 (FINDRISC)", f"FINDRISC ≥ {t.FINDRISC_SCREENING_FROM} pts: tamizaje; {t.FINDRISC_RISK[1]['from']} a {t.FINDRISC_SCREENING_FROM - 1} pts: riesgo levemente elevado. Solo adultos sin diabetes registrada.", "Lindström y Tuomilehto 2003", _findrisc),
     Rule("DAT-01", "Datos", "Datos faltantes", "Exámenes o mediciones que faltan para completar los índices y criterios.", "Sistema experto", _missing_data),
     Rule("DAT-02", "Datos", "Menor de edad", "Los puntos de corte usados son de adultos.", "Sistema experto", _not_adult),
 ]
@@ -304,6 +373,7 @@ def evaluate(facts: dict) -> dict:
             "glycemic_status": glycemic_status(facts),
             "insulin_resistance": insulin_resistance(computed),
             "metabolic_syndrome": metabolic_syndrome(facts),
+            "atherogenic_profile": atherogenic_profile(computed),
         },
     }
     findings = [f for rule in RULES for f in rule.evaluate(ctx)]

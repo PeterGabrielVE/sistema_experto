@@ -148,6 +148,31 @@ class DiagnosisApiTest extends TestCase
             && str_contains($request->body(), '"conditions":{}'));
     }
 
+    public function test_evaluate_sends_the_findrisc_answers_and_ggt(): void
+    {
+        Http::fake(['*' => Http::response($this->evaluation())]);
+        $token = $this->token();
+
+        $this->withToken($token)->postJson('/api/v1/diagnoses/evaluate', $this->payload([
+            'labs' => ['ggt' => 62],
+            'risk_factors' => [
+                'daily_physical_activity' => false, 'antihypertensive_medication' => true,
+                'high_glucose_history' => null, 'family_history_diabetes' => 'second_degree',
+            ],
+        ]))->assertOk();
+
+        Http::assertSent(fn (Request $request) => json_decode($request->body(), true)['risk_factors'] === [
+            'daily_physical_activity' => false, 'antihypertensive_medication' => true, 'family_history_diabetes' => 'second_degree',
+        ] && json_decode($request->body(), true)['labs']['ggt'] == 62);
+
+        $this->withToken($token)->postJson('/api/v1/diagnoses/evaluate', $this->payload([
+            'labs' => ['ggt' => 0],
+            'risk_factors' => ['daily_physical_activity' => 'quizás', 'family_history_diabetes' => 'neighbours', 'smoker' => true],
+        ]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['labs.ggt', 'risk_factors', 'risk_factors.daily_physical_activity', 'risk_factors.family_history_diabetes']);
+    }
+
     public function test_evaluate_without_the_expert_service_still_classifies(): void
     {
         Http::fake(fn () => throw new ConnectionException('down'));

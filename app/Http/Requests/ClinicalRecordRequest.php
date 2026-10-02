@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\Alcohol;
+use App\Enums\FamilyHistoryDiabetes;
 use App\Enums\Smoking;
 use App\Models\ClinicalRecord;
 use Illuminate\Foundation\Http\FormRequest;
@@ -59,6 +60,10 @@ class ClinicalRecordRequest extends FormRequest
             'sleep_hours' => ['nullable', 'numeric', 'between:0,24'],
             'water_liters' => ['nullable', 'numeric', 'between:0,10'],
 
+            // FINDRISC: empty when not asked.
+            ...array_fill_keys(array_keys(ClinicalRecord::FINDRISC_QUESTIONS), ['nullable', 'boolean']),
+            'family_history_diabetes' => ['nullable', Rule::enum(FamilyHistoryDiabetes::class)],
+
             'notes' => $text,
         ];
     }
@@ -75,6 +80,11 @@ class ClinicalRecordRequest extends FormRequest
             'alcohol' => 'alcohol',
             'sleep_hours' => 'horas de sueño',
             'water_liters' => 'consumo de agua',
+            'daily_physical_activity' => 'actividad física diaria',
+            'daily_fruit_vegetables' => 'consumo diario de verduras o frutas',
+            'antihypertensive_medication' => 'fármacos antihipertensivos',
+            'high_glucose_history' => 'glucosa alta alguna vez',
+            'family_history_diabetes' => 'familiares con diabetes',
             'notes' => 'observaciones',
         ];
     }

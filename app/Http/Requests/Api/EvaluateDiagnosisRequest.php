@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Enums\FamilyHistoryDiabetes;
+use App\Models\ClinicalRecord;
 use App\Models\Diagnosis;
 use App\Models\LabResult;
 use App\Models\Patient;
@@ -37,7 +39,13 @@ class EvaluateDiagnosisRequest extends FormRequest
             'labs' => ['nullable', 'array:'.implode(',', array_keys(LabResult::ANALYTES))],
             'conditions' => ['nullable', 'array:diabetes,prediabetes,hypertension,dyslipidemia,pcos'],
             'conditions.*' => ['boolean'],
+            'risk_factors' => ['nullable', 'array:'.implode(',', [...array_keys(ClinicalRecord::FINDRISC_QUESTIONS), 'family_history_diabetes'])],
+            'risk_factors.family_history_diabetes' => ['nullable', Rule::enum(FamilyHistoryDiabetes::class)],
         ];
+
+        foreach (array_keys(ClinicalRecord::FINDRISC_QUESTIONS) as $question) {
+            $rules["risk_factors.$question"] = ['nullable', 'boolean'];
+        }
 
         foreach (LabResult::ANALYTES as $analyte => $range) {
             $rules["labs.$analyte"] = ['nullable', 'numeric', 'between:'.implode(',', $range['limits'])];
@@ -58,6 +66,10 @@ class EvaluateDiagnosisRequest extends FormRequest
             'vitals' => array_map('intval', $this->numbers('vitals')),
             'labs' => $this->numbers('labs'),
             'conditions' => array_map('boolval', $this->validated('conditions') ?? []),
+            'risk_factors' => array_map(
+                fn ($answer) => is_string($answer) ? $answer : (bool) $answer,
+                array_filter($this->validated('risk_factors') ?? [], fn ($v) => $v !== null)
+            ),
         ];
     }
 

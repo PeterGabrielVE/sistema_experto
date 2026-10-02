@@ -85,6 +85,16 @@
                             </div>
                         </div>
 
+                        <h6 class="heading-small text-muted mt-2">{{ __('Cuestionario FINDRISC') }}</h6>
+                        <dl class="row">
+                            @foreach (\App\Models\ClinicalRecord::FINDRISC_QUESTIONS as $field => $question)
+                                <dt class="col-md-8 font-weight-normal">{{ __($question) }}</dt>
+                                <dd class="col-md-4">{{ $record->{$field} === null ? '—' : ($record->{$field} ? __('Sí') : __('No')) }}</dd>
+                            @endforeach
+                            <dt class="col-md-8 font-weight-normal">{{ __('¿Algún familiar ha sido diagnosticado con diabetes?') }}</dt>
+                            <dd class="col-md-4">{{ $record->family_history_diabetes?->label() ?? '—' }}</dd>
+                        </dl>
+
                         <h6 class="heading-small text-muted mt-4">
                             {{ __('Último examen de laboratorio') }}
                             @if($labResult)

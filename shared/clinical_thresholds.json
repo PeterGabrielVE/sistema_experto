@@ -56,5 +56,34 @@
         "source": "LDL y no HDL: NCEP ATP III; LDL en diabetes: ADA Standards of Care (meta < 100 mg/dL)."
     },
 
+    "atherogenic": {
+        "castelli_i": {"H": 5.0, "M": 4.5},
+        "castelli_ii": {"H": 3.5, "M": 3.0},
+        "aip_intermediate": 0.11,
+        "aip_high": 0.21,
+        "source": "Castelli I (CT/HDL) y II (LDL/HDL): Millán et al. Vasc Health Risk Manag 2009, alterado si es mayor al valor. AIP = log10(TG/HDL en mmol/L): Dobiásová 2001, riesgo bajo < 0,11, intermedio 0,11 a 0,21, alto > 0,21."
+    },
+
+    "fatty_liver": {
+        "fli_rule_out": 30,
+        "fli_rule_in": 60,
+        "source": "Fatty Liver Index: Bedogni et al. BMC Gastroenterol 2006. < 30 descarta esteatosis; ≥ 60 la sugiere."
+    },
+
+    "findrisc": {
+        "age": [45, 55, 65],
+        "bmi": {"overweight": 25, "obesity": 30},
+        "waist": {"H": [94, 102], "M": [80, 88]},
+        "risk": [
+            {"from": 0, "label": "Bajo", "ten_year_risk": "1 %"},
+            {"from": 7, "label": "Levemente elevado", "ten_year_risk": "4 %"},
+            {"from": 12, "label": "Moderado", "ten_year_risk": "17 %"},
+            {"from": 15, "label": "Alto", "ten_year_risk": "33 %"},
+            {"from": 21, "label": "Muy alto", "ten_year_risk": "50 %"}
+        ],
+        "screening_from": 12,
+        "source": "FINDRISC: Lindström y Tuomilehto, Diabetes Care 2003. Edad: < 45, 45-54, 55-64, ≥ 65 años; IMC: < 25, 25-30, > 30; cintura: < primer valor, hasta el segundo, mayor al segundo. Riesgo de diabetes tipo 2 a 10 años. Desde screening_from se sugiere tamizaje con glicemia o HbA1c."
+    },
+
     "adult_age": 18
 }

@@ -58,3 +58,20 @@ NON_HDL_HIGH = _t["lipids"]["non_hdl_high"]
 FRIEDEWALD_MAX_TRIGLYCERIDES = _t["lipids"]["friedewald_max_triglycerides"]
 
 ADULT_AGE = _t["adult_age"]
+
+# Atherogenic profile.
+CASTELLI_I = _t["atherogenic"]["castelli_i"]
+CASTELLI_II = _t["atherogenic"]["castelli_ii"]
+AIP_INTERMEDIATE = _t["atherogenic"]["aip_intermediate"]
+AIP_HIGH = _t["atherogenic"]["aip_high"]
+
+# Fatty liver.
+FLI_RULE_OUT = _t["fatty_liver"]["fli_rule_out"]
+FLI_RULE_IN = _t["fatty_liver"]["fli_rule_in"]
+
+# Type 2 diabetes risk.
+FINDRISC_AGE = _t["findrisc"]["age"]
+FINDRISC_BMI = _t["findrisc"]["bmi"]
+FINDRISC_WAIST = _t["findrisc"]["waist"]
+FINDRISC_RISK = _t["findrisc"]["risk"]
+FINDRISC_SCREENING_FROM = _t["findrisc"]["screening_from"]

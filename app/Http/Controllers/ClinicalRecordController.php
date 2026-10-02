@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Alcohol;
+use App\Enums\FamilyHistoryDiabetes;
 use App\Enums\Smoking;
 use App\Http\Requests\ClinicalRecordRequest;
 use App\Models\ClinicalRecord;
@@ -46,6 +47,9 @@ class ClinicalRecordController extends Controller
             'conditions' => ClinicalRecord::CONDITIONS,
             'smokingOptions' => ['' => 'Sin información'] + Smoking::options(),
             'alcoholOptions' => ['' => 'Sin información'] + Alcohol::options(),
+            'findriscQuestions' => ClinicalRecord::FINDRISC_QUESTIONS,
+            'yesNoOptions' => ['' => 'Sin información', '1' => 'Sí', '0' => 'No'],
+            'familyHistoryDiabetesOptions' => ['' => 'Sin información'] + FamilyHistoryDiabetes::options(),
         ]);
     }
 

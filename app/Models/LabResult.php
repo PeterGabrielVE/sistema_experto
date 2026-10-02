@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Laboratory result (examen de laboratorio) of a patient: glucose metabolism
- * and lipid profile of one sample date.
+ * Laboratory result (examen de laboratorio) of a patient: glucose metabolism,
+ * lipid profile and GGT of one sample date.
  */
 class LabResult extends Model
 {
@@ -24,6 +24,8 @@ class LabResult extends Model
         'hdl' => ['label' => 'Colesterol HDL', 'unit' => 'mg/dL', 'min' => 40, 'limits' => [5, 200]],
         'ldl' => ['label' => 'Colesterol LDL', 'unit' => 'mg/dL', 'max' => 129, 'limits' => [10, 500]],
         'triglycerides' => ['label' => 'Triglicéridos', 'unit' => 'mg/dL', 'max' => 149, 'limits' => [20, 5000]],
+        // Upper limit varies by laboratory and sex (about 40 U/L in women, 60 U/L in men).
+        'ggt' => ['label' => 'GGT', 'unit' => 'U/L', 'max' => 50, 'limits' => [1, 3000]],
     ];
 
     /**
@@ -32,6 +34,7 @@ class LabResult extends Model
     public const PANELS = [
         'Metabolismo de la glucosa' => ['fasting_glucose', 'fasting_insulin', 'hba1c'],
         'Perfil lipídico' => ['total_cholesterol', 'hdl', 'ldl', 'triglycerides'],
+        'Perfil hepático' => ['ggt'],
     ];
 
     /**
@@ -41,6 +44,7 @@ class LabResult extends Model
         'taken_at', 'diagnosis_id',
         'fasting_glucose', 'fasting_insulin', 'hba1c',
         'total_cholesterol', 'hdl', 'ldl', 'triglycerides',
+        'ggt',
         'notes',
     ];
 
@@ -58,6 +62,7 @@ class LabResult extends Model
             'hdl' => 'float',
             'ldl' => 'float',
             'triglycerides' => 'float',
+            'ggt' => 'float',
         ];
     }
 

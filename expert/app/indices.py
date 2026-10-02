@@ -13,6 +13,22 @@ from . import thresholds as t
 
 BMI_CATEGORIES = {1: "Bajo peso", 2: "Normal", 3: "Sobrepeso", 4: "Obesidad"}
 
+# mg/dL per mmol/L, for the atherogenic index of plasma.
+MG_PER_MMOL_TRIGLYCERIDES = 88.57
+MG_PER_MMOL_CHOLESTEROL = 38.67
+
+# FINDRISC questions, in the order of the questionnaire.
+FINDRISC_ITEMS = {
+    "age": "Edad",
+    "bmi": "IMC",
+    "waist": "Cintura",
+    "physical_activity": "Actividad física diaria ≥ 30 min",
+    "fruit_vegetables": "Verduras o frutas a diario",
+    "antihypertensive_medication": "Fármacos antihipertensivos",
+    "high_glucose_history": "Glicemia alta alguna vez",
+    "family_history_diabetes": "Familiares con diabetes",
+}
+
 
 def fmt(value: float) -> str:
     """Spanish decimal comma, no trailing zeros: 5.60 -> '5,6'."""
@@ -80,6 +96,93 @@ def ldl_friedewald(total_cholesterol: float | None, hdl: float | None, triglycer
     return value if value > 0 else None
 
 
+def castelli_i(total_cholesterol: float | None, hdl: float | None) -> float | None:
+    """Total cholesterol / HDL."""
+    return _round(total_cholesterol / hdl, 2) if _present(total_cholesterol, hdl) else None
+
+
+def castelli_ii(ldl: float | None, hdl: float | None) -> float | None:
+    """LDL / HDL."""
+    return _round(ldl / hdl, 2) if _present(ldl, hdl) else None
+
+
+def aip(triglycerides: float | None, hdl: float | None) -> float | None:
+    """Atherogenic index of plasma: log10(triglycerides / HDL), both in mmol/L."""
+    if not _present(triglycerides, hdl):
+        return None
+    return _round(math.log10((triglycerides / MG_PER_MMOL_TRIGLYCERIDES) / (hdl / MG_PER_MMOL_CHOLESTEROL)), 2)
+
+
+def aip_risk(value: float) -> str:
+    if value < t.AIP_INTERMEDIATE:
+        return "Riesgo bajo"
+    if value <= t.AIP_HIGH:
+        return "Riesgo intermedio"
+    return "Riesgo alto"
+
+
+def fli(triglycerides: float | None, weight_kg: float | None, height_cm: float | None,
+        ggt: float | None, waist_cm: float | None) -> float | None:
+    """Fatty liver index (Bedogni 2006), 0 to 100. Triglycerides mg/dL, GGT U/L, waist cm; BMI unrounded."""
+    if not _present(triglycerides, weight_kg, height_cm, ggt, waist_cm):
+        return None
+    y = (0.953 * math.log(triglycerides) + 0.139 * weight_kg / (height_cm / 100) ** 2
+         + 0.718 * math.log(ggt) + 0.053 * waist_cm - 15.745)
+    return _round(100 / (1 + math.exp(-y)), 1)
+
+
+def fli_category(value: float) -> str:
+    if value < t.FLI_RULE_OUT:
+        return "Esteatosis descartada"
+    if value < t.FLI_RULE_IN:
+        return "Zona indeterminada"
+    return "Esteatosis probable"
+
+
+def findrisc_points(facts: dict) -> dict[str, int | None]:
+    """Points of each FINDRISC question (keys of FINDRISC_ITEMS); None when the answer is missing.
+
+    Prediabetes in the clinical record answers "high glucose ever found" with yes.
+    """
+    a, r, sex = facts["anthropometry"], facts["risk_factors"], facts["sex"]
+    age, value, waist = facts["age"], bmi(a["weight_kg"], a["height_cm"]), a["waist_cm"]
+    waist_low, waist_high = t.FINDRISC_WAIST[sex]
+    high_glucose = True if facts["conditions"]["prediabetes"] else r["high_glucose_history"]
+
+    def yes_no(answer: bool | None, yes: int, no: int) -> int | None:
+        return None if answer is None else (yes if answer else no)
+
+    return {
+        "age": None if age is None else (0, 2, 3, 4)[sum(age >= limit for limit in t.FINDRISC_AGE)],
+        "bmi": None if value is None else (0 if value < t.FINDRISC_BMI["overweight"] else 1 if value <= t.FINDRISC_BMI["obesity"] else 3),
+        "waist": None if waist is None else (0 if waist < waist_low else 3 if waist <= waist_high else 4),
+        "physical_activity": yes_no(r["daily_physical_activity"], 0, 2),
+        "fruit_vegetables": yes_no(r["daily_fruit_vegetables"], 0, 1),
+        "antihypertensive_medication": yes_no(r["antihypertensive_medication"], 2, 0),
+        "high_glucose_history": yes_no(high_glucose, 5, 0),
+        "family_history_diabetes": None if r["family_history_diabetes"] is None
+        else {"none": 0, "second_degree": 3, "first_degree": 5}[r["family_history_diabetes"]],
+    }
+
+
+def findrisc_applies(facts: dict) -> bool:
+    """Screening of undiagnosed type 2 diabetes in adults."""
+    return not facts["conditions"]["diabetes"] and (facts["age"] is None or facts["age"] >= t.ADULT_AGE)
+
+
+def findrisc(facts: dict) -> int | None:
+    """FINDRISC score (Lindström 2003), 0 to 26; None when it does not apply or an answer is missing."""
+    points = findrisc_points(facts)
+    if not findrisc_applies(facts) or None in points.values():
+        return None
+    return sum(points.values())
+
+
+def findrisc_risk(score: int) -> dict:
+    """Risk band of the score: label and ten-year risk of type 2 diabetes."""
+    return [band for band in t.FINDRISC_RISK if score >= band["from"]][-1]
+
+
 def blood_pressure_category(systolic: int | None, diastolic: int | None) -> str | None:
     """ACC/AHA 2017, same as ClinicalMeasurement::bloodPressureCategory()."""
     if not _present(systolic, diastolic):
@@ -96,7 +199,8 @@ def blood_pressure_category(systolic: int | None, diastolic: int | None) -> str 
 def compute(facts: dict) -> dict[str, dict]:
     """All the indices that can be computed from the facts, keyed by code.
 
-    Each entry: label, value, unit, reference (text), high (bool or None when there is no cut-off).
+    Each entry: label, value, unit, reference (text), high (bool or None when there is no cut-off);
+    bmi, aip, blood_pressure, fli and findrisc also have a category.
     """
     a, v, lab = facts["anthropometry"], facts["vitals"], facts["labs"]
     sex = facts["sex"]
@@ -135,9 +239,35 @@ def compute(facts: dict) -> dict[str, dict]:
         value = ldl_friedewald(lab["total_cholesterol"], lab["hdl"], lab["triglycerides"])
         add("ldl_friedewald", "LDL calculado (Friedewald)", value, "mg/dL", f"< {t.LDL_HIGH}", value is not None and value >= t.LDL_HIGH)
 
+    sex_limit = t.CASTELLI_I[sex]
+    value = castelli_i(lab["total_cholesterol"], lab["hdl"])
+    add("castelli_i", "Índice de Castelli I (CT/HDL)", value, "", f"≤ {fmt(sex_limit)}", value is not None and value > sex_limit)
+
+    # Reported LDL, otherwise Friedewald.
+    ldl = lab["ldl"] if lab["ldl"] is not None else out.get("ldl_friedewald", {}).get("value")
+    sex_limit = t.CASTELLI_II[sex]
+    value = castelli_ii(ldl, lab["hdl"])
+    add("castelli_ii", "Índice de Castelli II (LDL/HDL)", value, "", f"≤ {fmt(sex_limit)}", value is not None and value > sex_limit)
+
+    value = aip(lab["triglycerides"], lab["hdl"])
+    if value is not None:
+        add("aip", "Índice aterogénico del plasma (AIP)", value, "", f"< {fmt(t.AIP_INTERMEDIATE)} bajo; > {fmt(t.AIP_HIGH)} alto", value > t.AIP_HIGH)
+        out["aip"]["category"] = aip_risk(value)
+
     category = blood_pressure_category(v["systolic_bp"], v["diastolic_bp"])
     if category is not None:
         add("blood_pressure", "Presión arterial", f"{v['systolic_bp']}/{v['diastolic_bp']}", "mmHg", f"< {t.BP_ELEVATED_SYSTOLIC}/{t.BP_STAGE1['diastolic']}", category != "Normal")
         out["blood_pressure"]["category"] = category
+
+    value = fli(lab["triglycerides"], a["weight_kg"], a["height_cm"], lab["ggt"], a["waist_cm"])
+    if value is not None:
+        add("fli", "Fatty Liver Index (FLI)", value, "", f"< {t.FLI_RULE_OUT} descarta; ≥ {t.FLI_RULE_IN} sugiere esteatosis", value >= t.FLI_RULE_IN)
+        out["fli"]["category"] = fli_category(value)
+
+    value = findrisc(facts)
+    if value is not None:
+        band = findrisc_risk(value)
+        add("findrisc", "FINDRISC (riesgo de diabetes tipo 2)", value, "pts", f"< {t.FINDRISC_SCREENING_FROM}", value >= t.FINDRISC_SCREENING_FROM)
+        out["findrisc"]["category"] = f"Riesgo {band['label'].lower()}, {band['ten_year_risk']} a 10 años"
 
     return out

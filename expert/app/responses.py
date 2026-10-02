@@ -35,11 +35,11 @@ class RuleCatalog(BaseModel):
 
 class Index(BaseModel):
     label: str
-    value: float | str = Field(description="Number, or 'systolic/diastolic' for blood_pressure")
+    value: int | float | str = Field(description="Number, or 'systolic/diastolic' for blood_pressure")
     unit: str
     reference: str | None = Field(description="Reference range as text")
     high: bool | None = Field(description="Outside the reference range; null when there is no cut-off")
-    category: str | None = Field(default=None, description="Only bmi and blood_pressure")
+    category: str | None = Field(default=None, description="Only bmi, aip, blood_pressure, fli and findrisc")
 
 
 class Indices(BaseModel):
@@ -72,10 +72,18 @@ class MetabolicSyndrome(BaseModel):
     criteria: list[Criterion]
 
 
+class AtherogenicProfile(BaseModel):
+    status: Literal["alterado", "limitrofe", "normal", "indeterminado"]
+    positive: int = Field(description="Indices above the cut-off")
+    evaluated: int = Field(description="Indices that could be computed (of Castelli I and II, AIP, non-HDL)")
+    evidence: list[str]
+
+
 class Assessments(BaseModel):
     glycemic_status: GlycemicStatus
     insulin_resistance: InsulinResistance
     metabolic_syndrome: MetabolicSyndrome
+    atherogenic_profile: AtherogenicProfile
 
 
 class Finding(BaseModel):
