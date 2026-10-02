@@ -34,6 +34,12 @@ return [
         'timeout' => env('INFERENCE_TIMEOUT', 3),
     ],
 
+    'expert' => [
+        'url' => env('EXPERT_URL'),
+        'token' => env('EXPERT_TOKEN'),
+        'timeout' => env('EXPERT_TIMEOUT', 3),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

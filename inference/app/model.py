@@ -6,6 +6,7 @@ Categories match the ids created by RulesSeeder:
 
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -30,13 +31,27 @@ MODEL_PATH = Path(os.environ.get("MODEL_PATH", "/models/model.joblib"))
 MANUAL_SAMPLE_WEIGHT = 5.0
 
 
+def _bmi_thresholds() -> dict:
+    """BMI cut-offs from shared/clinical_thresholds.json (also read by Laravel and the expert service)."""
+    path = os.environ.get("CLINICAL_THRESHOLDS_PATH")
+    if not path:
+        here = Path(__file__).resolve()
+        # Docker image: /service/shared; repository checkout: <repo>/shared.
+        candidates = [here.parents[1] / "shared", here.parents[2] / "shared"]
+        path = next((c for c in candidates if c.is_dir()), candidates[-1]) / "clinical_thresholds.json"
+    return json.loads(Path(path).read_text(encoding="utf-8"))["bmi"]
+
+
+BMI = _bmi_thresholds()
+
+
 def rule_for_imc(imc: float) -> int:
-    """Same thresholds as the original PHP expert rules."""
-    if imc < 18.5:
+    """Same thresholds as InferenceEngine::ruleForImc()."""
+    if imc < BMI["normal_from"]:
         return 1
-    if imc < 25:
+    if imc < BMI["overweight_from"]:
         return 2
-    if imc < 30:
+    if imc < BMI["obesity_from"]:
         return 3
     return 4
 

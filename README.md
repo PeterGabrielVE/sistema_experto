@@ -57,6 +57,39 @@ docker compose exec app php artisan inference:train
 El modelo se guarda en el volumen `models`. `INFERENCE_TOKEN` (en `.env`) protege la API;
 el servicio solo es accesible dentro de la red de Docker. Tests: `docker compose exec inference python -m pytest tests`.
 
+## Servicio experto de diagnóstico (Python)
+
+El servicio `expert` (FastAPI, carpeta [expert/](expert/)) calcula índices clínicos y aplica reglas
+clínicas versionadas. No tiene estado ni acceso a la base de datos: Laravel le envía los datos y
+el servicio responde.
+
+| Endpoint | Uso |
+|---|---|
+| `POST /evaluate` | Índices, evaluaciones y hallazgos de la consulta |
+| `POST /indices` | Solo los índices |
+| `GET /rules` | Catálogo de reglas (id, criterio, fuente) |
+| `GET /health` | Estado y versión de las reglas (sin token) |
+
+- **Índices:** IMC, cintura/talla, cintura/cadera, HOMA-IR, índice TyG, TG/HDL, colesterol no HDL,
+  LDL de Friedewald (si el laboratorio no informó LDL) y categoría de presión arterial. El redondeo
+  es "half up", igual que `round()` de PHP, así que los valores coinciden con los de la app.
+- **Evaluaciones:** estado glicémico (ADA), resistencia a la insulina (probable con 2 o más de
+  HOMA-IR, TyG y TG/HDL alterados; posible con 1) y síndrome metabólico (criterios armonizados 2009,
+  cintura ≥ 90/80 cm). Con datos incompletos el resultado es `indeterminado`, nunca `ausente` por omisión.
+- **Hallazgos:** cada regla (`GLU-01`, `RI-01`, `SM-01`…) entrega severidad, evidencia y acción
+  sugerida, incluidos los exámenes que faltan para completar la evaluación.
+- La página de resultado de la consulta muestra la evaluación al equipo médico. Usa las mediciones y
+  exámenes asociados a la consulta o, si no hay, los últimos del paciente hasta la fecha de la consulta,
+  además de la ficha clínica ([app/Services/ExpertDiagnosisService.php](app/Services/ExpertDiagnosisService.php)).
+  Si el servicio no responde (o `EXPERT_URL` está vacío) la página se muestra sin la evaluación.
+- **Puntos de corte:** están en un solo archivo, [shared/clinical_thresholds.json](shared/clinical_thresholds.json),
+  junto con la fuente de cada uno. Lo leen Laravel (`config('clinical.…')`), el servicio `expert` y el
+  servicio `inference` (cortes de IMC). Docker lo copia a las imágenes Python con `additional_contexts`,
+  así que después de cambiar un valor hay que reconstruirlas (`docker compose up -d --build`) y,
+  en producción, regenerar la caché de configuración de Laravel.
+- La meta de LDL depende del riesgo: ≥ 160 mg/dL en general y ≥ 100 mg/dL con diabetes registrada (ADA).
+- `EXPERT_TOKEN` (en `.env`) protege la API. Tests: `docker compose exec expert python -m pytest tests`.
+
 ## Colas, eventos y auditoría
 
 Docker levanta un worker (`queue`) y el scheduler (`scheduler`) con la cola `database`.

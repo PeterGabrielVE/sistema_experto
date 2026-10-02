@@ -46,9 +46,6 @@ class ClinicalMeasurement extends Model
         4 => 'Obesidad',
     ];
 
-    /** Waist-to-height ratio above this value indicates cardiometabolic risk. */
-    public const WAIST_TO_HEIGHT_THRESHOLD = 0.5;
-
     protected $fillable = [...self::CLINICAL_FIELDS, 'patient_id', 'created_by', 'updated_by'];
 
     protected function casts(): array
@@ -134,7 +131,7 @@ class ClinicalMeasurement extends Model
     }
 
     /**
-     * Blood pressure category (ACC/AHA 2017), reference only.
+     * Blood pressure category (ACC/AHA 2017, config/clinical.php), reference only.
      */
     public function bloodPressureCategory(): ?string
     {
@@ -142,10 +139,12 @@ class ClinicalMeasurement extends Model
             return null;
         }
 
+        $bp = config('clinical.blood_pressure');
+
         return match (true) {
-            $this->systolic_bp >= 140 || $this->diastolic_bp >= 90 => 'Hipertensión etapa 2',
-            $this->systolic_bp >= 130 || $this->diastolic_bp >= 80 => 'Hipertensión etapa 1',
-            $this->systolic_bp >= 120 => 'Elevada',
+            $this->systolic_bp >= $bp['stage2']['systolic'] || $this->diastolic_bp >= $bp['stage2']['diastolic'] => 'Hipertensión etapa 2',
+            $this->systolic_bp >= $bp['stage1']['systolic'] || $this->diastolic_bp >= $bp['stage1']['diastolic'] => 'Hipertensión etapa 1',
+            $this->systolic_bp >= $bp['elevated_systolic'] => 'Elevada',
             default => 'Normal',
         };
     }

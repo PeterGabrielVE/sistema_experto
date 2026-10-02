@@ -467,6 +467,7 @@
                         </form>
 
                         @can('viewClinicalRecord', $patient)
+                            @includeWhen($expert, 'diagnoses._expert-evaluation')
                             @include('diagnoses._clinical-data')
                         @endcan
                     </div>

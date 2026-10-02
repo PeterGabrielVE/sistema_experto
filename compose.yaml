@@ -1,6 +1,7 @@
 x-laravel-env: &laravel-env
   DB_HOST: db
   INFERENCE_URL: http://inference:8000
+  EXPERT_URL: http://expert:8000
   QUEUE_CONNECTION: database
 
 services:
@@ -21,6 +22,9 @@ services:
         condition: service_healthy
       # Not required to be healthy: Laravel falls back to the IMC rules.
       inference:
+        condition: service_started
+      # Not required either: the result page is shown without the expert evaluation.
+      expert:
         condition: service_started
     restart: unless-stopped
 
@@ -53,13 +57,32 @@ services:
     restart: unless-stopped
 
   inference:
-    build: ./inference
+    build:
+      context: ./inference
+      additional_contexts:
+        shared: ./shared
     image: sistema-experto-inference:latest
     env_file: .env
     environment:
       DB_HOST: db
     volumes:
       - models:/models
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Expert diagnosis service: clinical indices and rules. Stateless, no database access.
+  expert:
+    build:
+      context: ./expert
+      additional_contexts:
+        shared: ./shared
+    image: sistema-experto-expert:latest
+    environment:
+      EXPERT_TOKEN: ${EXPERT_TOKEN:-}
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
       interval: 10s

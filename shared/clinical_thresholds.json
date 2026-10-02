@@ -1,0 +1,60 @@
+{
+    "_about": "Clinical cut-off points (adults, reference only). Single source for Laravel (config/clinical.php), the expert service and the inference service. Change a value here and rebuild the Python images.",
+
+    "bmi": {
+        "normal_from": 18.5,
+        "overweight_from": 25,
+        "obesity_from": 30,
+        "source": "OMS. Categorías = rules.id (1 Bajo peso, 2 Normal, 3 Sobrepeso, 4 Obesidad)"
+    },
+
+    "insulin_resistance": {
+        "homa_ir": 2.5,
+        "tyg": 8.5,
+        "tg_hdl": 3.0,
+        "source": "HOMA-IR: Matthews 1985; TyG: Simental-Mendía 2008; TG/HDL: McLaughlin 2003. Alterado si es mayor al valor."
+    },
+
+    "anthropometry": {
+        "waist_to_height": 0.5,
+        "waist_to_hip": {"H": 0.90, "M": 0.85},
+        "source": "Cintura/talla: Ashwell 2012; cintura/cadera: OMS 2008. Alterado si es mayor al valor."
+    },
+
+    "blood_pressure": {
+        "elevated_systolic": 120,
+        "stage1": {"systolic": 130, "diastolic": 80},
+        "stage2": {"systolic": 140, "diastolic": 90},
+        "source": "ACC/AHA 2017"
+    },
+
+    "glycemia": {
+        "fasting_glucose_prediabetes": 100,
+        "fasting_glucose_diabetes": 126,
+        "hba1c_prediabetes": 5.7,
+        "hba1c_diabetes": 6.5,
+        "hba1c_target": 7.0,
+        "source": "ADA Standards of Care. Meta de HbA1c general para adultos con diabetes; se individualiza."
+    },
+
+    "metabolic_syndrome": {
+        "waist": {"H": 90, "M": 80},
+        "triglycerides": 150,
+        "hdl": {"H": 40, "M": 50},
+        "systolic": 130,
+        "diastolic": 85,
+        "fasting_glucose": 100,
+        "min_criteria": 3,
+        "source": "Criterios armonizados, Alberti et al. Circulation 2009; cintura para Centro y Sudamérica."
+    },
+
+    "lipids": {
+        "ldl_high": 160,
+        "ldl_high_diabetes": 100,
+        "non_hdl_high": 160,
+        "friedewald_max_triglycerides": 400,
+        "source": "LDL y no HDL: NCEP ATP III; LDL en diabetes: ADA Standards of Care (meta < 100 mg/dL)."
+    },
+
+    "adult_age": 18
+}

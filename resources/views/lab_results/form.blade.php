@@ -26,9 +26,9 @@
                         'analytes' => \App\Models\LabResult::ANALYTES,
                         'panels' => collect(\App\Models\LabResult::PANELS)->map(fn ($fields, $title) => ['title' => $title, 'fields' => $fields])->values(),
                         'thresholds' => [
-                            'homaIr' => \App\Models\LabResult::HOMA_IR_THRESHOLD,
-                            'tyg' => \App\Models\LabResult::TYG_THRESHOLD,
-                            'tgHdl' => \App\Models\LabResult::TG_HDL_THRESHOLD,
+                            'homaIr' => config('clinical.insulin_resistance.homa_ir'),
+                            'tyg' => config('clinical.insulin_resistance.tyg'),
+                            'tgHdl' => config('clinical.insulin_resistance.tg_hdl'),
                         ],
                         // A list, not an object: JS would reorder the numeric ids.
                         'consultations' => collect($consultations)->map(fn ($label, $id) => ['value' => $id, 'label' => $label])->values(),

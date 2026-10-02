@@ -194,13 +194,13 @@
                       <td class="text-sm">@include('lab_results._value', ['result' => $r, 'field' => $field])</td>
                     @endforeach
                     <td class="text-sm">
-                      <span @class(['text-danger font-weight-bold' => $r->homaIr() > LabResult::HOMA_IR_THRESHOLD])>{{ $number($r->homaIr()) }}</span>
+                      <span @class(['text-danger font-weight-bold' => $r->homaIr() > config('clinical.insulin_resistance.homa_ir')])>{{ $number($r->homaIr()) }}</span>
                     </td>
                     @foreach (['total_cholesterol', 'hdl', 'ldl', 'triglycerides'] as $field)
                       <td class="text-sm">@include('lab_results._value', ['result' => $r, 'field' => $field])</td>
                     @endforeach
                     <td class="text-sm">
-                      <span @class(['text-danger font-weight-bold' => $r->tygIndex() > LabResult::TYG_THRESHOLD])>{{ $number($r->tygIndex()) }}</span>
+                      <span @class(['text-danger font-weight-bold' => $r->tygIndex() > config('clinical.insulin_resistance.tyg')])>{{ $number($r->tygIndex()) }}</span>
                     </td>
                     <td class="text-sm">
                       @if($r->diagnosis)

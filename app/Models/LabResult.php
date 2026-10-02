@@ -44,15 +44,6 @@ class LabResult extends Model
         'notes',
     ];
 
-    /** HOMA-IR above this value suggests insulin resistance. */
-    public const HOMA_IR_THRESHOLD = 2.5;
-
-    /** TyG index above this value suggests insulin resistance. */
-    public const TYG_THRESHOLD = 8.5;
-
-    /** Triglycerides/HDL ratio above this value suggests insulin resistance. */
-    public const TG_HDL_THRESHOLD = 3.0;
-
     protected $fillable = [...self::CLINICAL_FIELDS, 'patient_id', 'created_by', 'updated_by'];
 
     protected function casts(): array
@@ -139,9 +130,9 @@ class LabResult extends Model
     public function insulinResistanceIndicators(): array
     {
         $indicators = [
-            'HOMA-IR' => [$this->homaIr(), self::HOMA_IR_THRESHOLD],
-            'Índice TyG' => [$this->tygIndex(), self::TYG_THRESHOLD],
-            'TG/HDL' => [$this->triglyceridesToHdl(), self::TG_HDL_THRESHOLD],
+            'HOMA-IR' => [$this->homaIr(), config('clinical.insulin_resistance.homa_ir')],
+            'Índice TyG' => [$this->tygIndex(), config('clinical.insulin_resistance.tyg')],
+            'TG/HDL' => [$this->triglyceridesToHdl(), config('clinical.insulin_resistance.tg_hdl')],
         ];
 
         $result = [];

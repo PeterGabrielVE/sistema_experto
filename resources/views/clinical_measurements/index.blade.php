@@ -90,7 +90,7 @@
                   @if($latest->waistToHeight() !== null)
                     <p class="text-xs mb-0">
                       {{ __('Cintura/talla') }}: {{ number_format($latest->waistToHeight(), 2, ',', '.') }}
-                      @if($latest->waistToHeight() > \App\Models\ClinicalMeasurement::WAIST_TO_HEIGHT_THRESHOLD)
+                      @if($latest->waistToHeight() > config('clinical.anthropometry.waist_to_height'))
                         <span class="badge badge-sm bg-gradient-danger">{{ __('Riesgo cardiometabólico') }}</span>
                       @endif
                     </p>

@@ -1,0 +1,56 @@
+"""Request bodies. Bounds mirror the Laravel validation (ClinicalMeasurementRequest, LabResultRequest)."""
+
+from __future__ import annotations
+
+from typing import Literal
+
+from pydantic import BaseModel, Field, model_validator
+
+
+class Anthropometry(BaseModel):
+    weight_kg: float | None = Field(default=None, ge=2, le=400)
+    height_cm: float | None = Field(default=None, ge=40, le=250)
+    waist_cm: float | None = Field(default=None, ge=30, le=250)
+    hip_cm: float | None = Field(default=None, ge=40, le=250)
+
+
+class Vitals(BaseModel):
+    systolic_bp: int | None = Field(default=None, ge=60, le=260)
+    diastolic_bp: int | None = Field(default=None, ge=30, le=160)
+
+    @model_validator(mode="after")
+    def both_or_none(self) -> Vitals:
+        if (self.systolic_bp is None) != (self.diastolic_bp is None):
+            raise ValueError("systolic_bp and diastolic_bp go together")
+        if self.systolic_bp is not None and self.diastolic_bp >= self.systolic_bp:
+            raise ValueError("diastolic_bp must be lower than systolic_bp")
+        return self
+
+
+class Labs(BaseModel):
+    fasting_glucose: float | None = Field(default=None, ge=20, le=600, description="mg/dL")
+    fasting_insulin: float | None = Field(default=None, ge=0.5, le=300, description="µU/mL")
+    hba1c: float | None = Field(default=None, ge=3, le=20, description="%")
+    total_cholesterol: float | None = Field(default=None, ge=50, le=600, description="mg/dL")
+    hdl: float | None = Field(default=None, ge=5, le=200, description="mg/dL")
+    ldl: float | None = Field(default=None, ge=10, le=500, description="mg/dL")
+    triglycerides: float | None = Field(default=None, ge=20, le=5000, description="mg/dL")
+
+
+class Conditions(BaseModel):
+    """Diagnoses marked in the clinical record (ficha clínica)."""
+
+    diabetes: bool = False
+    prediabetes: bool = False
+    hypertension: bool = False
+    dyslipidemia: bool = False
+    pcos: bool = False
+
+
+class Facts(BaseModel):
+    sex: Literal["H", "M"]
+    age: int | None = Field(default=None, ge=0, le=130)
+    anthropometry: Anthropometry = Anthropometry()
+    vitals: Vitals = Vitals()
+    labs: Labs = Labs()
+    conditions: Conditions = Conditions()

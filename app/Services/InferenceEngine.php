@@ -77,14 +77,16 @@ class InferenceEngine
     }
 
     /**
-     * The original expert rules.
+     * The original expert rules (BMI cut-offs in config/clinical.php).
      */
     public static function ruleForImc(float $imc): int
     {
+        $bmi = config('clinical.bmi');
+
         return match (true) {
-            $imc < 18.5 => 1,
-            $imc < 25 => 2,
-            $imc < 30 => 3,
+            $imc < $bmi['normal_from'] => 1,
+            $imc < $bmi['overweight_from'] => 2,
+            $imc < $bmi['obesity_from'] => 3,
             default => 4,
         };
     }

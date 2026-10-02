@@ -8,6 +8,7 @@ use App\Models\Diagnosis;
 use App\Models\Patient;
 use App\Services\ClinicalMeasurementService;
 use App\Services\DiagnosisService;
+use App\Services\ExpertDiagnosisService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Gate;
 
@@ -57,11 +58,18 @@ class DiagnosisController extends Controller
         ]);
     }
 
-    public function result(Diagnosis $diagnosis)
+    public function result(Diagnosis $diagnosis, ExpertDiagnosisService $expert)
     {
         Gate::authorize('view', $diagnosis);
 
-        return view('diagnoses.result', $this->diagnoses->resultData($diagnosis));
+        $data = $this->diagnoses->resultData($diagnosis);
+
+        // Clinical evaluation: medical team only, like the linked clinical data.
+        $data['expert'] = Gate::allows('viewClinicalRecord', $data['patient'])
+            ? $expert->evaluate($diagnosis, $data['patient'])
+            : null;
+
+        return view('diagnoses.result', $data);
     }
 
     public function download(Diagnosis $diagnosis)
