@@ -62,3 +62,29 @@ def test_requires_token_when_configured(client, monkeypatch):
     assert client.post("/evaluate", json=PAYLOAD).status_code == 401
     assert client.post("/evaluate", json=PAYLOAD, headers={"Authorization": "Bearer secret"}).status_code == 200
     assert client.get("/health").status_code == 200  # open for the Docker healthcheck
+
+
+def test_optional_index_keys_stay_out(client):
+    body = client.post("/evaluate", json=PAYLOAD).json()
+
+    assert body["indices"]["bmi"]["category"] == "Sobrepeso"
+    assert "category" not in body["indices"]["homa_ir"]
+
+
+def test_health(client):
+    body = client.get("/health").json()
+
+    assert body["status"] == "ok"
+    assert body["rules"] == len(client.get("/rules").json()["rules"])
+
+
+def test_openapi_documents_the_responses(client):
+    paths = client.get("/openapi.json").json()["paths"]
+
+    def schema(path, method):
+        return paths[path][method]["responses"]["200"]["content"]["application/json"]["schema"]["$ref"]
+
+    assert schema("/evaluate", "post").endswith("/Evaluation")
+    assert schema("/indices", "post").endswith("/Indices")
+    assert schema("/rules", "get").endswith("/RuleCatalog")
+    assert schema("/health", "get").endswith("/Health")

@@ -88,6 +88,10 @@ el servicio responde.
   así que después de cambiar un valor hay que reconstruirlas (`docker compose up -d --build`) y,
   en producción, regenerar la caché de configuración de Laravel.
 - La meta de LDL depende del riesgo: ≥ 160 mg/dL en general y ≥ 100 mg/dL con diabetes registrada (ADA).
+- **Estructura:** `main.py` crea la app; los endpoints están en `routers/` (`health.py`, `diagnosis.py`);
+  `config.py` lee las variables de entorno (`EXPERT_TOKEN`, `CLINICAL_THRESHOLDS_PATH`); `security.py` valida
+  el token; `schemas.py` y `responses.py` definen los cuerpos de entrada y de respuesta. La documentación
+  OpenAPI queda en `/docs` y `/openapi.json` dentro de la red de Docker.
 - `EXPERT_TOKEN` (en `.env`) protege la API. Tests: `docker compose exec expert python -m pytest tests`.
 
 ## API REST de diagnóstico

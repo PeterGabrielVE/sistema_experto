@@ -7,17 +7,13 @@ Loaded from shared/clinical_thresholds.json, the single source also read by Lara
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
+
+from .config import get_settings
 
 
 def _path() -> Path:
-    if os.environ.get("CLINICAL_THRESHOLDS_PATH"):
-        return Path(os.environ["CLINICAL_THRESHOLDS_PATH"])
-    here = Path(__file__).resolve()
-    # Docker image: /service/shared; repository checkout: <repo>/shared.
-    candidates = [here.parents[1] / "shared", here.parents[2] / "shared"]
-    return next((c for c in candidates if c.is_dir()), candidates[-1]) / "clinical_thresholds.json"
+    return get_settings().thresholds_path
 
 
 _t = json.loads(_path().read_text(encoding="utf-8"))
