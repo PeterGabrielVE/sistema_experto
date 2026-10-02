@@ -1,0 +1,82 @@
+# API REST de diagnóstico (README: "API REST de diagnóstico").
+# VS Code + extensión REST Client (humao.rest-client): "Send Request" sobre cada petición.
+# Ejecutar primero "login": las demás usan su token.
+
+@baseUrl = http://localhost:8000/api/v1
+@email = doctor@correo.cl
+@password = secret123
+
+### Emitir token
+# @name login
+POST {{baseUrl}}/tokens
+Accept: application/json
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+###
+@token = {{login.response.body.token}}
+
+### Evaluar parámetros (no guarda nada)
+POST {{baseUrl}}/diagnoses/evaluate
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "sex": "H",
+  "age": 40,
+  "physical_activity": 2,
+  "anthropometry": { "weight_kg": 80, "height_cm": 165, "waist_cm": 98 },
+  "vitals": { "systolic_bp": 128, "diastolic_bp": 82 },
+  "labs": { "fasting_glucose": 105, "fasting_insulin": 18.2, "triglycerides": 180, "hdl": 38 },
+  "conditions": { "hypertension": true }
+}
+
+### Evaluar solo con los parámetros obligatorios
+POST {{baseUrl}}/diagnoses/evaluate
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "sex": "M",
+  "age": 30,
+  "physical_activity": 1,
+  "anthropometry": { "weight_kg": 55, "height_cm": 160 }
+}
+
+### Diagnóstico guardado (cambiar el id)
+GET {{baseUrl}}/diagnoses/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Error 422: sexo, glicemia fuera de rango y diastólica mayor que sistólica
+POST {{baseUrl}}/diagnoses/evaluate
+Authorization: Bearer {{token}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "sex": "X",
+  "age": 40,
+  "physical_activity": 2,
+  "anthropometry": { "weight_kg": 80, "height_cm": 165 },
+  "vitals": { "systolic_bp": 80, "diastolic_bp": 90 },
+  "labs": { "fasting_glucose": 2000 }
+}
+
+### Error 401: sin token
+POST {{baseUrl}}/diagnoses/evaluate
+Accept: application/json
+Content-Type: application/json
+
+{}
+
+### Revocar el token (después, las peticiones con él dan 401)
+DELETE {{baseUrl}}/tokens
+Authorization: Bearer {{token}}
+Accept: application/json

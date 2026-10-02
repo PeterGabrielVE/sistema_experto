@@ -90,6 +90,52 @@ el servicio responde.
 - La meta de LDL depende del riesgo: ≥ 160 mg/dL en general y ≥ 100 mg/dL con diabetes registrada (ADA).
 - `EXPERT_TOKEN` (en `.env`) protege la API. Tests: `docker compose exec expert python -m pytest tests`.
 
+## API REST de diagnóstico
+
+La aplicación expone una API JSON en `/api/v1` ([routes/api.php](routes/api.php)) que procesa los
+parámetros de un paciente y retorna el diagnóstico: categoría nutricional (servicio `inference` o
+reglas de IMC), sus recomendaciones y la evaluación del servicio `expert`.
+
+| Método y ruta | Uso | Acceso |
+|---|---|---|
+| `POST /api/v1/tokens` | Emite un token con `email` y `password` (5 intentos por minuto) | Usuario con rol |
+| `DELETE /api/v1/tokens` | Revoca el token actual | Autenticado |
+| `POST /api/v1/diagnoses/evaluate` | Procesa parámetros y retorna el diagnóstico (no guarda nada) | Doctor / Doctor Jefe |
+| `GET /api/v1/diagnoses/{id}` | Diagnóstico guardado; `evaluation` solo para el equipo médico | Usuario con rol |
+
+- Autenticación: `Authorization: Bearer <token>`. Cada usuario tiene un token; emitir uno nuevo
+  revoca el anterior. Solo se guarda su hash SHA-256 (`users.api_token`).
+- Los parámetros siguen el esquema del servicio experto ([expert/app/schemas.py](expert/app/schemas.py))
+  más `physical_activity` (0 a 4). Obligatorios: `sex` (`H`/`M`), `age`, `physical_activity`,
+  `anthropometry.weight_kg` y `anthropometry.height_cm`.
+- `evaluation` es `null` si el servicio experto no está configurado o no responde; la categoría
+  se entrega igual.
+
+```bash
+TOKEN=$(curl -s -X POST localhost:8000/api/v1/tokens -H 'Accept: application/json' \
+  -d email=doctor@correo.cl -d password=… | jq -r .token)   # cuenta con rol Doctor
+
+curl -s -X POST localhost:8000/api/v1/diagnoses/evaluate \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d '{
+    "sex": "H", "age": 40, "physical_activity": 2,
+    "anthropometry": {"weight_kg": 80, "height_cm": 165, "waist_cm": 98},
+    "vitals": {"systolic_bp": 128, "diastolic_bp": 82},
+    "labs": {"fasting_glucose": 105, "fasting_insulin": 18.2, "triglycerides": 180, "hdl": 38},
+    "conditions": {"hypertension": true}
+  }'
+```
+
+```json
+{
+  "data": {
+    "bmi": 29.38,
+    "category": {"id": 3, "label": "Sobrepeso", "source": "ml", "confidence": 0.91, "model_version": "…"},
+    "recommendations": ["…"],
+    "evaluation": {"indices": {…}, "assessments": {…}, "findings": [{"rule_id": "RI-01", …}], "ruleset_version": "2026.10.1"}
+  }
+}
+```
+
 ## Colas, eventos y auditoría
 
 Docker levanta un worker (`queue`) y el scheduler (`scheduler`) con la cola `database`.

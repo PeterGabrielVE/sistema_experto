@@ -51,20 +51,42 @@ class ExpertDiagnosisService
         $measurement = $this->dataOf($diagnosis, $patient->measurements(), 'measured_at');
         $labResult = $this->dataOf($diagnosis, $patient->labResults(), 'taken_at');
         $facts = $this->facts($diagnosis, $patient, $measurement, $labResult);
+        $result = $this->evaluateFacts($facts, ['diagnosis' => $diagnosis->id]);
+
+        return $result === null ? null : [
+            'facts' => $facts,
+            'sources' => ['measurement' => $measurement, 'labResult' => $labResult],
+            'result' => $result,
+        ];
+    }
+
+    /**
+     * POST /evaluate with any facts (schema in expert/app/schemas.py): the result
+     * page sends a stored consultation, the REST API the parameters it receives.
+     *
+     * @param  array  $context  added to the log entries
+     */
+    public function evaluateFacts(array $facts, array $context = []): ?array
+    {
+        if (! config('services.expert.url')) {
+            return null;
+        }
+
+        // Missing values are left out; objects so that an empty group is sent as {} and not [].
+        foreach (['anthropometry', 'vitals', 'labs'] as $group) {
+            $facts[$group] = (object) array_filter((array) ($facts[$group] ?? []), fn ($v) => $v !== null);
+        }
+        $facts['conditions'] = (object) ($facts['conditions'] ?? []);
 
         try {
             $response = $this->client()->post('/evaluate', $facts);
 
             if ($response->successful() && is_array($response->json('findings'))) {
-                return [
-                    'facts' => $facts,
-                    'sources' => ['measurement' => $measurement, 'labResult' => $labResult],
-                    'result' => $response->json(),
-                ];
+                return $response->json();
             }
 
             Log::warning('Expert service returned an invalid response', [
-                'diagnosis' => $diagnosis->id,
+                ...$context,
                 'status' => $response->status(),
                 'errors' => $response->status() === 422 ? $response->json('detail') : null,
             ]);
@@ -76,13 +98,13 @@ class ExpertDiagnosisService
     }
 
     /**
-     * Facts sent to the service (schema in expert/app/schemas.py).
+     * Facts of a stored consultation (schema in expert/app/schemas.py).
      */
     public function facts(Diagnosis $diagnosis, Patient $patient, ?ClinicalMeasurement $measurement, ?LabResult $labResult): array
     {
         $record = $patient->clinicalRecord;
 
-        $facts = [
+        return [
             'sex' => $patient->gender,
             'age' => $diagnosis->age ?? $patient->age,
             'anthropometry' => [
@@ -105,13 +127,6 @@ class ExpertDiagnosisService
                 'pcos' => (bool) $record?->has_pcos,
             ],
         ];
-
-        // Missing values are left out; objects so that an empty group is sent as {} and not [].
-        foreach (['anthropometry', 'vitals', 'labs'] as $group) {
-            $facts[$group] = (object) array_filter($facts[$group], fn ($v) => $v !== null);
-        }
-
-        return $facts;
     }
 
     /**
