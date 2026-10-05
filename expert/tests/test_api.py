@@ -98,3 +98,25 @@ def test_openapi_documents_the_responses(client):
     assert schema("/indices", "post").endswith("/Indices")
     assert schema("/rules", "get").endswith("/RuleCatalog")
     assert schema("/health", "get").endswith("/Health")
+
+
+def test_evaluate_with_configured_macro_rules(client):
+    rule = {"id": "CFG-1", "title": "HOMA-IR alto", "variable": "homa_ir", "operator": ">", "value": 2.5, "actions": {"glycemic_load": 80}}
+    body = client.post("/evaluate", json={**PAYLOAD, "macro_rules": [rule]}).json()
+
+    assert body["macronutrients"]["rules"][-1]["rule_id"] == "CFG-1"
+    assert body["macronutrients"]["limits"]["glycemic_load"]["amount"] == 80
+
+
+@pytest.mark.parametrize(
+    "rule",
+    [
+        {"variable": "shoe_size", "operator": ">", "value": 40, "actions": {"glycemic_load": 80}},
+        {"variable": "homa_ir", "operator": "!=", "value": 2.5, "actions": {"glycemic_load": 80}},
+        {"variable": "homa_ir", "operator": ">", "value": 2.5, "actions": {"glycemic_load": 10}},
+        {"variable": "homa_ir", "operator": ">", "value": 2.5, "actions": {}},
+    ],
+)
+def test_rejects_invalid_macro_rules(client, rule):
+    payload = {**PAYLOAD, "macro_rules": [{"id": "CFG-1", "title": "Regla", **rule}]}
+    assert client.post("/evaluate", json=payload).status_code == 422

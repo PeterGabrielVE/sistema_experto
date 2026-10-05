@@ -47,6 +47,17 @@
       </li>
       @endcan
 
+      @can('viewAny', \App\Models\MacroRule::class)
+      <li class="nav-item">
+        <a class="{{ $item($page === 'macro-rules') }}" href="{{ route('macro-rules.index') }}">
+          <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+            <i class="ni ni-settings-gear-65 text-primary text-sm opacity-10"></i>
+          </div>
+          <span class="nav-link-text ms-1">{{ __('Reglas de macronutrientes') }}</span>
+        </a>
+      </li>
+      @endcan
+
       <li class="nav-item">
         <a class="{{ $item($page === 'information') }}" href="{{ route('page.index', 'information') }}">
           <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">

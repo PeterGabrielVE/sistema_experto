@@ -92,3 +92,7 @@ SATURATED_FAT_PCT = _n["saturated_fat_pct"]
 ADDED_SUGAR_PCT = _n["added_sugar_pct"]
 FIBER_G_PER_1000_KCAL = _n["fiber_g_per_1000_kcal"]
 SODIUM_MG = _n["sodium_mg"]
+GLYCEMIC_LOAD = _n["glycemic_load"]
+
+# Macronutrient rules configured in the app: variables, operators and allowed range of each action.
+CONFIGURABLE = _t["configurable_macro_rules"]

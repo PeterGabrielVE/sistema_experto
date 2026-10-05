@@ -6,6 +6,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
+from . import thresholds as t
+
 
 class Anthropometry(BaseModel):
     weight_kg: float | None = Field(default=None, ge=2, le=400)
@@ -71,3 +73,49 @@ class Facts(BaseModel):
     labs: Labs = Labs()
     conditions: Conditions = Conditions()
     risk_factors: RiskFactors = RiskFactors()
+
+
+def _action(name: str):
+    low, high = t.CONFIGURABLE["actions"][name]["range"]
+    return Field(default=None, ge=low, le=high, description=t.CONFIGURABLE["actions"][name]["label"])
+
+
+class MacroActions(BaseModel):
+    """Same meaning as the adjustments of the built-in MAC rules (nutrition.py); ranges in shared/clinical_thresholds.json."""
+
+    carbohydrates: int | None = _action("carbohydrates")
+    fats: int | None = _action("fats")
+    protein_g_per_kg: float | None = _action("protein_g_per_kg")
+    energy: int | None = _action("energy")
+    glycemic_load: int | None = _action("glycemic_load")
+    saturated_fat_pct: int | None = _action("saturated_fat_pct")
+    added_sugar_pct: int | None = _action("added_sugar_pct")
+    sodium_mg: int | None = _action("sodium_mg")
+
+    @model_validator(mode="after")
+    def at_least_one(self) -> MacroActions:
+        if all(v is None for v in self.model_dump().values()):
+            raise ValueError("a rule needs at least one action")
+        return self
+
+
+Variable = Literal[tuple(t.CONFIGURABLE["variables"])]
+Operator = Literal[tuple(t.CONFIGURABLE["operators"])]
+
+
+class ConfiguredMacroRule(BaseModel):
+    """A macronutrient rule configured in the app (Laravel macro_rules): if variable operator value, apply the actions."""
+
+    id: str = Field(max_length=20, examples=["CFG-1"])
+    title: str = Field(max_length=120)
+    advice: str | None = Field(default=None, max_length=500)
+    variable: Variable
+    operator: Operator
+    value: float
+    actions: MacroActions
+
+
+class EvaluationRequest(Facts):
+    """Body of /evaluate: the facts plus the macronutrient rules configured in the app."""
+
+    macro_rules: list[ConfiguredMacroRule] = Field(default=[], max_length=100)

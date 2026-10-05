@@ -6,6 +6,7 @@ use App\Models\ClinicalMeasurement;
 use App\Models\ClinicalRecord;
 use App\Models\Diagnosis;
 use App\Models\LabResult;
+use App\Models\MacroRule;
 use App\Models\Patient;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Client\ConnectionException;
@@ -111,6 +112,8 @@ class ExpertDiagnosisService
             $facts[$group] = (object) array_filter((array) ($facts[$group] ?? []), fn ($v) => $v !== null);
         }
         $facts['conditions'] = (object) ($facts['conditions'] ?? []);
+        // Macronutrient rules configured by the Doctor Jefe, applied after the built-in ones.
+        $facts['macro_rules'] = MacroRule::active()->orderBy('id')->get()->map->toExpert()->all();
 
         try {
             $response = $this->client()->post('/evaluate', $facts);

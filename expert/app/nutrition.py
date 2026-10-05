@@ -3,12 +3,14 @@
 Starts from the base distribution (AMDR) and applies the medical rules (MAC-xx) on top of the
 facts, indices and assessments of rules.py: the lowest carbohydrate share and the highest fat
 share win, protein takes the rest and is raised when it falls short of the minimum g/kg.
-A starting point for the dietitian, not a prescription.
+Rules configured in the app (macro_rules of the request) are applied after the built-in ones,
+with the same adjustments. A starting point for the dietitian, not a prescription.
 """
 
 from __future__ import annotations
 
 import math
+import operator
 from dataclasses import dataclass
 from typing import Callable
 
@@ -27,7 +29,7 @@ MACROS = {"carbohydrates": ("Carbohidratos", 4), "proteins": ("Proteínas", 4), 
 class MacroRule:
     """evaluate returns None when the rule does not apply, otherwise an adjustment:
     evidence and advice, plus any of carbohydrates (max %), fats (%), energy (kcal),
-    protein_g_per_kg (minimum), saturated_fat_pct, added_sugar_pct, sodium_mg (maximums)."""
+    protein_g_per_kg (minimum), glycemic_load, saturated_fat_pct, added_sugar_pct, sodium_mg (maximums)."""
 
     id: str
     title: str
@@ -74,6 +76,7 @@ def _diabetes(ctx):
         "evidence": evidence,
         **t.MACROS_DIABETES,
         "added_sugar_pct": t.ADDED_SUGAR_PCT["metabolic"],
+        "glycemic_load": t.GLYCEMIC_LOAD["metabolic"],
         "advice": "Carbohidratos de bajo índice glicémico y ricos en fibra, repartidos en el día y constantes entre comidas; con insulina, conteo de carbohidratos.",
     }
 
@@ -95,6 +98,7 @@ def _glycemic(ctx):
         "evidence": evidence,
         **t.MACROS_GLYCEMIC,
         "added_sugar_pct": t.ADDED_SUGAR_PCT["metabolic"],
+        "glycemic_load": t.GLYCEMIC_LOAD["metabolic"],
         "advice": "Reducir carbohidratos refinados y bebidas azucaradas; preferir granos integrales, legumbres y verduras.",
     }
 
@@ -175,14 +179,58 @@ def _older_adult(ctx):
 MACRO_RULES: list[MacroRule] = [
     MacroRule("MAC-01", "Exceso de peso", f"IMC ≥ {fmt(t.BMI_OVERWEIGHT_FROM)}: déficit de {t.ENERGY['overweight_deficit']} kcal (sobrepeso) o {t.ENERGY['obesity_deficit']} kcal (obesidad) y proteína ≥ {fmt(t.PROTEIN_G_PER_KG['weight_change'])} g/kg de peso de referencia.", "AHA/ACC/TOS 2013", _excess_weight),
     MacroRule("MAC-02", "Bajo peso", f"IMC < {fmt(t.BMI_NORMAL_FROM)}: superávit de {t.ENERGY['underweight_surplus']} kcal y proteína ≥ {fmt(t.PROTEIN_G_PER_KG['weight_change'])} g/kg.", "OMS", _underweight),
-    MacroRule("MAC-03", "Diabetes", f"Diabetes registrada o en rango: carbohidratos {t.MACROS_DIABETES['carbohydrates']} %, grasas {t.MACROS_DIABETES['fats']} %, azúcares añadidos < {t.ADDED_SUGAR_PCT['metabolic']} %.", "ADA Standards of Care; consenso ADA 2019 de terapia nutricional", _diabetes),
-    MacroRule("MAC-04", "Alteración glicémica sin diabetes", f"Prediabetes, resistencia a la insulina probable o síndrome metabólico: carbohidratos {t.MACROS_GLYCEMIC['carbohydrates']} %, grasas {t.MACROS_GLYCEMIC['fats']} %.", "ADA Standards of Care", _glycemic),
+    MacroRule("MAC-03", "Diabetes", f"Diabetes registrada o en rango: carbohidratos {t.MACROS_DIABETES['carbohydrates']} %, grasas {t.MACROS_DIABETES['fats']} %, azúcares añadidos < {t.ADDED_SUGAR_PCT['metabolic']} %, carga glucémica ≤ {t.GLYCEMIC_LOAD['metabolic']}.", "ADA Standards of Care; consenso ADA 2019 de terapia nutricional", _diabetes),
+    MacroRule("MAC-04", "Alteración glicémica sin diabetes", f"Prediabetes, resistencia a la insulina probable o síndrome metabólico: carbohidratos {t.MACROS_GLYCEMIC['carbohydrates']} %, grasas {t.MACROS_GLYCEMIC['fats']} %, carga glucémica ≤ {t.GLYCEMIC_LOAD['metabolic']}.", "ADA Standards of Care", _glycemic),
     MacroRule("MAC-05", "Hipertrigliceridemia", f"Triglicéridos ≥ {t.MS_TRIGLYCERIDES} mg/dL: carbohidratos {t.MACROS_TRIGLYCERIDES['carbohydrates']} %, grasas {t.MACROS_TRIGLYCERIDES['fats']} %, azúcares añadidos < {t.ADDED_SUGAR_PCT['metabolic']} %.", "AHA Scientific Statement 2011 (Miller et al.)", _triglycerides),
     MacroRule("MAC-06", "LDL alto o perfil aterogénico", f"LDL sobre la meta, colesterol no HDL alto, perfil aterogénico alterado o dislipidemia registrada: grasa saturada < {t.SATURATED_FAT_PCT['lipids']} %.", "NCEP ATP III (TLC)", _ldl_atherogenic),
     MacroRule("MAC-07", "Hígado graso", f"FLI ≥ {t.FLI_RULE_IN}: carbohidratos {t.MACROS_FATTY_LIVER['carbohydrates']} %, sin fructosa añadida ni alcohol.", "EASL-EASD-EASO 2016", _fatty_liver),
     MacroRule("MAC-08", "Hipertensión", f"Hipertensión registrada o presión ≥ {t.BP_STAGE1['systolic']}/{t.BP_STAGE1['diastolic']} mmHg: sodio < {t.SODIUM_MG['hypertension']} mg/día.", "AHA; dieta DASH", _hypertension),
     MacroRule("MAC-09", "Adulto mayor", f"{t.OLDER_AGE} años o más: proteína ≥ {fmt(t.PROTEIN_G_PER_KG['older'])} g/kg.", "PROT-AGE 2013", _older_adult),
 ]
+
+
+OPERATORS = {">": operator.gt, ">=": operator.ge, "<": operator.lt, "<=": operator.le}
+OPERATOR_SYMBOLS = {">": ">", ">=": "≥", "<": "<", "<=": "≤"}
+ACTIONS = tuple(t.CONFIGURABLE["actions"])
+
+
+def variable_value(ctx: dict, name: str) -> float | None:
+    """A computed index (homa_ir, bmi…), otherwise a lab, vital sign, anthropometric value or the age."""
+    if name in ctx["indices"]:
+        return ctx["indices"][name]["value"]
+    facts = ctx["facts"]
+    for group in ("labs", "vitals", "anthropometry"):
+        if name in facts[group]:
+            return facts[group][name]
+    return facts.get(name)
+
+
+def describe_actions(actions: dict) -> str:
+    """'Carga glucémica máxima 80 por día, carbohidratos máximo 45 %'."""
+    parts = []
+    for key in ACTIONS:
+        if actions.get(key) is not None:
+            spec = t.CONFIGURABLE["actions"][key]
+            parts.append(f"{spec['label']} {fmt(actions[key])} {spec['unit']}")
+    return ", ".join([parts[0], *(p[0].lower() + p[1:] for p in parts[1:])])
+
+
+def configured_adjustments(ctx: dict, rules: list[dict]) -> list[tuple[dict, dict]]:
+    """(rule, adjustment) of the configured rules whose condition holds; a missing value never matches."""
+    applied = []
+    for rule in rules:
+        value = variable_value(ctx, rule["variable"])
+        if value is None or not OPERATORS[rule["operator"]](value, rule["value"]):
+            continue
+        variable = t.CONFIGURABLE["variables"][rule["variable"]]
+        unit = f" {variable['unit']}" if variable["unit"] else ""
+        effect = describe_actions(rule["actions"])
+        applied.append((rule, {
+            "evidence": [f"{variable['label']} {fmt(value)}{unit} ({OPERATOR_SYMBOLS[rule['operator']]} {fmt(rule['value'])})"],
+            "advice": f"{rule['advice']} ({effect})" if rule.get("advice") else effect,
+            **{k: v for k, v in rule["actions"].items() if v is not None},
+        }))
+    return applied
 
 
 def bmr(sex: str, age: int, weight_kg: float, height_cm: float) -> float:
@@ -231,8 +279,9 @@ def macro_plan(ctx: dict) -> dict:
         level = 0
         notes.append("Sin nivel de actividad física: se asume muy ligera.")
 
-    applied = [(rule, adj) for rule in MACRO_RULES if (adj := rule.evaluate(ctx)) is not None]
-    adjustments = [adj for _, adj in applied]
+    applied = [(rule.id, rule.title, False, adj) for rule in MACRO_RULES if (adj := rule.evaluate(ctx)) is not None]
+    applied += [(rule["id"], rule["title"], True, adj) for rule, adj in configured_adjustments(ctx, facts.get("macro_rules") or [])]
+    adjustments = [adj for *_, adj in applied]
 
     basal = bmr(sex, age, weight, height)
     maintenance = basal * t.ACTIVITY_FACTORS[level]
@@ -258,6 +307,7 @@ def macro_plan(ctx: dict) -> dict:
     saturated = min([t.SATURATED_FAT_PCT["base"], *(adj["saturated_fat_pct"] for adj in adjustments if "saturated_fat_pct" in adj)])
     sugar = min([t.ADDED_SUGAR_PCT["base"], *(adj["added_sugar_pct"] for adj in adjustments if "added_sugar_pct" in adj)])
     sodium = min([t.SODIUM_MG["base"], *(adj["sodium_mg"] for adj in adjustments if "sodium_mg" in adj)])
+    glycemic_load = min([t.GLYCEMIC_LOAD["base"], *(adj["glycemic_load"] for adj in adjustments if "glycemic_load" in adj)])
 
     return {
         "status": "calculado",
@@ -277,7 +327,11 @@ def macro_plan(ctx: dict) -> dict:
             "added_sugar": {"label": "Azúcares añadidos", "comparator": "max", "amount": int(_round(target * sugar / 400, 0)), "unit": "g", "percent": sugar},
             "fiber": {"label": "Fibra", "comparator": "min", "amount": int(_round(target * t.FIBER_G_PER_1000_KCAL / 1000, 0)), "unit": "g"},
             "sodium": {"label": "Sodio", "comparator": "max", "amount": sodium, "unit": "mg"},
+            "glycemic_load": {"label": "Carga glucémica", "comparator": "max", "amount": glycemic_load, "unit": ""},
         },
-        "rules": [{"rule_id": rule.id, "title": rule.title, "evidence": adj["evidence"], "advice": adj["advice"]} for rule, adj in applied],
+        "rules": [
+            {"rule_id": rule_id, "title": title, "evidence": adj["evidence"], "advice": adj["advice"], "configured": configured}
+            for rule_id, title, configured, adj in applied
+        ],
         "notes": notes,
     }

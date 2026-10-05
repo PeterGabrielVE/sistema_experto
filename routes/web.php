@@ -5,6 +5,7 @@ use App\Http\Controllers\ClinicalRecordController;
 use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LabResultController;
+use App\Http\Controllers\MacroRuleController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\UserController;
 use App\Models\Diagnosis;
+use App\Models\MacroRule;
 use App\Models\Patient;
 use App\Models\Recommendation;
 use App\Models\Rule;
@@ -91,6 +93,8 @@ Route::middleware('auth')->group(function () {
         ->middleware('can:viewAny,'.Schedule::class);
     Route::get('rules', [RulesController::class, 'index'])->name('rules.index')
         ->middleware('can:viewAny,'.Rule::class);
+    Route::resource('macro-rules', MacroRuleController::class)->except(['show'])
+        ->middleware('can:viewAny,'.MacroRule::class);
 
     Route::get('{page}', [PageController::class, 'index'])->name('page.index');
 });

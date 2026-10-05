@@ -15,7 +15,7 @@ from . import indices, nutrition
 from .indices import fmt
 from . import thresholds as t
 
-RULESET_VERSION = "2026.10.5"
+RULESET_VERSION = "2026.10.5.1"
 
 Severity = Literal["info", "warning", "alert"]
 SEVERITY_ORDER = {"alert": 0, "warning": 1, "info": 2}

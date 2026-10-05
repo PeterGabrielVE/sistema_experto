@@ -98,12 +98,21 @@ el servicio responde.
   saturada < 7 % con LDL alto o perfil aterogénico; sodio < 1500 mg con hipertensión; proteína mínima de
   0,8 g/kg, 1,0 desde los 65 años y 1,2 con cambio de peso (sobre el peso a IMC 25 si es mayor). Gana el
   porcentaje de carbohidratos más bajo; si la proteína no alcanza el mínimo, se toma de los carbohidratos.
-  Entrega gramos por macronutriente, límites de grasa saturada, azúcares añadidos, fibra y sodio, y las
+  Entrega gramos por macronutriente, límites de grasa saturada, azúcares añadidos, fibra, sodio y carga
+  glucémica (máximo 120 al día; 100 con alteración glicémica), y las
   reglas aplicadas con su evidencia. Cortes en `nutrition` de `shared/clinical_thresholds.json`.
   El formulario de consulta la pide al abrir el modal (`POST /diagnosis/{patient}/macros`, con el
   peso, talla, edad y actividad del formulario más la ficha y los últimos exámenes) y rellena gramos
   por día, gramos por comida (un tercio), requerimiento en kcal/día y kcal/kg; los campos quedan
   editables y, si el servicio no responde, se ingresan a mano.
+- **Reglas configurables** (menú *Reglas de macronutrientes*, solo Doctor Jefe): "si variable
+  operador valor, entonces acciones", por ejemplo *HOMA-IR > 2,5 → carga glucémica máxima 80 y
+  carbohidratos máximo 45 %*. Las variables (índices calculados, exámenes, presión, cintura, peso, edad),
+  los operadores y el rango permitido de cada acción están en `configurable_macro_rules` de
+  `shared/clinical_thresholds.json`; Laravel y el servicio validan con esos valores. Las reglas activas
+  (tabla `macro_rules`) se envían en `macro_rules` con cada `POST /evaluate` y se aplican después de las
+  `MAC-xx` con la misma combinación (gana el valor más restrictivo; el ajuste de energía se suma). Si
+  falta el dato, la regla no se aplica. En la evaluación aparecen como `CFG-<id>` con `configured: true`.
 - La página de resultado de la consulta muestra la evaluación al equipo médico. Usa las mediciones y
   exámenes asociados a la consulta o, si no hay, los últimos del paciente hasta la fecha de la consulta,
   además de la ficha clínica ([app/Services/ExpertDiagnosisService.php](app/Services/ExpertDiagnosisService.php)).

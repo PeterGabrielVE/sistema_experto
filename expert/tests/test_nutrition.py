@@ -95,3 +95,61 @@ def test_no_plan_for_minors_or_without_anthropometry(facts):
     assert (minor["status"], "energy" in minor) == ("no_aplica", False)
 
     assert plan(facts, anthropometry={"weight_kg": 70})["status"] == "indeterminado"
+
+
+HOMA_RULE = {
+    "id": "CFG-1", "title": "Resistencia a la insulina por HOMA-IR", "advice": "Preferir alimentos de bajo índice glicémico.",
+    "variable": "homa_ir", "operator": ">", "value": 2.5, "actions": {"glycemic_load": 80, "carbohydrates": 42},
+}
+
+
+def evaluate_with(facts, macro_rules, **kw):
+    return rules.evaluate({**facts(**kw), "macro_rules": macro_rules})["macronutrients"]
+
+
+def test_configured_rule_adjusts_the_glycemic_load(facts):
+    result = evaluate_with(facts, [HOMA_RULE], physical_activity=2,
+                           anthropometry={"weight_kg": 70, "height_cm": 175},
+                           labs={"fasting_glucose": 100, "fasting_insulin": 15})  # HOMA-IR 3,7
+
+    applied = result["rules"][-1]
+    assert applied == {
+        "rule_id": "CFG-1", "title": "Resistencia a la insulina por HOMA-IR", "configured": True,
+        "evidence": ["HOMA-IR 3,7 (> 2,5)"],
+        "advice": "Preferir alimentos de bajo índice glicémico. (Carbohidratos máximo 42 %, carga glucémica máxima 80 por día)",
+    }
+    assert result["limits"]["glycemic_load"]["amount"] == 80
+    assert result["macros"]["carbohydrates"]["percent"] == 42
+    assert all(not r["configured"] for r in result["rules"][:-1])
+
+
+def test_configured_rule_does_not_apply_below_the_value_or_without_data(facts):
+    below = evaluate_with(facts, [HOMA_RULE], anthropometry={"weight_kg": 70, "height_cm": 175},
+                          labs={"fasting_glucose": 85, "fasting_insulin": 6})  # HOMA-IR 1,26
+    missing = evaluate_with(facts, [HOMA_RULE], anthropometry={"weight_kg": 70, "height_cm": 175})
+
+    for result in (below, missing):
+        assert "CFG-1" not in rule_ids(result)
+        assert result["limits"]["glycemic_load"]["amount"] == 120
+
+
+def test_the_most_restrictive_value_wins(facts):
+    # Diabetes (MAC-03) lowers the glycemic load to 100 and carbohydrates to 40; the rule cannot raise them.
+    lenient = {**HOMA_RULE, "id": "CFG-2", "variable": "age", "operator": ">=", "value": 18,
+               "actions": {"glycemic_load": 140, "carbohydrates": 60, "sodium_mg": 1800}}
+    result = evaluate_with(facts, [lenient], anthropometry={"weight_kg": 70, "height_cm": 175}, conditions={"diabetes": True})
+
+    assert result["limits"]["glycemic_load"]["amount"] == 100
+    assert result["macros"]["carbohydrates"]["percent"] == 40
+    assert result["limits"]["sodium"]["amount"] == 1800
+    assert result["rules"][-1]["evidence"] == ["Edad 40 años (≥ 18)"]
+
+
+def test_configured_lab_variable_and_energy(facts):
+    rule = {"id": "CFG-3", "title": "TG muy altos", "variable": "triglycerides", "operator": ">=", "value": 500,
+            "actions": {"energy": -200, "fats": 25}}
+    result = evaluate_with(facts, [rule], physical_activity=2,
+                           anthropometry={"weight_kg": 70, "height_cm": 175}, labs={"triglycerides": 600})
+
+    assert result["energy"]["adjustment"] == -200
+    assert result["rules"][-1]["advice"] == "Grasas 25 %, ajuste de energía -200 kcal/día"

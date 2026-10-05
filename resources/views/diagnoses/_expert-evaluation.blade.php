@@ -137,6 +137,9 @@
                     <p class="text-sm mb-1">
                         <span class="text-xs text-secondary">{{ $rule['rule_id'] }}</span>
                         <strong>{{ $rule['title'] }}</strong>
+                        @if ($rule['configured'] ?? false)
+                            <span class="badge badge-sm bg-gradient-info">{{ __('Configurada') }}</span>
+                        @endif
                         <span class="text-xs text-secondary">({{ implode(' · ', $rule['evidence']) }})</span>:
                         {{ $rule['advice'] }}
                     </p>

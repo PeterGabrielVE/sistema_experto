@@ -122,7 +122,7 @@ class NutrientLimit(BaseModel):
     label: str
     comparator: Literal["max", "min"]
     amount: int
-    unit: Literal["g", "mg"]
+    unit: Literal["g", "mg", ""]
     percent: int | None = Field(default=None, description="Of the energy target; saturated fat and added sugar")
 
 
@@ -131,6 +131,7 @@ class MacroRuleApplied(BaseModel):
     title: str
     evidence: list[str]
     advice: str
+    configured: bool = Field(description="Configured in the app (macro_rules of the request), not built in")
 
 
 class MacroPlan(BaseModel):
@@ -140,8 +141,8 @@ class MacroPlan(BaseModel):
     reference_weight_kg: float | None = Field(default=None, description="Actual weight, or weight at BMI 25 with excess weight")
     protein_min_g_per_kg: float | None = None
     macros: Macros | None = None
-    limits: dict[str, NutrientLimit] | None = Field(default=None, description="saturated_fat, added_sugar, fiber, sodium")
-    rules: list[MacroRuleApplied] = Field(description="MAC rules that shaped the distribution, in catalog order")
+    limits: dict[str, NutrientLimit] | None = Field(default=None, description="saturated_fat, added_sugar, fiber, sodium, glycemic_load")
+    rules: list[MacroRuleApplied] = Field(description="Rules that shaped the distribution: built-in MAC rules in catalog order, then the configured ones")
     notes: list[str]
 
 

@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 
 from .. import indices, nutrition, rules
 from ..responses import Evaluation, Indices, RuleCatalog
-from ..schemas import Facts
+from ..schemas import EvaluationRequest, Facts
 from ..security import require_token
 
 router = APIRouter(tags=["diagnosis"], dependencies=[Depends(require_token)])
@@ -29,6 +29,6 @@ def compute_indices(facts: Facts) -> dict:
 
 
 @router.post("/evaluate", response_model=Evaluation, response_model_exclude_unset=True)
-def evaluate(facts: Facts) -> dict:
-    """Indices, assessments, findings and the suggested macronutrient distribution."""
+def evaluate(facts: EvaluationRequest) -> dict:
+    """Indices, assessments, findings and the suggested macronutrient distribution (with the macro_rules configured in the app)."""
     return rules.evaluate(facts.model_dump())

@@ -105,7 +105,50 @@
         "added_sugar_pct": {"base": 10, "metabolic": 5},
         "fiber_g_per_1000_kcal": 14,
         "sodium_mg": {"base": 2000, "hypertension": 1500},
-        "source": "Energía: Mifflin-St Jeor 1990 × factor de actividad (0 muy ligera a 4 muy activa); déficit de 500-750 kcal con exceso de peso (AHA/ACC/TOS 2013), mínimo 1500/1200 kcal (hombres/mujeres). Distribución base y rangos: AMDR, Institute of Medicine 2005. Carbohidratos 40-45 % con diabetes, prediabetes, resistencia a la insulina o síndrome metabólico (ADA Standards of Care; consenso ADA 2019 de nutrición), hipertrigliceridemia (AHA 2011) e hígado graso (EASL 2016). Grasa saturada < 7 % con LDL alto o perfil aterogénico (NCEP ATP III, TLC). Proteína mínima: 0,8 g/kg; 1,0 g/kg desde los 65 años (PROT-AGE 2013); 1,2 g/kg con cambio de peso, sobre el peso de referencia (IMC 25 si es mayor). Azúcares añadidos < 10 % (OMS 2015), < 5 % con alteración metabólica. Fibra 14 g/1000 kcal (IOM). Sodio < 2000 mg (OMS), < 1500 mg con hipertensión (AHA, DASH)."
+        "glycemic_load": {"base": 120, "metabolic": 100},
+        "source": "Energía: Mifflin-St Jeor 1990 × factor de actividad (0 muy ligera a 4 muy activa); déficit de 500-750 kcal con exceso de peso (AHA/ACC/TOS 2013), mínimo 1500/1200 kcal (hombres/mujeres). Distribución base y rangos: AMDR, Institute of Medicine 2005. Carbohidratos 40-45 % con diabetes, prediabetes, resistencia a la insulina o síndrome metabólico (ADA Standards of Care; consenso ADA 2019 de nutrición), hipertrigliceridemia (AHA 2011) e hígado graso (EASL 2016). Grasa saturada < 7 % con LDL alto o perfil aterogénico (NCEP ATP III, TLC). Proteína mínima: 0,8 g/kg; 1,0 g/kg desde los 65 años (PROT-AGE 2013); 1,2 g/kg con cambio de peso, sobre el peso de referencia (IMC 25 si es mayor). Azúcares añadidos < 10 % (OMS 2015), < 5 % con alteración metabólica. Fibra 14 g/1000 kcal (IOM). Sodio < 2000 mg (OMS), < 1500 mg con hipertensión (AHA, DASH). Carga glucémica diaria: < 80 baja, > 120 alta (Brand-Miller); máximo 100 con alteración glicémica."
+    },
+
+    "configurable_macro_rules": {
+        "_about": "Reglas de macronutrientes que el Doctor Jefe configura en la app (tabla macro_rules): si la variable cumple la condición, se aplican las acciones. Variables y rangos permitidos de cada acción; Laravel y el servicio experto validan con estos valores.",
+        "variables": {
+            "homa_ir": {"label": "HOMA-IR", "unit": ""},
+            "tyg": {"label": "Índice TyG", "unit": ""},
+            "tg_hdl": {"label": "TG/HDL", "unit": ""},
+            "bmi": {"label": "IMC", "unit": "kg/m²"},
+            "waist_to_height": {"label": "Cintura/talla", "unit": ""},
+            "waist_to_hip": {"label": "Cintura/cadera", "unit": ""},
+            "non_hdl": {"label": "Colesterol no HDL", "unit": "mg/dL"},
+            "castelli_i": {"label": "Castelli I (CT/HDL)", "unit": ""},
+            "castelli_ii": {"label": "Castelli II (LDL/HDL)", "unit": ""},
+            "aip": {"label": "Índice aterogénico del plasma", "unit": ""},
+            "fli": {"label": "Fatty Liver Index", "unit": ""},
+            "findrisc": {"label": "FINDRISC", "unit": "pts"},
+            "fasting_glucose": {"label": "Glicemia en ayunas", "unit": "mg/dL"},
+            "fasting_insulin": {"label": "Insulina basal", "unit": "µU/mL"},
+            "hba1c": {"label": "HbA1c", "unit": "%"},
+            "total_cholesterol": {"label": "Colesterol total", "unit": "mg/dL"},
+            "hdl": {"label": "Colesterol HDL", "unit": "mg/dL"},
+            "ldl": {"label": "Colesterol LDL", "unit": "mg/dL"},
+            "triglycerides": {"label": "Triglicéridos", "unit": "mg/dL"},
+            "ggt": {"label": "GGT", "unit": "U/L"},
+            "systolic_bp": {"label": "Presión sistólica", "unit": "mmHg"},
+            "diastolic_bp": {"label": "Presión diastólica", "unit": "mmHg"},
+            "waist_cm": {"label": "Cintura", "unit": "cm"},
+            "weight_kg": {"label": "Peso", "unit": "kg"},
+            "age": {"label": "Edad", "unit": "años"}
+        },
+        "operators": [">", ">=", "<", "<="],
+        "actions": {
+            "carbohydrates": {"label": "Carbohidratos máximo", "unit": "%", "range": [40, 65]},
+            "fats": {"label": "Grasas", "unit": "%", "range": [20, 35]},
+            "protein_g_per_kg": {"label": "Proteína mínima", "unit": "g/kg", "range": [0.6, 2.0]},
+            "energy": {"label": "Ajuste de energía", "unit": "kcal/día", "range": [-1000, 1000]},
+            "glycemic_load": {"label": "Carga glucémica máxima", "unit": "por día", "range": [50, 150]},
+            "saturated_fat_pct": {"label": "Grasas saturadas máximo", "unit": "%", "range": [5, 10]},
+            "added_sugar_pct": {"label": "Azúcares añadidos máximo", "unit": "%", "range": [0, 10]},
+            "sodium_mg": {"label": "Sodio máximo", "unit": "mg/día", "range": [1000, 2300]}
+        }
     },
 
     "adult_age": 18
