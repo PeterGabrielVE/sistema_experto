@@ -85,5 +85,28 @@
         "source": "FINDRISC: Lindström y Tuomilehto, Diabetes Care 2003. Edad: < 45, 45-54, 55-64, ≥ 65 años; IMC: < 25, 25-30, > 30; cintura: < primer valor, hasta el segundo, mayor al segundo. Riesgo de diabetes tipo 2 a 10 años. Desde screening_from se sugiere tamizaje con glicemia o HbA1c."
     },
 
+    "nutrition": {
+        "activity_factors": [1.2, 1.375, 1.55, 1.725, 1.9],
+        "energy": {
+            "underweight_surplus": 400,
+            "overweight_deficit": 500,
+            "obesity_deficit": 750,
+            "min_kcal": {"H": 1500, "M": 1200}
+        },
+        "base": {"carbohydrates": 50, "proteins": 20, "fats": 30},
+        "glycemic": {"carbohydrates": 45, "fats": 35},
+        "diabetes": {"carbohydrates": 40, "fats": 35},
+        "triglycerides": {"carbohydrates": 45, "fats": 35},
+        "fatty_liver": {"carbohydrates": 45, "fats": 35},
+        "bounds": {"carbohydrates": [40, 65], "proteins": [10, 30], "fats": [20, 35]},
+        "protein_g_per_kg": {"adult": 0.8, "older": 1.0, "weight_change": 1.2},
+        "older_age": 65,
+        "saturated_fat_pct": {"base": 10, "lipids": 7},
+        "added_sugar_pct": {"base": 10, "metabolic": 5},
+        "fiber_g_per_1000_kcal": 14,
+        "sodium_mg": {"base": 2000, "hypertension": 1500},
+        "source": "Energía: Mifflin-St Jeor 1990 × factor de actividad (0 muy ligera a 4 muy activa); déficit de 500-750 kcal con exceso de peso (AHA/ACC/TOS 2013), mínimo 1500/1200 kcal (hombres/mujeres). Distribución base y rangos: AMDR, Institute of Medicine 2005. Carbohidratos 40-45 % con diabetes, prediabetes, resistencia a la insulina o síndrome metabólico (ADA Standards of Care; consenso ADA 2019 de nutrición), hipertrigliceridemia (AHA 2011) e hígado graso (EASL 2016). Grasa saturada < 7 % con LDL alto o perfil aterogénico (NCEP ATP III, TLC). Proteína mínima: 0,8 g/kg; 1,0 g/kg desde los 65 años (PROT-AGE 2013); 1,2 g/kg con cambio de peso, sobre el peso de referencia (IMC 25 si es mayor). Azúcares añadidos < 10 % (OMS 2015), < 5 % con alteración metabólica. Fibra 14 g/1000 kcal (IOM). Sodio < 2000 mg (OMS), < 1500 mg con hipertensión (AHA, DASH)."
+    },
+
     "adult_age": 18
 }

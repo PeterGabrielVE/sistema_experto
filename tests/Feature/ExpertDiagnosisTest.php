@@ -145,6 +145,37 @@ class ExpertDiagnosisTest extends TestCase
         $this->visitResult()->assertOk()->assertSee('Síndrome metabólico')->assertDontSee('Perfil aterogénico');
     }
 
+    public function test_result_page_shows_the_macronutrient_distribution(): void
+    {
+        $evaluation = $this->evaluation();
+        $evaluation['macronutrients'] = [
+            'status' => 'calculado',
+            'energy' => ['bmr' => 1636, 'activity_level' => 'Moderada', 'activity_factor' => 1.55, 'maintenance' => 2536, 'adjustment' => -500, 'target' => 2040],
+            'reference_weight_kg' => 68.1,
+            'protein_min_g_per_kg' => 1.2,
+            'macros' => [
+                'carbohydrates' => ['label' => 'Carbohidratos', 'percent' => 45, 'grams' => 230, 'kcal' => 918],
+                'proteins' => ['label' => 'Proteínas', 'percent' => 20, 'grams' => 102, 'kcal' => 408, 'g_per_kg' => 1.5],
+                'fats' => ['label' => 'Grasas', 'percent' => 35, 'grams' => 79, 'kcal' => 714],
+            ],
+            'limits' => [
+                'saturated_fat' => ['label' => 'Grasas saturadas', 'comparator' => 'max', 'amount' => 16, 'unit' => 'g', 'percent' => 7],
+                'sodium' => ['label' => 'Sodio', 'comparator' => 'max', 'amount' => 1500, 'unit' => 'mg'],
+            ],
+            'rules' => [['rule_id' => 'MAC-04', 'title' => 'Alteración glicémica sin diabetes', 'evidence' => ['Prediabetes'], 'advice' => 'Reducir carbohidratos refinados.']],
+            'notes' => [],
+        ];
+        Http::fake(['*' => Http::response($evaluation)]);
+
+        $this->visitResult()->assertOk()
+            ->assertSeeInOrder(['Distribución de macronutrientes sugerida', '2.040 kcal/día', 'déficit 500 kcal'])
+            ->assertSeeInOrder(['Carbohidratos', '45 %', '230 g', 'Proteínas', '1,5 g/kg', 'Grasas', '35 %'])
+            ->assertSeeInOrder(['Grasas saturadas', '16 g', 'Sodio', '1500 mg'])
+            ->assertSeeInOrder(['MAC-04', 'Alteración glicémica sin diabetes', 'Reducir carbohidratos refinados.']);
+
+        Http::assertSent(fn (Request $request) => $this->sentFacts($request)['physical_activity'] === 2);
+    }
+
     public function test_without_linked_data_uses_the_latest_up_to_the_consultation_date(): void
     {
         $this->patient->labResults()->create(['taken_at' => now()->subMonths(2), 'hba1c' => 5.9]);

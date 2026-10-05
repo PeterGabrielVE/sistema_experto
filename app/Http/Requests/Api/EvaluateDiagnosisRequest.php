@@ -12,8 +12,8 @@ use Illuminate\Validation\Rule;
 
 /**
  * Parameters of POST /api/v1/diagnoses/evaluate. Same shape and bounds as the
- * facts of the expert service (expert/app/schemas.py), plus the physical
- * activity that the category classifier needs.
+ * facts of the expert service (expert/app/schemas.py); the physical activity
+ * feeds both the category classifier and the energy target of the macronutrients.
  */
 class EvaluateDiagnosisRequest extends FormRequest
 {
@@ -62,6 +62,7 @@ class EvaluateDiagnosisRequest extends FormRequest
         return [
             'sex' => $this->validated('sex'),
             'age' => (int) $this->validated('age'),
+            'physical_activity' => (int) $this->validated('physical_activity'),
             'anthropometry' => $this->numbers('anthropometry'),
             'vitals' => array_map('intval', $this->numbers('vitals')),
             'labs' => $this->numbers('labs'),

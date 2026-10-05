@@ -31,6 +31,7 @@ class RuleInfo(BaseModel):
 class RuleCatalog(BaseModel):
     ruleset_version: str
     rules: list[RuleInfo]
+    macro_rules: list[RuleInfo] = Field(description="Rules of the macronutrient distribution (category Nutrición)")
 
 
 class Index(BaseModel):
@@ -94,8 +95,59 @@ class Finding(BaseModel):
     recommendation: str | None
 
 
+class Energy(BaseModel):
+    bmr: int = Field(description="Basal metabolic rate, Mifflin-St Jeor (kcal/day)")
+    activity_level: str
+    activity_factor: float
+    maintenance: int = Field(description="kcal/day")
+    adjustment: int = Field(description="Deficit (negative) or surplus, kcal/day")
+    target: int = Field(description="kcal/day, rounded to 10")
+
+
+class Macro(BaseModel):
+    label: str
+    percent: int = Field(description="Of the energy target")
+    grams: int
+    kcal: int
+    g_per_kg: float | None = Field(default=None, description="Proteins only, per kg of reference weight")
+
+
+class Macros(BaseModel):
+    carbohydrates: Macro
+    proteins: Macro
+    fats: Macro
+
+
+class NutrientLimit(BaseModel):
+    label: str
+    comparator: Literal["max", "min"]
+    amount: int
+    unit: Literal["g", "mg"]
+    percent: int | None = Field(default=None, description="Of the energy target; saturated fat and added sugar")
+
+
+class MacroRuleApplied(BaseModel):
+    rule_id: str = Field(examples=["MAC-03"])
+    title: str
+    evidence: list[str]
+    advice: str
+
+
+class MacroPlan(BaseModel):
+    status: Literal["calculado", "no_aplica", "indeterminado"]
+    reason: str | None = Field(default=None, description="Why there is no plan (no_aplica, indeterminado)")
+    energy: Energy | None = None
+    reference_weight_kg: float | None = Field(default=None, description="Actual weight, or weight at BMI 25 with excess weight")
+    protein_min_g_per_kg: float | None = None
+    macros: Macros | None = None
+    limits: dict[str, NutrientLimit] | None = Field(default=None, description="saturated_fat, added_sugar, fiber, sodium")
+    rules: list[MacroRuleApplied] = Field(description="MAC rules that shaped the distribution, in catalog order")
+    notes: list[str]
+
+
 class Evaluation(BaseModel):
     indices: dict[str, Index]
     assessments: Assessments
     findings: list[Finding] = Field(description="Sorted by severity: alert, warning, info")
+    macronutrients: MacroPlan = Field(description="Suggested energy target and macronutrient distribution (adults)")
     ruleset_version: str

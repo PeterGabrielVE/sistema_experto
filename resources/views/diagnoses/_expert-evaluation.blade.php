@@ -88,6 +88,66 @@
         </ul>
     @endif
 
+    {{-- Results of an older ruleset have no macronutrients. --}}
+    @php($plan = $result['macronutrients'] ?? null)
+    @if ($plan)
+        <div class="border border-radius-lg p-3 mb-3" id="macro-plan">
+            <p class="text-xs text-uppercase text-secondary font-weight-bolder mb-2">{{ __('Distribución de macronutrientes sugerida') }}</p>
+            @if ($plan['status'] !== 'calculado')
+                <p class="text-sm text-secondary mb-0">{{ $plan['reason'] }}</p>
+            @else
+                @php($energy = $plan['energy'])
+                <p class="text-sm mb-2">
+                    <strong>{{ number_format($energy['target'], 0, ',', '.') }} kcal/día</strong>
+                    <span class="text-xs text-secondary">
+                        · {{ __('gasto basal :bmr kcal × :factor (actividad :level)', ['bmr' => number_format($energy['bmr'], 0, ',', '.'), 'factor' => $number($energy['activity_factor']), 'level' => mb_strtolower($energy['activity_level'])]) }}
+                        @if ($energy['adjustment'])
+                            · {{ $energy['adjustment'] > 0 ? __('superávit') : __('déficit') }} {{ abs($energy['adjustment']) }} kcal
+                        @endif
+                    </span>
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-2">
+                        <thead>
+                            <tr><th>{{ __('Macronutriente') }}</th><th>%</th><th>{{ __('Gramos/día') }}</th><th>kcal</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($plan['macros'] as $macro)
+                                <tr>
+                                    <td>{{ $macro['label'] }}</td>
+                                    <td>{{ $macro['percent'] }} %</td>
+                                    <td>
+                                        {{ $macro['grams'] }} g
+                                        @isset($macro['g_per_kg'])
+                                            <span class="text-xs text-secondary">({{ $number($macro['g_per_kg']) }} g/kg)</span>
+                                        @endisset
+                                    </td>
+                                    <td>{{ $macro['kcal'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-secondary mb-2">
+                    @foreach ($plan['limits'] as $limit)
+                        {{ $limit['label'] }} {{ $limit['comparator'] === 'max' ? '<' : '≥' }} {{ $limit['amount'] }} {{ $limit['unit'] }}@isset($limit['percent']) ({{ $limit['percent'] }} %)@endisset{{ $loop->last ? '' : ' · ' }}
+                    @endforeach
+                </p>
+                @foreach ($plan['rules'] as $rule)
+                    <p class="text-sm mb-1">
+                        <span class="text-xs text-secondary">{{ $rule['rule_id'] }}</span>
+                        <strong>{{ $rule['title'] }}</strong>
+                        <span class="text-xs text-secondary">({{ implode(' · ', $rule['evidence']) }})</span>:
+                        {{ $rule['advice'] }}
+                    </p>
+                @endforeach
+                @foreach ($plan['notes'] as $note)
+                    <p class="text-xs text-warning mb-0">{{ $note }}</p>
+                @endforeach
+            @endif
+        </div>
+    @endif
+
     @if (! empty($result['indices']))
         <div class="table-responsive">
             <table class="table table-sm mb-1">

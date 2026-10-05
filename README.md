@@ -67,7 +67,7 @@ el servicio responde.
 |---|---|
 | `POST /evaluate` | Índices, evaluaciones y hallazgos de la consulta |
 | `POST /indices` | Solo los índices |
-| `GET /rules` | Catálogo de reglas (id, criterio, fuente) |
+| `GET /rules` | Catálogo de reglas (id, criterio, fuente), incluidas las de macronutrientes (`macro_rules`) |
 | `GET /health` | Estado y versión de las reglas (sin token) |
 
 - **Índices:** IMC, cintura/talla, cintura/cadera, HOMA-IR, índice TyG, TG/HDL, colesterol no HDL,
@@ -89,6 +89,21 @@ el servicio responde.
   el corte; limítrofe con AIP intermedio). Con datos incompletos el resultado es `indeterminado`, nunca `ausente` por omisión.
 - **Hallazgos:** cada regla (`GLU-01`, `RI-01`, `SM-01`…) entrega severidad, evidencia y acción
   sugerida, incluidos los exámenes que faltan para completar la evaluación.
+- **Distribución de macronutrientes** (`macronutrients`, solo adultos con edad, peso y talla;
+  [expert/app/nutrition.py](expert/app/nutrition.py)): energía por Mifflin-St Jeor × factor de actividad
+  (`physical_activity` 0 a 4), con déficit de 500/750 kcal en sobrepeso/obesidad o superávit de 400 kcal
+  en bajo peso y mínimo de 1500/1200 kcal (hombres/mujeres). Parte de 50 % carbohidratos, 20 % proteínas
+  y 30 % grasas y aplica las reglas `MAC-01` a `MAC-09`: carbohidratos 40 % con diabetes y 45 % con
+  prediabetes, resistencia a la insulina, síndrome metabólico, triglicéridos altos o hígado graso; grasa
+  saturada < 7 % con LDL alto o perfil aterogénico; sodio < 1500 mg con hipertensión; proteína mínima de
+  0,8 g/kg, 1,0 desde los 65 años y 1,2 con cambio de peso (sobre el peso a IMC 25 si es mayor). Gana el
+  porcentaje de carbohidratos más bajo; si la proteína no alcanza el mínimo, se toma de los carbohidratos.
+  Entrega gramos por macronutriente, límites de grasa saturada, azúcares añadidos, fibra y sodio, y las
+  reglas aplicadas con su evidencia. Cortes en `nutrition` de `shared/clinical_thresholds.json`.
+  El formulario de consulta la pide al abrir el modal (`POST /diagnosis/{patient}/macros`, con el
+  peso, talla, edad y actividad del formulario más la ficha y los últimos exámenes) y rellena gramos
+  por día, gramos por comida (un tercio), requerimiento en kcal/día y kcal/kg; los campos quedan
+  editables y, si el servicio no responde, se ingresan a mano.
 - La página de resultado de la consulta muestra la evaluación al equipo médico. Usa las mediciones y
   exámenes asociados a la consulta o, si no hay, los últimos del paciente hasta la fecha de la consulta,
   además de la ficha clínica ([app/Services/ExpertDiagnosisService.php](app/Services/ExpertDiagnosisService.php)).

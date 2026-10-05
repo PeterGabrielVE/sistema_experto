@@ -68,6 +68,33 @@ class ExpertDiagnosisService
     }
 
     /**
+     * Suggested macronutrient distribution (MacroPlan in expert/app/responses.py) for a
+     * consultation still being filled in: the weight, height, age and physical activity of
+     * the form, plus the patient's clinical record and latest data up to today.
+     *
+     * @param  array{weight: float, size: float, age: int, physical_activity: int}  $consultation
+     */
+    public function macroPlan(Patient $patient, array $consultation): ?array
+    {
+        if (! config('services.expert.url') || ! isset(Patient::GENDERS[$patient->gender])) {
+            return null;
+        }
+
+        $diagnosis = new Diagnosis($consultation);
+        $facts = $this->facts(
+            $diagnosis,
+            $patient,
+            $this->dataOf($diagnosis, $patient->measurements(), 'measured_at'),
+            $this->dataOf($diagnosis, $patient->labResults(), 'taken_at'),
+        );
+        // What the doctor just entered prevails over the measurements registry.
+        $facts['anthropometry']['weight_kg'] = (float) $consultation['weight'];
+        $facts['anthropometry']['height_cm'] = (float) $consultation['size'];
+
+        return $this->evaluateFacts($facts, ['patient' => $patient->id])['macronutrients'] ?? null;
+    }
+
+    /**
      * POST /evaluate with any facts (schema in expert/app/schemas.py): the result
      * page sends a stored consultation, the REST API the parameters it receives.
      *
@@ -114,6 +141,7 @@ class ExpertDiagnosisService
         return [
             'sex' => $patient->gender,
             'age' => $diagnosis->age ?? $patient->age,
+            'physical_activity' => $diagnosis->physical_activity === null ? null : (int) $diagnosis->physical_activity,
             'anthropometry' => [
                 // The consultation itself records weight and height.
                 'weight_kg' => $measurement?->weight_kg ?? ((float) $diagnosis->weight ?: null),
@@ -143,11 +171,12 @@ class ExpertDiagnosisService
 
     /**
      * The latest record linked to the consultation; otherwise the patient's
-     * latest one up to the consultation date (never later data).
+     * latest one up to the consultation date (never later data). An unsaved
+     * consultation has no linked records and its date is today.
      */
     private function dataOf(Diagnosis $diagnosis, HasMany $records, string $dateColumn): ClinicalMeasurement|LabResult|null
     {
-        return (clone $records)->where('diagnosis_id', $diagnosis->id)->latestFirst()->first()
+        return ($diagnosis->exists ? (clone $records)->where('diagnosis_id', $diagnosis->id)->latestFirst()->first() : null)
             ?? $records->whereDate($dateColumn, '<=', $diagnosis->created_at ?? now())->latestFirst()->first();
     }
 

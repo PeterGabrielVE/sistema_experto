@@ -129,154 +129,72 @@
             $('#input-imc').val(result)
         }
 
-        function diagnosticar(){
+        const MACRO_FIELDS = {
+            carbohydrate: '#input-carbohidrato', isocaloric_carbohydrate: '#input-isocalorico',
+            lipido: '#input-lipido', isocaloric_lipido: '#input-isocalorico2',
+            protein: '#input-proteina', isocaloric_protein: '#input-isocalorico3',
+            result_pulgar: '#input-result-pulgar', imc_desired: '#input-imc-deseado',
+        };
 
+        // Suggested macronutrient distribution of the expert service (DiagnosisController::macros).
+        function diagnosticar(){
+            copy();
             $('#exampleModal').modal('show');
 
-            /*if(ingesta === '' || ingesta === null){
-                document.getElementById("input-caloria").focus();
-                document.getElementById('error_ingesta').removeAttribute("hidden");
-            }else{*/
+            $.each(MACRO_FIELDS, (field, input) => $(input).val(''));
+            let summary = $('#macro-plan-summary');
+            summary.html($('<p class="text-sm text-secondary mb-0">').text(@json(__('Calculando la distribución de macronutrientes…'))));
 
-                //document.getElementById("error_ingesta").setAttribute("hidden",true);
-
-                let imc = parseFloat($('#input-imc').val());
-                let imc_deseado = 0;
-
-                if(imc < 18.4){
-                    imc_deseado = 35;
-                }else if(imc >= 18.4 && imc <= 24.9){
-                    imc_deseado = 30;
-                }else if(imc >= 25 && imc <= 29.9){
-                    imc_deseado = 25;
-                }else{
-                    imc_deseado = 30;
+            $.ajax({
+                url: @json(route('diagnosis.macros', $patient)),
+                method: 'POST',
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'), 'Accept': 'application/json'},
+                data: {
+                    weight: $('#input-weight').val(),
+                    size: $('#input-size').val(),
+                    age: $('#input-age').val(),
+                    physical_activity: $('#input-physical-activity').val(),
+                },
+            }).done(function (response) {
+                if (!response.fields) {
+                    let reason = response.data && response.data.reason;
+                    summary.html($('<p class="text-sm text-warning mb-0">').text(
+                        (reason ? reason + ' ' : @json(__('El sistema experto no está disponible.')) + ' ') + @json(__('Ingrese los valores manualmente.'))
+                    ));
+                    return;
                 }
+                $.each(MACRO_FIELDS, (field, input) => $(input).val(response.fields[field]));
+                summary.html(macroSummary(response.data));
+            }).fail(function (xhr) {
+                let errors = xhr.responseJSON && xhr.responseJSON.errors;
+                summary.html($('<p class="text-sm text-danger mb-0">').text(
+                    errors ? Object.values(errors).flat().join(' ') : @json(__('No se pudo calcular la distribución; ingrese los valores manualmente.'))
+                ));
+            });
+        }
 
-                let size = $('#input-size').val();
-                let peso = parseFloat($('#input-weight').val());
-                let edad = $('#input-age').val();
-                let sexo = '{{ $patient->gender }}';
-
-                let pulgada = parseFloat(size)/2.54;
-                let pie = pulgada/12;
-
-                let pesoStone = parseFloat(peso)/6.35;
-                let pesoLbs = parseFloat(peso)*2.20;
-
-                let x = calculateAge(edad);
-                let y = calculateWeight(pesoStone, pesoLbs);
-                let z = calculateHeight(pie, pulgada);
-
-                let tmb = finalResult(x, y, z, sexo);
-
-
-                let peso_deseado = (size*size)*imc_deseado;
-
-                let factor = $('#input-physical-activity').val();
-
-                /*(factor) {
-                case 0:
-                    tmb = tmb * 1.2;
-                    break;
-                case 1:
-                    tmb = tmb * 1.375;
-                    break;
-                case 2:
-                    tmb = tmb * 1.55;
-                    break;
-                case 3:
-                    tmb = tmb * 1.925;
-                    break;
-                case 4:
-                    tmb = tmb * 1.9;
-                    break;
-                default:
-                    break;
-                }*/
-                let result_pulgar = peso * imc_deseado;
-
-
-                let carbohidrato = parseFloat(result_pulgar) * 0.50;
-                let gramoCarbohidato = parseFloat(carbohidrato)/4;
-
-                let grasa = parseFloat(result_pulgar) * 0.50;
-                let gramoGrasa = parseFloat(grasa)/9;
-
-                let proteina = parseFloat(result_pulgar) * 0.20;
-                let gramoProteina= parseFloat(proteina)/4;
-
-                let isocal1 = parseFloat(gramoCarbohidato)/3;
-                let isocal2 = parseFloat(gramoGrasa)/3;
-                let isocal3 = parseFloat(gramoProteina)/3;
-
-                $('#input-carbohidrato').val(gramoCarbohidato.toFixed(2));
-
-                $('#input-isocalorico').val(isocal1.toFixed(2));
-                $('#input-isocalorico2').val(isocal2.toFixed(2));
-                $('#input-isocalorico3').val(isocal3.toFixed(2));
-
-                $('#input-lipido').val(gramoGrasa.toFixed(2));
-                $('#input-proteina').val(gramoProteina.toFixed(2));
-
-                $('#input-imc-deseado').val(imc_deseado.toFixed(2));
-                $('#input-result-pulgar').val(result_pulgar.toFixed(2));
-
-                copy();
-            //}
-
+        function macroSummary(plan){
+            let m = plan.macros, e = plan.energy;
+            let box = $('<div class="border border-radius-lg p-3">');
+            box.append($('<p class="text-sm mb-1">').append(
+                $('<strong>').text(e.target + ' kcal/día'),
+                document.createTextNode(` · ${m.carbohydrates.label} ${m.carbohydrates.percent} % · ${m.proteins.label} ${m.proteins.percent} % · ${m.fats.label} ${m.fats.percent} %`)
+            ));
+            plan.rules.forEach(rule => box.append(
+                $('<p class="text-xs mb-0">').append($('<strong>').text(`${rule.rule_id} ${rule.title}: `), document.createTextNode(rule.advice))
+            ));
+            plan.notes.forEach(note => box.append($('<p class="text-xs text-warning mb-0">').text(note)));
+            box.append($('<p class="text-xs text-secondary mb-0 mt-1">').text(@json(__('Sugerencia del sistema experto; puede modificar los valores.'))));
+            return box;
         }
 
         function copy(){
-                let insulina = $('#input-indice-insulina').val();
-                let weight= $('#input-weight').val();
-                let size = $('#input-size').val();
-
-                let actividad_fisica = $('#input-physical-activity').val();
-                let edad = $('#input-age').val();
-                let ingesta = $('#input-caloria').val();
-                let imc = $('#input-imc').val();
-
-                $('#indice-insulina').val(insulina);
-                $('#talla').val(size);
-                $('#peso').val(weight);
-
-                $('#actividad_fisica').val(actividad_fisica);
-                $('#edad').val(edad);
-                $('#ingesta_calorica').val(ingesta);
-                $('#imc').val(imc);
-
-
-            }
-
-            function calculateAge(age){
-                finalAge = age * 5;
-                return finalAge;
-            }
-
-            function calculateHeight(heightFeet, heightInches){
-                let centimeterHeight = ((heightFeet * 12) + heightInches) * 2.54;
-                let finalHeight = centimeterHeight * 6.25;
-                return finalHeight;
-            }
-
-            function calculateWeight(weightStone, weightLbs){
-                let kilogramWeight = ((weightStone * 14) + weightLbs) * 0.453;
-                let finalWeight = kilogramWeight * 10;
-                return finalWeight;
-            }
-
-            function finalResult(x, y, z, gender){
-                    let result = z + y - x;
-                    let resultFinal = 0;
-                    if(gender === 'H') {
-                        return resultFinal = result + 5;
-                    } else {
-                        return resultFinal = result - 161;
-
-                    }
-            }
-
-
+            $('#indice-insulina').val($('#input-indice-insulina').val());
+            $('#talla').val($('#input-size').val());
+            $('#peso').val($('#input-weight').val());
+            $('#actividad_fisica').val($('#input-physical-activity').val());
+            $('#edad').val($('#input-age').val());
+            $('#imc').val($('#input-imc').val());
+        }
     </script>
 @endsection

@@ -95,14 +95,14 @@
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-2">
-                                        <label class="form-control-label" for="input-imc_desired">{{ __('Factor de Corrección') }}</label>
+                                        <label class="form-control-label" for="input-imc_desired">{{ __('Factor de Corrección (kcal/kg)') }}</label>
                                         <input type="text" name="imc_desired" id="input-imc_desired" class="form-control{{ $errors->has('address') ? ' is-invalid' : '' }}" placeholder="{{ __('Factor de Corrección') }}" value="{{ $diagnosis->imc_desired ?? null }}">
 
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
                                     <div class="form-group{{ $errors->has('address') ? ' has-danger' : '' }} col-2">
-                                        <label class="form-control-label" for="input-imc_desired">{{ __('Método del Pulgar') }}</label>
-                                        <input type="text" name="result_pulgar" id="input-result_pulgar" class="form-control{{ $errors->has('result_pulgar') ? ' is-invalid' : '' }}" placeholder="{{ __('Metodo del Pulgar') }}" value="{{ $diagnosis->result_pulgar ?? null }}">
+                                        <label class="form-control-label" for="input-result_pulgar">{{ __('Requerimiento (kcal/día)') }}</label>
+                                        <input type="text" name="result_pulgar" id="input-result_pulgar" class="form-control{{ $errors->has('result_pulgar') ? ' is-invalid' : '' }}" placeholder="{{ __('Requerimiento energético') }}" value="{{ $diagnosis->result_pulgar ?? null }}">
 
                                         @include('alerts.feedback', ['field' => 'address'])
                                     </div>
@@ -123,7 +123,7 @@
                                     <div class="form-group{{ $errors->has('size') ? ' has-danger' : '' }} col-3">
                                         <label class="form-control-label" for="input-size">{{ __('Lipido') }}</label><br>
                                         <div class="input-group">
-                                        <input type="text" name="lipido" id="input-lipido" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ $diagnosis->carbohydrate ?? null }}" required autofocus onchange="calcularIMC()">
+                                        <input type="text" name="lipido" id="input-lipido" class="form-control{{ $errors->has('size') ? ' is-invalid' : '' }}" placeholder="{{ __('Talla') }}" value="{{ $diagnosis->lipido ?? null }}" required autofocus onchange="calcularIMC()">
                                         <span class="input-group-text">gr</span>
                                         </div>
                                     </div>

@@ -129,7 +129,7 @@ class DiagnosisApiTest extends TestCase
                 && $facts['vitals'] === ['systolic_bp' => 128, 'diastolic_bp' => 82]
                 && $facts['labs'] == ['fasting_glucose' => 105, 'fasting_insulin' => 18.2, 'triglycerides' => 180, 'hdl' => 38]
                 && $facts['conditions'] === ['hypertension' => true]
-                && ! array_key_exists('physical_activity', $facts);
+                && $facts['physical_activity'] === 2;
         });
         $this->assertSame(0, Diagnosis::count());
     }

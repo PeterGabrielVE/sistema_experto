@@ -26,6 +26,8 @@ def test_evaluate(client):
     assert body["indices"]["tyg"]["value"] == 9.15
     assert body["assessments"]["metabolic_syndrome"]["status"] == "presente"
     assert body["findings"][0]["severity"] == "alert"
+    assert body["macronutrients"]["status"] == "calculado"
+    assert body["macronutrients"]["macros"]["carbohydrates"]["percent"] <= 45
     assert body["ruleset_version"]
 
 
@@ -41,6 +43,14 @@ def test_rule_catalog(client):
 
     assert {"id": "SM-01", "category": "Síndrome metabólico"}.items() <= body["rules"][4].items()
     assert all(r["source"] for r in body["rules"])
+    assert [r["id"] for r in body["macro_rules"]][:3] == ["MAC-01", "MAC-02", "MAC-03"]
+    assert {r["category"] for r in body["macro_rules"]} == {"Nutrición"}
+
+
+def test_macro_plan_without_data_leaves_optional_keys_out(client):
+    body = client.post("/evaluate", json={"sex": "M"}).json()
+
+    assert body["macronutrients"] == {"status": "indeterminado", "reason": body["macronutrients"]["reason"], "rules": [], "notes": []}
 
 
 @pytest.mark.parametrize(

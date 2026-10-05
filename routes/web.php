@@ -73,6 +73,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:viewAny,'.Diagnosis::class)->group(function () {
         Route::get('diagnosis/{patient}', [DiagnosisController::class, 'create'])->whereNumber('patient')->name('diagnosis.new');
         Route::post('diagnosis', [DiagnosisController::class, 'store'])->name('diagnosis.store');
+        Route::post('diagnosis/{patient}/macros', [DiagnosisController::class, 'macros'])->whereNumber('patient')->name('diagnosis.macros');
         Route::get('diagnoses/all/{patient}', [DiagnosisController::class, 'history'])->name('diagnosis.all');
         Route::get('result/{diagnosis}', [DiagnosisController::class, 'result'])->name('result');
         Route::put('result/{diagnosis}/rule', [DiagnosisController::class, 'updateRule'])->name('diagnosis.rule');

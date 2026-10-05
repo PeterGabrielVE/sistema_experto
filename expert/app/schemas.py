@@ -63,6 +63,9 @@ class RiskFactors(BaseModel):
 class Facts(BaseModel):
     sex: Literal["H", "M"]
     age: int | None = Field(default=None, ge=0, le=130)
+    physical_activity: int | None = Field(
+        default=None, ge=0, le=4, description="0 muy ligera, 1 ligera, 2 moderada, 3 activa, 4 muy activa; for the energy target"
+    )
     anthropometry: Anthropometry = Anthropometry()
     vitals: Vitals = Vitals()
     labs: Labs = Labs()

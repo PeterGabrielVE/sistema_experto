@@ -2,8 +2,8 @@
 
 Four assessments summarize the patient (glycemic status, insulin resistance,
 metabolic syndrome, atherogenic profile); the rules turn facts, indices and assessments into findings
-with evidence and a suggested action. Findings support, never replace, the
-doctor's judgement.
+with evidence and a suggested action, and nutrition.py into a suggested macronutrient
+distribution. Both support, never replace, the professional's judgement.
 """
 
 from __future__ import annotations
@@ -11,11 +11,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Literal
 
-from . import indices
+from . import indices, nutrition
 from .indices import fmt
 from . import thresholds as t
 
-RULESET_VERSION = "2026.10.2"
+RULESET_VERSION = "2026.10.5"
 
 Severity = Literal["info", "warning", "alert"]
 SEVERITY_ORDER = {"alert": 0, "warning": 1, "info": 2}
@@ -383,5 +383,6 @@ def evaluate(facts: dict) -> dict:
         "indices": computed,
         "assessments": ctx["assessments"],
         "findings": findings,
+        "macronutrients": nutrition.macro_plan(ctx),
         "ruleset_version": RULESET_VERSION,
     }

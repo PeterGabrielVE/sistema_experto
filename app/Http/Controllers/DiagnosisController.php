@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ConfirmDiagnosisCategoryRequest;
+use App\Http\Requests\MacroPlanRequest;
 use App\Http\Requests\StoreDiagnosisRequest;
 use App\Models\Diagnosis;
 use App\Models\Patient;
@@ -10,6 +11,7 @@ use App\Services\ClinicalMeasurementService;
 use App\Services\DiagnosisService;
 use App\Services\ExpertDiagnosisService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
 
 class DiagnosisController extends Controller
@@ -30,6 +32,34 @@ class DiagnosisController extends Controller
             'patient' => $patient,
             'anthropometry' => $measurements->latestAnthropometry($patient),
         ]);
+    }
+
+    /**
+     * Suggested macronutrient distribution of the expert service for the consultation
+     * form, with the values of its fields: grams per day, grams per main meal (a third,
+     * used by the meal plan tables), energy target and kcal per kg. data is null when
+     * the service is not configured or fails; the doctor then fills in the fields.
+     */
+    public function macros(MacroPlanRequest $request, Patient $patient, ExpertDiagnosisService $expert): JsonResponse
+    {
+        $plan = $expert->macroPlan($patient, $request->validated());
+
+        if (($plan['status'] ?? null) !== 'calculado') {
+            return response()->json(['data' => $plan, 'fields' => null]);
+        }
+
+        $grams = array_map(fn ($macro) => $macro['grams'], $plan['macros']);
+
+        return response()->json(['data' => $plan, 'fields' => [
+            'carbohydrate' => $grams['carbohydrates'],
+            'lipido' => $grams['fats'],
+            'protein' => $grams['proteins'],
+            'isocaloric_carbohydrate' => round($grams['carbohydrates'] / 3, 2),
+            'isocaloric_lipido' => round($grams['fats'] / 3, 2),
+            'isocaloric_protein' => round($grams['proteins'] / 3, 2),
+            'result_pulgar' => $plan['energy']['target'],
+            'imc_desired' => round($plan['energy']['target'] / $request->validated('weight'), 1),
+        ]]);
     }
 
     public function store(StoreDiagnosisRequest $request)
