@@ -201,7 +201,7 @@
                                 </div>
 
                                 <div class="text-center">
-                                    <a href="{{ route('download', ['diagnosis' => $diagnosis, 'variante' => $variant ?: null]) }}" class="btn btn-info mt-4" target="_blank">{{ __('Descargar') }}</a>
+                                    <a href="{{ route('download', ['diagnosis' => $diagnosis, 'variante' => $variant ?: null, 'dias' => $days > 1 ? $days : null]) }}" class="btn btn-info mt-4" target="_blank">{{ __('Descargar') }}</a>
                                 </div>
                             </div>
                         </form>
@@ -209,6 +209,12 @@
                             @csrf
                             @method('PUT')
                         </form>
+                        @if ($savedPlan)
+                            <form id="meal-plan-discard-form" method="post" action="{{ route('meal-plan.destroy', $diagnosis) }}">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+                        @endif
 
                         @can('viewClinicalRecord', $patient)
                             @includeWhen($expert, 'diagnoses._expert-evaluation')

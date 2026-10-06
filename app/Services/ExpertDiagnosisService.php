@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\ClinicalMeasurement;
 use App\Models\ClinicalRecord;
 use App\Models\Diagnosis;
-use App\Models\Food;
 use App\Models\LabResult;
 use App\Models\MacroRule;
 use App\Models\Patient;
@@ -97,61 +96,29 @@ class ExpertDiagnosisService
     }
 
     /**
-     * Daily menu by linear programming (MealPlan in expert/app/responses.py) for the energy
-     * and grams the doctor set in the consultation, with the food catalog. The glycemic load
-     * and saturated fat ceilings come from the patient's macronutrient plan (general ones
-     * when there is none). null when the consultation has no targets or the service is not
+     * POST /meal-plan (MealPlanRequest in expert/app/schemas.py): menus by linear
+     * programming. MealPlanService builds the request. null when the service is not
      * configured or fails.
      *
-     * @param  int  $variant  another variant, another menu with the same targets
-     * @param  array|null  $evaluation  evaluate() of the consultation, when already at hand
+     * @param  array  $context  added to the log entries
      */
-    public function mealPlan(Diagnosis $diagnosis, int $variant = 0, ?array $evaluation = null): ?array
+    public function requestMealPlan(array $payload, array $context = []): ?array
     {
-        $targets = [
-            'energy' => (float) $diagnosis->result_pulgar,
-            'carbohydrates' => (float) $diagnosis->carbohydrate,
-            'proteins' => (float) $diagnosis->protein,
-            'fats' => (float) $diagnosis->lipido,
-        ];
-        if (! config('services.expert.url') || $targets['energy'] < 800 || in_array(0.0, $targets, true)) {
+        if (! config('services.expert.url')) {
             return null;
         }
 
-        $foods = Food::all()->map(fn (Food $food) => [
-            'id' => $food->id,
-            'name' => $food->name ?: $food->item,
-            'item' => $food->item,
-            'grams' => (float) $food->gr ?: null,
-            'kcal' => (float) $food->kcal,
-            'protein' => (float) $food->protein,
-            'fat' => (float) $food->lipid,
-            'saturated_fat' => $food->saturated_fat === null ? null : (float) $food->saturated_fat,
-            'cho' => (float) $food->cho,
-            'glycemic_index' => $food->glycemic_index === null ? null : (int) $food->glycemic_index,
-        ])->all();
-
-        $evaluation ??= ($patient = Patient::find($diagnosis->id_patient)) ? $this->evaluate($diagnosis, $patient) : null;
-        $limits = collect($evaluation['result']['macronutrients']['limits'] ?? [])
-            ->only(['glycemic_load', 'saturated_fat'])
-            ->map(fn (array $limit) => $limit['amount']);
-
         try {
-            // The solver may take a few seconds (time limit in shared/clinical_thresholds.json).
-            $response = $this->client()->timeout(max((int) config('services.expert.timeout'), 10))
-                ->post('/meal-plan', [
-                    'targets' => $targets,
-                    'foods' => $foods,
-                    'limits' => (object) $limits->all(),
-                    'seed' => $diagnosis->id * 1000 + $variant,
-                ]);
+            // The solver takes up to a few seconds per day (time limit in shared/clinical_thresholds.json).
+            $timeout = max((int) config('services.expert.timeout'), 10) * max(1, (int) ($payload['days'] ?? 1));
+            $response = $this->client()->timeout($timeout)->post('/meal-plan', $payload);
 
-            if ($response->successful() && is_array($response->json('meals'))) {
+            if ($response->successful() && is_array($response->json('days'))) {
                 return $response->json();
             }
 
             Log::warning('Expert service returned an invalid meal plan', [
-                'diagnosis' => $diagnosis->id,
+                ...$context,
                 'status' => $response->status(),
                 'errors' => $response->status() === 422 ? $response->json('detail') : null,
             ]);

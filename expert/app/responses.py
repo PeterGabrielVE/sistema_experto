@@ -186,12 +186,18 @@ class Meal(BaseModel):
     totals: NutrientsAndQuality
 
 
+class MealDay(BaseModel):
+    day: int
+    meals: list[Meal]
+    totals: NutrientsAndQuality
+    deviation_percent: Nutrients = Field(description="(total - target) / target × 100")
+    notes: list[str]
+
+
 class MealPlan(BaseModel):
     status: Literal["optimo", "factible", "sin_solucion", "sin_alimentos"]
     seed: int | None = None
     targets: Nutrients | None = None
     limits: Quality | None = Field(default=None, description="Daily ceilings applied")
-    totals: NutrientsAndQuality | None = None
-    deviation_percent: Nutrients | None = Field(default=None, description="(total - target) / target × 100")
-    meals: list[Meal]
-    notes: list[str]
+    days: list[MealDay] = Field(description="One menu per day; the same targets every day")
+    notes: list[str] = Field(description="About the whole plan; each day has its own")

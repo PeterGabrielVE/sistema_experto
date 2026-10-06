@@ -6,6 +6,7 @@ use App\Http\Controllers\DiagnosisController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\MacroRuleController;
+use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProfileController;
@@ -80,6 +81,10 @@ Route::middleware('auth')->group(function () {
         Route::get('result/{diagnosis}', [DiagnosisController::class, 'result'])->name('result');
         Route::put('result/{diagnosis}/rule', [DiagnosisController::class, 'updateRule'])->name('diagnosis.rule');
         Route::get('download/{diagnosis}', [DiagnosisController::class, 'download'])->name('download');
+        // Menu proposal of the consultation: editor, save, back to the automatic one.
+        Route::get('result/{diagnosis}/menu', [MealPlanController::class, 'edit'])->name('meal-plan.edit');
+        Route::put('result/{diagnosis}/menu', [MealPlanController::class, 'update'])->name('meal-plan.update');
+        Route::delete('result/{diagnosis}/menu', [MealPlanController::class, 'destroy'])->name('meal-plan.destroy');
 
         // Dashboard series (JSON, MonthlyCountResource).
         Route::get('diagnoses/chart', [StatisticsController::class, 'diagnoses'])->name('diagnoses/chart');

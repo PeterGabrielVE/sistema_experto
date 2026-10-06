@@ -129,8 +129,18 @@ el servicio responde.
   80 si una regla configurada lo fija) o el general (120 y 10 % de la energía). Para eso `foods` tiene
   `glycemic_index` y `saturated_fat` (g por porción), con valores de referencia aproximados en
   [database/data/food_quality.php](database/data/food_quality.php) que usan la migración y `FoodsSeeder`.
-  La página de resultado y el PDF muestran este plan (reemplaza las antiguas tablas de equivalencias);
-  *Otra variante* (`?variante=n`) da otro menú con las mismas metas y el PDF descarga la misma variante.
+  Para que los menús sean naturales hay topes por grupo y comida (una fruta, un aceite, dos lácteos),
+  porciones mínimas (carnes, verduras y cereales desde 1 porción) y topes por alimento (huevo: 2).
+  Con `days` (hasta 7) genera un menú por día; cada día resuelve su propio modelo y encarece lo que ya
+  usaron los días anteriores, así la semana varía en estructura y no solo en nombres.
+- **Propuesta de menú de la consulta** ([app/Services/MealPlanService.php](app/Services/MealPlanService.php)):
+  la página de resultado muestra la propuesta guardada o, si no hay, una generada (*Otra variante*,
+  1/3/7 días). *Revisar y guardar* abre el editor (`/result/{id}/menu`): por día y comida se cambia el
+  alimento (cualquiera del catálogo), las porciones (de a media) o se agregan y quitan alimentos, se copian
+  o quitan días, viendo en vivo los totales contra las metas y los topes. Al guardar, el servidor recalcula
+  todo desde el catálogo y lo guarda en `meal_plans` (una por consulta, marcada si se ajustó a mano). La
+  página y el PDF muestran siempre lo guardado, aunque cambien el catálogo o las reglas; *Generar nueva
+  propuesta* parte de cero y *Descartar* vuelve a la automática. Solo médicos editan.
   Requiere que la consulta tenga requerimiento energético y gramos de carbohidratos, proteínas y lípidos.
 - La página de resultado de la consulta muestra la evaluación al equipo médico. Usa las mediciones y
   exámenes asociados a la consulta o, si no hay, los últimos del paciente hasta la fecha de la consulta,

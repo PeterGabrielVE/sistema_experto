@@ -152,7 +152,7 @@
     },
 
     "meal_plan": {
-        "_about": "Generación del plan alimentario por programación lineal entera (expert/app/meal_plan.py). Dentro de tolerance_percent el desvío no se penaliza; fuera, con weights. Las porciones son de intercambio (foods.gr); se eligen en medias porciones. items = valores de foods.item; include_names/exclude_names: alimentos por nombre (sin tildes ni mayúsculas); required: cada lista de grupos debe tener al menos media porción en la comida.",
+        "_about": "Generación del plan alimentario por programación lineal entera (expert/app/meal_plan.py). Dentro de tolerance_percent el desvío no se penaliza; fuera, con weights. Las porciones son de intercambio (foods.gr); se eligen en medias porciones. items = valores de foods.item; include_names/exclude_names: alimentos por nombre (sin tildes ni mayúsculas); required: cada lista de grupos debe tener al menos media porción en la comida. group_portions_per_meal: porciones máximas de un grupo en una comida; min_portions: porción mínima de un alimento elegido; max_portions_per_food.by_name: tope por comida de alimentos puntuales. Con varios días, variety_days encarece repetir lo usado en días anteriores.",
         "meals": [
             {"key": "desayuno", "label": "Desayuno", "energy_share": 20, "items": ["Pan", "Lácteos", "Frutas", "Aceites", "Carnes"], "required": [["Pan", "Cereales"], ["Lácteos", "Frutas"]], "include_names": ["Avena", "Galletas"], "exclude_names": ["Aceite", "Carne de Vacuno", "Cerdo", "Pollo", "Pavo", "Pescados", "Mariscos", "Atun", "Carne Vegetal"]},
             {"key": "colacion_matutina", "label": "Colación matutina", "energy_share": 10, "items": ["Frutas", "Lácteos"], "include_names": ["Galletas", "Almendras", "Avellana", "Mani", "Nuez", "Pistacho"]},
@@ -171,9 +171,12 @@
             "Aceites": [1, 6]
         },
         "foods_per_meal": {"default": 1, "Verduras": 2},
-        "max_portions_per_food": {"meal": 3, "day": 4},
+        "group_portions_per_meal": {"default": 3, "Frutas": 1, "Aceites": 1, "Lácteos": 2, "Pan": 2, "Legumbres": 1},
+        "min_portions": {"default": 0.5, "Carnes": 1, "Verduras": 1, "Cereales": 1},
+        "max_portions_per_food": {"meal": 3, "day": 4, "by_name": {"Huevo": 2, "Clara de Huevo": 2}},
+        "max_days": 7,
         "tolerance_percent": {"energy": 3, "carbohydrates": 5, "proteins": 5, "fats": 5, "meal_energy": 10},
-        "weights": {"energy": 3, "carbohydrates": 2, "proteins": 2, "fats": 2, "meal_energy": 1, "glycemic_load": 2, "saturated_fat": 2, "variety": 0.002},
+        "weights": {"energy": 3, "carbohydrates": 2, "proteins": 2, "fats": 2, "meal_energy": 1, "glycemic_load": 2, "saturated_fat": 2, "variety": 0.002, "variety_days": 0.02},
         "mip_rel_gap": 0.2,
         "time_limit_seconds": 5,
         "source": "Porciones de intercambio y guías alimentarias (GABA Chile): al menos 3 porciones de verduras y 2 de frutas, 2 a 3 lácteos y legumbres hasta 1 porción diaria. Reparto de energía: desayuno 20 %, colación 10 %, almuerzo 30 %, once 15 %, cena 25 %."

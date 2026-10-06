@@ -10,6 +10,7 @@ use App\Models\Patient;
 use App\Services\ClinicalMeasurementService;
 use App\Services\DiagnosisService;
 use App\Services\ExpertDiagnosisService;
+use App\Services\MealPlanService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -89,7 +90,7 @@ class DiagnosisController extends Controller
         ]);
     }
 
-    public function result(Request $request, Diagnosis $diagnosis, ExpertDiagnosisService $expert)
+    public function result(Request $request, Diagnosis $diagnosis, ExpertDiagnosisService $expert, MealPlanService $plans)
     {
         Gate::authorize('view', $diagnosis);
 
@@ -100,29 +101,27 @@ class DiagnosisController extends Controller
             ? $expert->evaluate($diagnosis, $data['patient'])
             : null;
 
-        // Generated menu; ?variante=n gives another one with the same targets.
-        $data['variant'] = $this->variant($request);
-        $data['mealPlan'] = $expert->mealPlan($diagnosis, $data['variant'], $data['expert']);
+        // The saved menu proposal, otherwise a generated one (?variante=n, ?dias=n).
+        $data['variant'] = MealPlanController::variant($request);
+        $data['days'] = MealPlanController::days($request);
+        $data['savedPlan'] = $diagnosis->mealPlan()->with('author')->first();
+        $data['mealPlan'] = $data['savedPlan']?->plan ?? $plans->generate($diagnosis, $data['variant'], $data['days'], $data['expert']);
 
         return view('diagnoses.result', $data);
     }
 
     /**
-     * The result as PDF, with the same menu variant shown on the page.
+     * The result as PDF, with the saved menu proposal or the same generated one shown on the page.
      */
-    public function download(Request $request, Diagnosis $diagnosis, ExpertDiagnosisService $expert)
+    public function download(Request $request, Diagnosis $diagnosis, MealPlanService $plans)
     {
         Gate::authorize('view', $diagnosis);
 
         return Pdf::loadView('result-pdf', [
             ...$this->diagnoses->resultData($diagnosis),
-            'mealPlan' => $expert->mealPlan($diagnosis, $this->variant($request)),
+            'mealPlan' => $diagnosis->mealPlan?->plan
+                ?? $plans->generate($diagnosis, MealPlanController::variant($request), MealPlanController::days($request)),
         ])->stream('diagnostico-'.$diagnosis->id.'.pdf');
-    }
-
-    private function variant(Request $request): int
-    {
-        return min(max((int) $request->query('variante', 0), 0), 999);
     }
 
     public function updateRule(ConfirmDiagnosisCategoryRequest $request, Diagnosis $diagnosis)

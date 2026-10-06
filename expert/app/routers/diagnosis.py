@@ -40,5 +40,5 @@ def generate_meal_plan(request: MealPlanRequest) -> dict:
     best meet the energy and macronutrient targets within the dietary guideline constraints and the
     glycemic load and saturated fat ceilings."""
     return meal_plan.generate(
-        request.targets.model_dump(), [f.model_dump() for f in request.foods], request.seed, request.limits.model_dump()
+        request.targets.model_dump(), [f.model_dump() for f in request.foods], request.seed, request.limits.model_dump(), request.days
     )

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Diagnosis extends Model
 {
@@ -23,6 +24,14 @@ class Diagnosis extends Model
     public function measurements(): HasMany
     {
         return $this->hasMany(ClinicalMeasurement::class);
+    }
+
+    /**
+     * Menu proposal saved for this consultation.
+     */
+    public function mealPlan(): HasOne
+    {
+        return $this->hasOne(MealPlan::class);
     }
 
     /**

@@ -157,3 +157,4 @@ class MealPlanRequest(BaseModel):
     foods: list[Food] = Field(min_length=1, max_length=500)
     limits: MealPlanLimits = MealPlanLimits()
     seed: int = Field(default=0, ge=0, le=1_000_000, description="Another seed, another menu with the same targets")
+    days: int = Field(default=1, ge=1, le=t.MEAL_PLAN["max_days"], description="Menus to generate, different from each other")

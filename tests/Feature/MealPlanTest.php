@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Diagnosis;
 use App\Models\Food;
+use App\Models\MealPlan;
 use App\Models\Patient;
 use App\Models\User;
 use Database\Seeders\RulesSeeder;
@@ -45,86 +46,78 @@ class MealPlanTest extends TestCase
         Food::create(['id_group' => 3, 'name' => 'Pan Marraqueta', 'item' => 'Pan', 'portion' => '1', 'kcal' => '140', 'protein' => '3', 'lipid' => '1', 'saturated_fat' => 0.2, 'cho' => '30', 'glycemic_index' => 75, 'clna_mg' => '0', 'k_mg' => '0', 'p_mg' => '0', 'ca_mg' => '0', 'gr' => '50']);
     }
 
-    /**
-     * A trimmed response of POST /meal-plan (expert/app/meal_plan.py).
-     */
-    private function plan(): array
+    private function day(int $number, string $food = 'Pollo'): array
     {
-        $nutrients = ['energy' => 1750, 'carbohydrates' => 197, 'proteins' => 88, 'fats' => 68];
-
         return [
-            'status' => 'optimo', 'seed' => 1000, 'targets' => $nutrients,
-            'limits' => ['glycemic_load' => 100, 'saturated_fat' => 14],
+            'day' => $number,
             'totals' => ['energy' => 1762.5, 'carbohydrates' => 195, 'proteins' => 87.5, 'fats' => 66, 'glycemic_load' => 91.4, 'saturated_fat' => 13.9],
             'deviation_percent' => ['energy' => 0.7, 'carbohydrates' => -1, 'proteins' => -0.6, 'fats' => -2.9],
             'meals' => [[
                 'key' => 'almuerzo', 'label' => 'Almuerzo', 'energy_target' => 525,
                 'items' => [
-                    ['food_id' => 1, 'name' => 'Pollo', 'group' => 'Carnes', 'portions' => 2.5, 'grams' => 125, 'energy' => 162.5, 'carbohydrates' => 2.5, 'proteins' => 27.5, 'fats' => 5],
-                    ['food_id' => 2, 'name' => 'Aceite de Oliva', 'group' => 'Aceites', 'portions' => 0.5, 'grams' => null, 'energy' => 90, 'carbohydrates' => 0, 'proteins' => 0, 'fats' => 7.5],
+                    ['food_id' => 1, 'name' => $food, 'group' => 'Carnes', 'portions' => 2.5, 'grams' => 125, 'energy' => 162.5, 'carbohydrates' => 2.5, 'proteins' => 27.5, 'fats' => 5, 'glycemic_load' => 0, 'saturated_fat' => 1.3],
+                    ['food_id' => 2, 'name' => 'Aceite de Oliva', 'group' => 'Aceites', 'portions' => 0.5, 'grams' => null, 'energy' => 90, 'carbohydrates' => 0, 'proteins' => 0, 'fats' => 7.5, 'glycemic_load' => 0, 'saturated_fat' => 1.1],
                 ],
-                'totals' => ['energy' => 252.5, 'carbohydrates' => 2.5, 'proteins' => 27.5, 'fats' => 12.5],
+                'totals' => ['energy' => 252.5, 'carbohydrates' => 2.5, 'proteins' => 27.5, 'fats' => 12.5, 'glycemic_load' => 0, 'saturated_fat' => 2.4],
             ]],
+            'notes' => [],
+        ];
+    }
+
+    /**
+     * A trimmed response of POST /meal-plan (expert/app/meal_plan.py).
+     */
+    private function plan(int $days = 1): array
+    {
+        return [
+            'status' => 'optimo', 'seed' => 1000,
+            'targets' => ['energy' => 1750, 'carbohydrates' => 197, 'proteins' => 88, 'fats' => 68],
+            'limits' => ['glycemic_load' => 100, 'saturated_fat' => 14],
+            'days' => array_map(fn ($n) => $this->day($n, $n === 1 ? 'Pollo' : 'Pavo del día '.$n), range(1, $days)),
             'notes' => ['Sin valores nutricionales, no se usan: Mote Crudo.'],
         ];
     }
 
-    public function test_result_page_shows_the_generated_plan(): void
+    private function sentPlanRequests(): array
+    {
+        return array_values(array_filter(
+            Http::recorded()->map(fn ($pair) => $pair[0])->all(),
+            fn (Request $request) => $request->url() === 'http://expert:8000/meal-plan'
+        ));
+    }
+
+    public function test_result_page_shows_the_generated_proposal(): void
     {
         Http::fake(['expert:8000/meal-plan' => Http::response($this->plan()), '*' => Http::response([], 503)]);
 
         $this->actingAs($this->doctor)->get("/result/{$this->diagnosis->id}")
             ->assertOk()
-            ->assertSeeInOrder(['Plan alimentario generado', 'Otra variante', 'Energía', '1.762,5 kcal', '/ 1.750', '+0,7 %'])
+            ->assertSeeInOrder(['Propuesta de menú', 'Sin guardar', 'Revisar y guardar', 'Otra variante', '1 día', '3 días', '7 días'])
+            ->assertSeeInOrder(['Energía', '1.762,5 kcal', '/ 1.750', '+0,7 %', 'Carga glucémica', '91,4', 'máx. 100'])
             ->assertSeeInOrder(['Almuerzo', '252,5 / 525 kcal', 'Pollo:', '125 g', '2,5 porciones', 'Aceite de Oliva:', '0,5 porciones'])
-            ->assertSeeInOrder(['Carga glucémica', '91,4', 'máx. 100', 'Grasa saturada', '13,9 g', 'máx. 14'])
-            ->assertSee('Sin valores nutricionales, no se usan: Mote Crudo.')
-            ->assertSee(route('result', ['diagnosis' => $this->diagnosis, 'variante' => 1]), false);
+            ->assertSee('Sin valores nutricionales, no se usan: Mote Crudo.');
 
-        Http::assertSent(function (Request $request) {
-            $body = json_decode($request->body(), true);
-
-            return $request->url() === 'http://expert:8000/meal-plan'
-                && $body['targets'] == ['energy' => 1750, 'carbohydrates' => 197, 'proteins' => 88, 'fats' => 68]
-                && $body['seed'] === $this->diagnosis->id * 1000
-                && $body['foods'][0] == ['id' => 1, 'name' => 'Pollo', 'item' => 'Carnes', 'grams' => 50, 'kcal' => 65, 'protein' => 11, 'fat' => 2, 'saturated_fat' => 0.5, 'cho' => 1, 'glycemic_index' => null]
-                && $body['foods'][1]['grams'] === null
-                && $body['foods'][2]['glycemic_index'] === 75
-                && $body['limits'] === [];  // no macronutrient plan: the service uses the general ceilings
-        });
+        [$request] = $this->sentPlanRequests();
+        $body = json_decode($request->body(), true);
+        $this->assertEquals(['energy' => 1750, 'carbohydrates' => 197, 'proteins' => 88, 'fats' => 68], $body['targets']);
+        $this->assertSame([$this->diagnosis->id * 1000, 1], [$body['seed'], $body['days']]);
+        $this->assertEquals(['id' => 1, 'name' => 'Pollo', 'item' => 'Carnes', 'grams' => 50, 'kcal' => 65, 'protein' => 11, 'fat' => 2, 'saturated_fat' => 0.5, 'cho' => 1, 'glycemic_index' => null], $body['foods'][0]);
+        // No macronutrient plan (the evaluation failed): the general ceilings.
+        $this->assertEquals(['glycemic_load' => 120, 'saturated_fat' => 19], $body['limits']);
     }
 
-    public function test_variant_changes_the_seed(): void
+    public function test_several_days_and_variant(): void
     {
-        Http::fake(['expert:8000/meal-plan' => Http::response($this->plan()), '*' => Http::response([], 503)]);
+        Http::fake(['expert:8000/meal-plan' => Http::response($this->plan(3)), '*' => Http::response([], 503)]);
 
-        $this->actingAs($this->doctor)->get("/result/{$this->diagnosis->id}?variante=3")
+        $this->actingAs($this->doctor)->get("/result/{$this->diagnosis->id}?dias=3&variante=2")
             ->assertOk()
-            ->assertSee(route('result', ['diagnosis' => $this->diagnosis, 'variante' => 4]), false);
+            ->assertSeeInOrder(['Día 1', 'Día 2', 'Día 3'])
+            ->assertSee('Pavo del día 3')
+            ->assertSee(e(route('download', ['diagnosis' => $this->diagnosis, 'variante' => 2, 'dias' => 3])), false);
 
-        Http::assertSent(fn (Request $request) => $request->url() !== 'http://expert:8000/meal-plan'
-            || json_decode($request->body(), true)['seed'] === $this->diagnosis->id * 1000 + 3);
-    }
-
-    public function test_without_targets_the_plan_is_not_requested(): void
-    {
-        $this->diagnosis->update(['result_pulgar' => null]);
-        Http::fake(['*' => Http::response([], 503)]);
-
-        $this->actingAs($this->doctor)->get("/result/{$this->diagnosis->id}")
-            ->assertOk()
-            ->assertSee('la consulta necesita requerimiento energético');
-
-        Http::assertNotSent(fn (Request $request) => str_ends_with($request->url(), '/meal-plan'));
-    }
-
-    public function test_service_down(): void
-    {
-        Http::fake(['*' => Http::response([], 500)]);
-
-        $this->actingAs($this->doctor)->get("/result/{$this->diagnosis->id}")
-            ->assertOk()
-            ->assertSee('El sistema experto no está disponible para generar el plan.');
+        $body = json_decode($this->sentPlanRequests()[0]->body(), true);
+        $this->assertSame([$this->diagnosis->id * 1000 + 2, 3], [$body['seed'], $body['days']]);
     }
 
     public function test_ceilings_come_from_the_macronutrient_plan(): void
@@ -141,38 +134,75 @@ class MealPlanTest extends TestCase
                 'fats' => ['label' => 'Grasas', 'percent' => 35, 'grams' => 65, 'kcal' => 585],
             ],
             'limits' => [
-            'saturated_fat' => ['label' => 'Grasas saturadas', 'comparator' => 'max', 'amount' => 14, 'unit' => 'g', 'percent' => 7],
-            'sodium' => ['label' => 'Sodio', 'comparator' => 'max', 'amount' => 1500, 'unit' => 'mg'],
-            'glycemic_load' => ['label' => 'Carga glucémica', 'comparator' => 'max', 'amount' => 100, 'unit' => ''],
-        ]]];
+                'saturated_fat' => ['label' => 'Grasas saturadas', 'comparator' => 'max', 'amount' => 14, 'unit' => 'g', 'percent' => 7],
+                'sodium' => ['label' => 'Sodio', 'comparator' => 'max', 'amount' => 1500, 'unit' => 'mg'],
+                'glycemic_load' => ['label' => 'Carga glucémica', 'comparator' => 'max', 'amount' => 80, 'unit' => ''],
+            ]]];
         Http::fake(['expert:8000/evaluate' => Http::response($evaluation), 'expert:8000/meal-plan' => Http::response($this->plan())]);
 
         $this->actingAs($this->doctor)->get("/result/{$this->diagnosis->id}")->assertOk();
 
-        Http::assertSent(fn (Request $request) => $request->url() !== 'http://expert:8000/meal-plan'
-            || json_decode($request->body(), true)['limits'] === ['saturated_fat' => 14, 'glycemic_load' => 100]);
-        // The evaluation of the page is reused: a single /evaluate.
-        Http::assertSentCount(2);
+        $body = json_decode($this->sentPlanRequests()[0]->body(), true);
+        $this->assertEquals(['glycemic_load' => 80, 'saturated_fat' => 14], $body['limits']);
+        Http::assertSentCount(2); // the evaluation of the page is reused
     }
 
-    public function test_pdf_has_the_plan_of_the_variant(): void
+    public function test_saved_proposal_is_shown_instead_of_generating_one(): void
+    {
+        MealPlan::create(['diagnosis_id' => $this->diagnosis->id, 'plan' => $this->plan(), 'edited' => true, 'created_by' => $this->doctor->id]);
+        Http::fake(['*' => Http::response([], 503)]);
+
+        $this->actingAs($this->doctor)->get("/result/{$this->diagnosis->id}")
+            ->assertOk()
+            ->assertSeeInOrder(['Propuesta de menú', 'Guardada', 'por '.$this->doctor->name, 'ajustada a mano', 'Ajustar', 'Generar nueva propuesta', 'Descartar'])
+            ->assertSee('Pollo:')
+            ->assertDontSee('Otra variante');
+
+        $this->assertSame([], $this->sentPlanRequests());
+
+        // The PDF has the saved proposal too.
+        $this->actingAs($this->doctor)->get("/download/{$this->diagnosis->id}")->assertOk();
+        $this->assertSame([], $this->sentPlanRequests());
+    }
+
+    public function test_pdf_view_lists_the_days(): void
+    {
+        $html = view('diagnoses._meal-plan-pdf', ['mealPlan' => $this->plan(2)])->render();
+
+        $this->assertStringContainsString('Día 2', $html);
+        $this->assertStringContainsString('Pavo del día 2', $html);
+        $this->assertStringContainsString('125 g', $html);
+        $this->assertStringContainsString('Carga glucémica 91,4', $html);
+    }
+
+    public function test_pdf_generates_the_same_variant(): void
     {
         Http::fake(['expert:8000/meal-plan' => Http::response($this->plan()), '*' => Http::response([], 503)]);
 
-        $this->actingAs($this->doctor)->get("/download/{$this->diagnosis->id}?variante=2")->assertOk();
+        $this->actingAs($this->doctor)->get("/download/{$this->diagnosis->id}?variante=2&dias=3")->assertOk();
 
-        Http::assertSent(fn (Request $request) => $request->url() !== 'http://expert:8000/meal-plan'
-            || json_decode($request->body(), true)['seed'] === $this->diagnosis->id * 1000 + 2);
+        $body = json_decode($this->sentPlanRequests()[0]->body(), true);
+        $this->assertSame([$this->diagnosis->id * 1000 + 2, 3], [$body['seed'], $body['days']]);
     }
 
-    public function test_pdf_view_lists_the_meals(): void
+    public function test_without_targets_nothing_is_requested(): void
     {
-        $html = view('diagnoses._meal-plan-pdf', ['mealPlan' => $this->plan()])->render();
+        $this->diagnosis->update(['result_pulgar' => null]);
+        Http::fake(['*' => Http::response([], 503)]);
 
-        $this->assertStringContainsString('Almuerzo', $html);
-        $this->assertStringContainsString('125 g', $html);
-        $this->assertStringContainsString('0,5 porciones', $html);
-        $this->assertStringContainsString('Carga glucémica 91,4', $html);
+        $this->actingAs($this->doctor)->get("/result/{$this->diagnosis->id}")
+            ->assertOk()
+            ->assertSee('la consulta necesita requerimiento energético');
+        $this->assertSame([], $this->sentPlanRequests());
+    }
+
+    public function test_service_down(): void
+    {
+        Http::fake(['*' => Http::response([], 500)]);
+
+        $this->actingAs($this->doctor)->get("/result/{$this->diagnosis->id}")
+            ->assertOk()
+            ->assertSee('El sistema experto no está disponible para generar la propuesta.');
     }
 
     public function test_old_exchange_tables_are_gone(): void

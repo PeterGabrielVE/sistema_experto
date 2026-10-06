@@ -131,6 +131,11 @@ def test_meal_plan(client):
     body = client.post("/meal-plan", json=payload).json()
 
     assert body["status"] == "optimo"
-    assert len(body["meals"]) == 5
-    assert body["meals"][0]["items"][0]["portions"] > 0
+    assert len(body["days"]) == 1
+    assert len(body["days"][0]["meals"]) == 5
+    assert body["days"][0]["meals"][0]["items"][0]["portions"] > 0
     assert client.post("/meal-plan", json={**payload, "targets": {**payload["targets"], "energy": 100}}).status_code == 422
+
+    week = client.post("/meal-plan", json={**payload, "days": 3}).json()
+    assert [d["day"] for d in week["days"]] == [1, 2, 3]
+    assert client.post("/meal-plan", json={**payload, "days": 8}).status_code == 422
