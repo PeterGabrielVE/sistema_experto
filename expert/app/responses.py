@@ -152,3 +152,46 @@ class Evaluation(BaseModel):
     findings: list[Finding] = Field(description="Sorted by severity: alert, warning, info")
     macronutrients: MacroPlan = Field(description="Suggested energy target and macronutrient distribution (adults)")
     ruleset_version: str
+
+
+class Nutrients(BaseModel):
+    energy: float = Field(description="kcal")
+    carbohydrates: float = Field(description="g")
+    proteins: float = Field(description="g")
+    fats: float = Field(description="g")
+
+
+class Quality(BaseModel):
+    glycemic_load: float
+    saturated_fat: float = Field(description="g")
+
+
+class NutrientsAndQuality(Nutrients, Quality):
+    pass
+
+
+class MealItem(NutrientsAndQuality):
+    food_id: int
+    name: str
+    group: str
+    portions: float = Field(description="Exchange portions, in halves")
+    grams: int | None = Field(description="null when the food has no grams per portion (oils: spoons)")
+
+
+class Meal(BaseModel):
+    key: str
+    label: str
+    energy_target: int = Field(description="kcal of the meal's share")
+    items: list[MealItem]
+    totals: NutrientsAndQuality
+
+
+class MealPlan(BaseModel):
+    status: Literal["optimo", "factible", "sin_solucion", "sin_alimentos"]
+    seed: int | None = None
+    targets: Nutrients | None = None
+    limits: Quality | None = Field(default=None, description="Daily ceilings applied")
+    totals: NutrientsAndQuality | None = None
+    deviation_percent: Nutrients | None = Field(default=None, description="(total - target) / target × 100")
+    meals: list[Meal]
+    notes: list[str]

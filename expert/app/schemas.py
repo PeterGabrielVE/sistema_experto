@@ -119,3 +119,41 @@ class EvaluationRequest(Facts):
     """Body of /evaluate: the facts plus the macronutrient rules configured in the app."""
 
     macro_rules: list[ConfiguredMacroRule] = Field(default=[], max_length=100)
+
+
+class MealPlanTargets(BaseModel):
+    """Daily targets of the consultation (the doctor's values in the form)."""
+
+    energy: float = Field(ge=800, le=6000, description="kcal/day")
+    carbohydrates: float = Field(ge=0, le=1000, description="g/day")
+    proteins: float = Field(ge=0, le=400, description="g/day")
+    fats: float = Field(ge=0, le=400, description="g/day")
+
+
+class Food(BaseModel):
+    """An exchange portion of the food catalog (Laravel foods table)."""
+
+    id: int
+    name: str = Field(max_length=120)
+    item: str = Field(max_length=60, description="Food group as in foods.item: Pan, Cereales, Carnes, Verduras…")
+    grams: float | None = Field(default=None, ge=0, le=1000, description="Grams per portion; null or 0 when measured otherwise")
+    kcal: float = Field(ge=0, le=2000)
+    protein: float = Field(ge=0, le=200)
+    fat: float = Field(ge=0, le=200)
+    saturated_fat: float | None = Field(default=None, ge=0, le=200, description="g per portion")
+    cho: float = Field(ge=0, le=500)
+    glycemic_index: float | None = Field(default=None, ge=0, le=150, description="Glucose = 100; null without carbohydrates to speak of")
+
+
+class MealPlanLimits(BaseModel):
+    """Daily ceilings, usually the limits of the patient's macronutrient plan; missing: the general ones."""
+
+    glycemic_load: float | None = Field(default=None, ge=20, le=300)
+    saturated_fat: float | None = Field(default=None, ge=5, le=200, description="g/day")
+
+
+class MealPlanRequest(BaseModel):
+    targets: MealPlanTargets
+    foods: list[Food] = Field(min_length=1, max_length=500)
+    limits: MealPlanLimits = MealPlanLimits()
+    seed: int = Field(default=0, ge=0, le=1_000_000, description="Another seed, another menu with the same targets")

@@ -96,3 +96,6 @@ GLYCEMIC_LOAD = _n["glycemic_load"]
 
 # Macronutrient rules configured in the app: variables, operators and allowed range of each action.
 CONFIGURABLE = _t["configurable_macro_rules"]
+
+# Meal plan by linear programming.
+MEAL_PLAN = _t["meal_plan"]

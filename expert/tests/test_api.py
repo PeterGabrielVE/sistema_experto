@@ -120,3 +120,17 @@ def test_evaluate_with_configured_macro_rules(client):
 def test_rejects_invalid_macro_rules(client, rule):
     payload = {**PAYLOAD, "macro_rules": [{"id": "CFG-1", "title": "Regla", **rule}]}
     assert client.post("/evaluate", json=payload).status_code == 422
+
+
+def test_meal_plan(client):
+    import json
+    from pathlib import Path
+
+    foods = json.loads((Path(__file__).parent / "fixtures" / "foods.json").read_text(encoding="utf-8"))
+    payload = {"targets": {"energy": 2000, "carbohydrates": 250, "proteins": 100, "fats": 67}, "foods": foods, "seed": 3}
+    body = client.post("/meal-plan", json=payload).json()
+
+    assert body["status"] == "optimo"
+    assert len(body["meals"]) == 5
+    assert body["meals"][0]["items"][0]["portions"] > 0
+    assert client.post("/meal-plan", json={**payload, "targets": {**payload["targets"], "energy": 100}}).status_code == 422

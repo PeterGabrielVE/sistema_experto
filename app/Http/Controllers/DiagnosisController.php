@@ -12,6 +12,7 @@ use App\Services\DiagnosisService;
 use App\Services\ExpertDiagnosisService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class DiagnosisController extends Controller
@@ -88,7 +89,7 @@ class DiagnosisController extends Controller
         ]);
     }
 
-    public function result(Diagnosis $diagnosis, ExpertDiagnosisService $expert)
+    public function result(Request $request, Diagnosis $diagnosis, ExpertDiagnosisService $expert)
     {
         Gate::authorize('view', $diagnosis);
 
@@ -99,15 +100,29 @@ class DiagnosisController extends Controller
             ? $expert->evaluate($diagnosis, $data['patient'])
             : null;
 
+        // Generated menu; ?variante=n gives another one with the same targets.
+        $data['variant'] = $this->variant($request);
+        $data['mealPlan'] = $expert->mealPlan($diagnosis, $data['variant'], $data['expert']);
+
         return view('diagnoses.result', $data);
     }
 
-    public function download(Diagnosis $diagnosis)
+    /**
+     * The result as PDF, with the same menu variant shown on the page.
+     */
+    public function download(Request $request, Diagnosis $diagnosis, ExpertDiagnosisService $expert)
     {
         Gate::authorize('view', $diagnosis);
 
-        return Pdf::loadView('result-pdf', $this->diagnoses->resultData($diagnosis))
-            ->stream('diagnostico-'.$diagnosis->id.'.pdf');
+        return Pdf::loadView('result-pdf', [
+            ...$this->diagnoses->resultData($diagnosis),
+            'mealPlan' => $expert->mealPlan($diagnosis, $this->variant($request)),
+        ])->stream('diagnostico-'.$diagnosis->id.'.pdf');
+    }
+
+    private function variant(Request $request): int
+    {
+        return min(max((int) $request->query('variante', 0), 0), 999);
     }
 
     public function updateRule(ConfirmDiagnosisCategoryRequest $request, Diagnosis $diagnosis)

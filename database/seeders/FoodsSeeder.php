@@ -102,5 +102,10 @@ class FoodsSeeder extends Seeder
         Food::create(['id_group'=>'10','name'=>'Aceite de Pepita','item'=>'Aceites', 'portion'=>'3', 'kcal'=>'180', 'protein'=>'0', 'lipid'=>'15', 'cho'=>'0', 'clna_mg'=>'0', 'k_mg'=>'0', 'p_mg'=>'0', 'ca_mg'=>'0','gr'=>'0']);
         
 
+
+        // Glycemic index and saturated fat per portion (the same values the migration fills in).
+        foreach (require database_path('data/food_quality.php') as $name => [$glycemicIndex, $saturatedFat]) {
+            Food::where('name', $name)->update(['glycemic_index' => $glycemicIndex, 'saturated_fat' => $saturatedFat]);
+        }
     }
 }

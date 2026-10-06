@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Events\DiagnosisCategoryConfirmed;
 use App\Events\DiagnosisCreated;
 use App\Models\Diagnosis;
-use App\Models\Food;
 use App\Models\Patient;
 use App\Models\Recommendation;
 use App\Models\User;
@@ -66,26 +65,16 @@ class DiagnosisService
     }
 
     /**
-     * Everything the result page and the PDF need to render the meal plan.
+     * Everything the result page and the PDF need, but the generated meal plan
+     * (ExpertDiagnosisService::mealPlan).
      */
     public function resultData(Diagnosis $diagnosis): array
     {
         $rule = $this->categoryOf($diagnosis);
-        $oils = [72, 73, 74];
 
         return [
             'diagnosis' => $diagnosis,
             'patient' => Patient::findOrFail($diagnosis->id_patient),
-            'foods' => Food::all(),
-            'cereales' => Food::whereIn('item', ['Cereales', 'Pan'])->get(),
-            'lacteos' => Food::where('item', 'Lácteos')->get(),
-            'cereal_leg' => Food::whereIn('item', ['Cereales', 'Pan', 'Legumbres'])->get(),
-            'verduras' => Food::where('item', 'Verduras')->get(),
-            'proteins' => Food::where('id_group', 4)->get(),
-            'proteinas' => Food::whereIn('id', [3, 4, 7])->get(),
-            'aceites' => Food::whereIn('id', $oils)->get(),
-            'lipids' => Food::where('id_group', 10)->whereNotIn('id', $oils)->get(),
-            'lipidos' => Food::where('id_group', 10)->get(),
             'rule' => $rule,
             'categories' => InferenceEngine::CATEGORIES,
             'recomendations' => Recommendation::where('id_rule', $rule)->get(),

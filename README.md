@@ -68,6 +68,7 @@ el servicio responde.
 | `POST /evaluate` | Índices, evaluaciones y hallazgos de la consulta |
 | `POST /indices` | Solo los índices |
 | `GET /rules` | Catálogo de reglas (id, criterio, fuente), incluidas las de macronutrientes (`macro_rules`) |
+| `POST /meal-plan` | Menú del día por programación lineal entera (metas, catálogo de alimentos y semilla) |
 | `GET /health` | Estado y versión de las reglas (sin token) |
 
 - **Índices:** IMC, cintura/talla, cintura/cadera, HOMA-IR, índice TyG, TG/HDL, colesterol no HDL,
@@ -113,6 +114,24 @@ el servicio responde.
   (tabla `macro_rules`) se envían en `macro_rules` con cada `POST /evaluate` y se aplican después de las
   `MAC-xx` con la misma combinación (gana el valor más restrictivo; el ajuste de energía se suma). Si
   falta el dato, la regla no se aplica. En la evaluación aparecen como `CFG-<id>` con `configured: true`.
+- **Plan alimentario por programación lineal** ([expert/app/meal_plan.py](expert/app/meal_plan.py),
+  `scipy.optimize.milp` con HiGHS): elige medias porciones de intercambio del catálogo `foods` para
+  desayuno, colación, almuerzo, once y cena, de modo que el día cumpla el requerimiento y los gramos de
+  la consulta (±3 % energía, ±5 % macronutrientes, ±10 % la energía de cada comida; fuera de esa banda el
+  desvío se minimiza). Restricciones (en `meal_plan` de `shared/clinical_thresholds.json`): alimentos
+  permitidos por comida, grupos obligatorios (verduras y proteína en almuerzo y cena, pan o cereal al
+  desayuno y once), porciones diarias por grupo según las guías (≥ 3 verduras, 2-4 frutas, 2-3 lácteos,
+  legumbres hasta 1), un alimento por grupo y comida (dos verduras) y porciones máximas por alimento.
+  Como los alimentos de un grupo de intercambio son equivalentes, el modelo decide por grupo y perfil
+  nutricional y después asigna alimentos concretos con una semilla, sin repetirlos en el día; resuelve
+  en menos de un segundo. La carga glucémica del día (índice glicémico × carbohidratos / 100) y la grasa
+  saturada tienen un máximo: el del plan de macronutrientes del paciente (por ejemplo, carga glucémica
+  80 si una regla configurada lo fija) o el general (120 y 10 % de la energía). Para eso `foods` tiene
+  `glycemic_index` y `saturated_fat` (g por porción), con valores de referencia aproximados en
+  [database/data/food_quality.php](database/data/food_quality.php) que usan la migración y `FoodsSeeder`.
+  La página de resultado y el PDF muestran este plan (reemplaza las antiguas tablas de equivalencias);
+  *Otra variante* (`?variante=n`) da otro menú con las mismas metas y el PDF descarga la misma variante.
+  Requiere que la consulta tenga requerimiento energético y gramos de carbohidratos, proteínas y lípidos.
 - La página de resultado de la consulta muestra la evaluación al equipo médico. Usa las mediciones y
   exámenes asociados a la consulta o, si no hay, los últimos del paciente hasta la fecha de la consulta,
   además de la ficha clínica ([app/Services/ExpertDiagnosisService.php](app/Services/ExpertDiagnosisService.php)).

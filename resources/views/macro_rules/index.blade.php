@@ -45,30 +45,30 @@
                     @foreach ($rules as $rule)
                       <tr>
                         <td class="text-xs">{{ $rule->code() }}</td>
-                        <td>
+                        <td class="text-wrap" style="min-width: 180px;">
                           {{ $rule->name }}
                           @if ($rule->advice)
                             <p class="text-xs text-secondary mb-0">{{ $rule->advice }}</p>
                           @endif
                         </td>
                         <td>{{ $rule->condition() }}</td>
-                        <td class="text-sm">{{ $rule->effects() }}</td>
+                        <td class="text-sm text-wrap" style="min-width: 220px;">{{ $rule->effects() }}</td>
                         <td>
                           <span class="badge bg-gradient-{{ $rule->active ? 'success' : 'secondary' }}">{{ $rule->active ? __('Activa') : __('Inactiva') }}</span>
                         </td>
-                        <td class="text-right">
+                        <td class="text-right text-nowrap">
                           @can('update', $rule)
-                            <a href="{{ route('macro-rules.edit', $rule) }}" class="btn btn-success btn-icon btn-sm" title="{{ __('Editar') }}">
-                              <i class="now-ui-icons ui-2_settings-90"></i>
+                            <a href="{{ route('macro-rules.edit', $rule) }}" class="btn btn-success btn-sm mb-0" title="{{ __('Editar') }}" aria-label="{{ __('Editar') }}">
+                              <i class="fas fa-pen" aria-hidden="true"></i>
                             </a>
                           @endcan
                           @can('delete', $rule)
                             <form action="{{ route('macro-rules.destroy', $rule) }}" method="post" style="display:inline-block;">
                               @csrf
                               @method('delete')
-                              <button type="button" class="btn btn-danger btn-icon btn-sm" title="{{ __('Eliminar') }}"
+                              <button type="button" class="btn btn-danger btn-sm mb-0" title="{{ __('Eliminar') }}" aria-label="{{ __('Eliminar') }}"
                                 onclick="confirm('{{ __('¿Está seguro de que desea eliminar esta regla?') }}') ? this.parentElement.submit() : ''">
-                                <i class="now-ui-icons ui-1_simple-remove"></i>
+                                <i class="fas fa-trash" aria-hidden="true"></i>
                               </button>
                             </form>
                           @endcan
