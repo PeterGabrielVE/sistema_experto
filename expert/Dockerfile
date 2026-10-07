@@ -9,8 +9,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
-# Shared clinical cut-offs (compose: additional_contexts.shared = ./shared).
-COPY --from=shared clinical_thresholds.json ./shared/
+# Shared clinical cut-offs and food catalog (compose: additional_contexts.shared = ./shared).
+COPY --from=shared clinical_thresholds.json food_catalog.csv ./shared/
 COPY tests ./tests
 
 RUN useradd --system --uid 1000 app

@@ -13,11 +13,11 @@ from pathlib import Path
 TITLE = "Sistema experto - servicio de diagnóstico"
 
 
-def _default_thresholds_path() -> Path:
+def _shared(name: str) -> Path:
     here = Path(__file__).resolve()
     # Docker image: /service/shared; repository checkout: <repo>/shared.
     candidates = [here.parents[1] / "shared", here.parents[2] / "shared"]
-    return next((c for c in candidates if c.is_dir()), candidates[-1]) / "clinical_thresholds.json"
+    return next((c for c in candidates if c.is_dir()), candidates[-1]) / name
 
 
 @dataclass(frozen=True)
@@ -26,11 +26,15 @@ class Settings:
     token: str
     # Clinical cut-offs shared with Laravel and the inference service.
     thresholds_path: Path
+    # Food composition catalog (exchange portions), also imported by Laravel into foods.
+    food_catalog_path: Path
 
 
 def get_settings() -> Settings:
-    path = os.environ.get("CLINICAL_THRESHOLDS_PATH")
+    thresholds = os.environ.get("CLINICAL_THRESHOLDS_PATH")
+    catalog = os.environ.get("FOOD_CATALOG_PATH")
     return Settings(
         token=os.environ.get("EXPERT_TOKEN", ""),
-        thresholds_path=Path(path) if path else _default_thresholds_path(),
+        thresholds_path=Path(thresholds) if thresholds else _shared("clinical_thresholds.json"),
+        food_catalog_path=Path(catalog) if catalog else _shared("food_catalog.csv"),
     )

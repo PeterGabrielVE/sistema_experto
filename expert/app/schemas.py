@@ -145,6 +145,24 @@ class Food(BaseModel):
     glycemic_index: float | None = Field(default=None, ge=0, le=150, description="Glucose = 100; null without carbohydrates to speak of")
 
 
+class CatalogFood(Food):
+    """A row of the food composition catalog (shared/food_catalog.csv): the exchange portion plus
+    the minerals of the foods table. Minerals per portion, null when unknown."""
+
+    group_id: int = Field(ge=1, description="foods.id_group")
+    portion: str = Field(default="1", max_length=20, description="Household measure as in foods.portion")
+    sodium_mg: float | None = Field(default=None, ge=0, le=10_000)
+    potassium_mg: float | None = Field(default=None, ge=0, le=10_000)
+    phosphorus_mg: float | None = Field(default=None, ge=0, le=10_000)
+    calcium_mg: float | None = Field(default=None, ge=0, le=10_000)
+
+    @model_validator(mode="after")
+    def saturated_within_fat(self) -> CatalogFood:
+        if self.saturated_fat is not None and self.saturated_fat > self.fat:
+            raise ValueError("saturated_fat cannot exceed fat")
+        return self
+
+
 class MealPlanLimits(BaseModel):
     """Daily ceilings, usually the limits of the patient's macronutrient plan; missing: the general ones."""
 
@@ -154,7 +172,9 @@ class MealPlanLimits(BaseModel):
 
 class MealPlanRequest(BaseModel):
     targets: MealPlanTargets
-    foods: list[Food] = Field(min_length=1, max_length=500)
+    foods: list[Food] | None = Field(
+        default=None, min_length=1, max_length=500, description="Omitted: the service's catalog (shared/food_catalog.csv)"
+    )
     limits: MealPlanLimits = MealPlanLimits()
     seed: int = Field(default=0, ge=0, le=1_000_000, description="Another seed, another menu with the same targets")
     days: int = Field(default=1, ge=1, le=t.MEAL_PLAN["max_days"], description="Menus to generate, different from each other")

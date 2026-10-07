@@ -139,3 +139,30 @@ def test_meal_plan(client):
     week = client.post("/meal-plan", json={**payload, "days": 3}).json()
     assert [d["day"] for d in week["days"]] == [1, 2, 3]
     assert client.post("/meal-plan", json={**payload, "days": 8}).status_code == 422
+
+
+def test_food_catalog(client):
+    body = client.get("/foods").json()
+
+    assert body["groups"]["Verduras"] == len([f for f in body["foods"] if f["item"] == "Verduras"])
+    assert {"id", "name", "item", "kcal", "glycemic_index", "sodium_mg"} <= set(body["foods"][0])
+    assert isinstance(body["warnings"], list)
+
+
+def test_meal_plan_with_the_service_catalog(client):
+    targets = {"energy": 2000, "carbohydrates": 250, "proteins": 100, "fats": 67}
+    body = client.post("/meal-plan", json={"targets": targets, "seed": 3}).json()
+
+    assert body["status"] in ("optimo", "factible")
+    assert body["days"][0]["meals"][0]["items"]
+
+
+def test_catalog_unavailable(client, monkeypatch, tmp_path):
+    monkeypatch.setenv("FOOD_CATALOG_PATH", str(tmp_path / "missing.csv"))
+
+    response = client.get("/foods")
+
+    assert response.status_code == 503
+    assert response.json()["detail"]["errors"][0].startswith("No se encontró")
+    targets = {"energy": 2000, "carbohydrates": 250, "proteins": 100, "fats": 67}
+    assert client.post("/meal-plan", json={"targets": targets}).status_code == 503

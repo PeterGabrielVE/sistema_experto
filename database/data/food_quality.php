@@ -5,7 +5,8 @@
  * catalog, by foods.name. Approximate reference values: GI from the international tables
  * (Atkinson et al., Am J Clin Nutr 2021); saturated fat as the usual saturated share of
  * each food applied to the fat of its exchange portion. null GI: no carbohydrates to speak of.
- * Used by the migration that adds the columns and by FoodsSeeder.
+ * Used by the migration that adds the columns; the catalog itself, with these values, is
+ * shared/food_catalog.csv (php artisan foods:import).
  *
  * @return array<string, array{0: int|null, 1: float}>
  */

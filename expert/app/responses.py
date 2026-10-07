@@ -12,6 +12,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from .rules import Severity
+from .schemas import CatalogFood
 
 
 class Health(BaseModel):
@@ -201,3 +202,9 @@ class MealPlan(BaseModel):
     limits: Quality | None = Field(default=None, description="Daily ceilings applied")
     days: list[MealDay] = Field(description="One menu per day; the same targets every day")
     notes: list[str] = Field(description="About the whole plan; each day has its own")
+
+
+class FoodCatalog(BaseModel):
+    foods: list[CatalogFood] = Field(description="Exchange portions, in catalog order")
+    groups: dict[str, int] = Field(description="Foods per group")
+    warnings: list[str] = Field(description="Data to review: duplicates, energy that does not match the macronutrients…")

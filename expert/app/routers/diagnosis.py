@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
-from .. import indices, meal_plan, nutrition, rules
-from ..responses import Evaluation, Indices, MealPlan, RuleCatalog
+from .. import catalog, indices, meal_plan, nutrition, rules
+from ..responses import Evaluation, FoodCatalog, Indices, MealPlan, RuleCatalog
 from ..schemas import EvaluationRequest, Facts, MealPlanRequest
 from ..security import require_token
 
@@ -38,7 +38,21 @@ def evaluate(facts: EvaluationRequest) -> dict:
 def generate_meal_plan(request: MealPlanRequest) -> dict:
     """Daily menu by integer linear programming: exchange portions of the given foods per meal that
     best meet the energy and macronutrient targets within the dietary guideline constraints and the
-    glycemic load and saturated fat ceilings."""
-    return meal_plan.generate(
-        request.targets.model_dump(), [f.model_dump() for f in request.foods], request.seed, request.limits.model_dump(), request.days
-    )
+    glycemic load and saturated fat ceilings. Without foods, the service's catalog."""
+    foods = [f.model_dump() for f in request.foods] if request.foods is not None else _catalog().foods
+    return meal_plan.generate(request.targets.model_dump(), foods, request.seed, request.limits.model_dump(), request.days)
+
+
+@router.get("/foods", response_model=FoodCatalog)
+def food_catalog() -> dict:
+    """The food composition catalog (shared/food_catalog.csv): nutrients per exchange portion,
+    and the data to review."""
+    loaded = _catalog()
+    return {"foods": loaded.foods, "groups": loaded.groups(), "warnings": loaded.warnings}
+
+
+def _catalog() -> catalog.Catalog:
+    try:
+        return catalog.load()
+    except catalog.CatalogError as e:
+        raise HTTPException(status_code=503, detail={"message": "Catálogo de alimentos no disponible", "errors": e.errors}) from e

@@ -127,12 +127,23 @@ el servicio responde.
   en menos de un segundo. La carga glucémica del día (índice glicémico × carbohidratos / 100) y la grasa
   saturada tienen un máximo: el del plan de macronutrientes del paciente (por ejemplo, carga glucémica
   80 si una regla configurada lo fija) o el general (120 y 10 % de la energía). Para eso `foods` tiene
-  `glycemic_index` y `saturated_fat` (g por porción), con valores de referencia aproximados en
-  [database/data/food_quality.php](database/data/food_quality.php) que usan la migración y `FoodsSeeder`.
+  `glycemic_index` y `saturated_fat` (g por porción), con valores de referencia aproximados (índice
+  glicémico de las tablas internacionales, Atkinson et al. 2021) en el catálogo de alimentos.
   Para que los menús sean naturales hay topes por grupo y comida (una fruta, un aceite, dos lácteos),
   porciones mínimas (carnes, verduras y cereales desde 1 porción) y topes por alimento (huevo: 2).
   Con `days` (hasta 7) genera un menú por día; cada día resuelve su propio modelo y encarece lo que ya
   usaron los días anteriores, así la semana varía en estructura y no solo en nombres.
+- **Catálogo de composición nutricional** ([shared/food_catalog.csv](shared/food_catalog.csv)): una fila
+  por porción de intercambio con `id`, nombre, grupo, gramos, energía, proteínas, grasas, grasa saturada,
+  carbohidratos, índice glicémico y sodio, potasio, fósforo y calcio (mg); celda vacía = dato desconocido,
+  se acepta coma decimal. Es la fuente única: `php artisan foods:import` (también `FoodsSeeder`) lo carga en
+  la tabla `foods` por `id` y conserva los alimentos que ya no están en el archivo, porque los menús
+  guardados los referencian; si una fila está mal no escribe nada y lista cada error con su línea. El
+  servicio `expert` lo lee con [expert/app/catalog.py](expert/app/catalog.py) (se recarga si el archivo
+  cambia): `GET /foods` lo devuelve con los datos a revisar (nombres repetidos, energía que no calza con
+  4/4/9 kcal/g, carbohidratos sin índice glicémico, grupos que el generador no usa) y `POST /meal-plan`
+  sin `foods` genera con él. Laravel sigue enviando `foods` desde la tabla, así el editor y el generador
+  usan los mismos alimentos.
 - **Propuesta de menú de la consulta** ([app/Services/MealPlanService.php](app/Services/MealPlanService.php)):
   la página de resultado muestra la propuesta guardada o, si no hay, una generada (*Otra variante*,
   1/3/7 días). *Revisar y guardar* abre el editor (`/result/{id}/menu`): por día y comida se cambia el
@@ -153,7 +164,7 @@ el servicio responde.
   en producción, regenerar la caché de configuración de Laravel.
 - La meta de LDL depende del riesgo: ≥ 160 mg/dL en general y ≥ 100 mg/dL con diabetes registrada (ADA).
 - **Estructura:** `main.py` crea la app; los endpoints están en `routers/` (`health.py`, `diagnosis.py`);
-  `config.py` lee las variables de entorno (`EXPERT_TOKEN`, `CLINICAL_THRESHOLDS_PATH`); `security.py` valida
+  `config.py` lee las variables de entorno (`EXPERT_TOKEN`, `CLINICAL_THRESHOLDS_PATH`, `FOOD_CATALOG_PATH`); `security.py` valida
   el token; `schemas.py` y `responses.py` definen los cuerpos de entrada y de respuesta. La documentación
   OpenAPI queda en `/docs` y `/openapi.json` dentro de la red de Docker.
 - `EXPERT_TOKEN` (en `.env`) protege la API. Tests: `docker compose exec expert python -m pytest tests`.
