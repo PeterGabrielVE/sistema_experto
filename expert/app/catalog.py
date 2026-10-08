@@ -19,13 +19,13 @@ from pydantic import ValidationError
 
 from . import thresholds as t
 from .config import get_settings
-from .meal_plan import _plain
 from .schemas import CatalogFood
+from .text import plain as _plain
 
 # CSV column -> CatalogFood field; the rest are named alike.
 RENAMED = {"group": "item"}
 REQUIRED = ["id", "name", "group", "group_id", "kcal", "protein", "fat", "cho"]
-TEXT = {"name", "item", "portion"}
+TEXT = {"name", "item", "portion", "allergens"}
 # kcal per gram of carbohydrates, proteins and fats; a portion further than this from its own
 # declared energy is reported.
 ATWATER = {"cho": 4, "protein": 4, "fat": 9}
@@ -118,6 +118,15 @@ def check(foods: list[dict]) -> list[str]:
     no_gi = [f["name"] for f in foods if f["glycemic_index"] is None and f["cho"] >= 5]
     if no_gi:
         warnings.append(f"Sin índice glicémico, no suman a la carga glucémica: {', '.join(no_gi)}.")
+
+    vocabulary = t.MEAL_PLAN["allergens"]
+    unknown_tags = sorted({tag for f in foods for tag in f["allergens"] if tag not in vocabulary})
+    if unknown_tags:
+        warnings.append(f"Alérgenos fuera del vocabulario de las pautas (meal_plan.allergens), no se usan al excluir: {', '.join(unknown_tags)}.")
+
+    no_price = [f["name"] for f in foods if f["price"] is None and f["kcal"] > 0]
+    if no_price:
+        warnings.append(f"Sin precio, el generador no los usa cuando hay presupuesto: {', '.join(no_price)}.")
 
     cfg = t.MEAL_PLAN
     known = {_plain(g) for g in cfg["daily_portions"]} | {_plain(i) for meal in cfg["meals"] for i in meal["items"]}

@@ -31,6 +31,8 @@ class FoodCatalogImporter
         'saturated_fat' => 'saturated_fat',
         'cho' => 'cho',
         'glycemic_index' => 'glycemic_index',
+        'allergens' => 'allergens',
+        'price' => 'price',
         'sodium_mg' => 'clna_mg',
         'potassium_mg' => 'k_mg',
         'phosphorus_mg' => 'p_mg',
@@ -109,7 +111,7 @@ class FoodCatalogImporter
             $invalid = [];
             foreach ($values as $column => $value) {
                 $field = self::COLUMNS[$column];
-                if (in_array($column, ['name', 'group', 'portion'], true)) {
+                if (in_array($column, ['name', 'group', 'portion', 'allergens'], true)) {
                     $row[$field] = $value === '' ? null : $value;
 
                     continue;

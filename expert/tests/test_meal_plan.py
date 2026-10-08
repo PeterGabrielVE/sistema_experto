@@ -148,3 +148,61 @@ def test_foods_without_glycemic_index_are_reported():
     used_bread = any(i["group"] == "Pan" for m in day["meals"] for i in m["items"])
 
     assert any("Sin índice glicémico" in n for n in day["notes"]) == used_bread
+
+
+@pytest.fixture(scope="module")
+def priced():
+    from app import catalog
+
+    return catalog.load().foods
+
+
+def test_reports_the_cost_of_each_food_and_day(priced):
+    day = meal_plan.generate(TARGETS, priced, seed=1)["days"][0]
+    items = [i for m in day["meals"] for i in m["items"]]
+    prices = {f["id"]: f["price"] for f in priced}
+
+    assert all(i["cost"] == round(i["portions"] * prices[i["food_id"]]) for i in items)
+    assert day["cost"] == pytest.approx(sum(i["cost"] for i in items), abs=1)
+
+
+def test_without_prices_there_is_no_cost(plan):
+    assert plan["days"][0]["cost"] is None
+    assert plan["restrictions"]["budget"] is None
+
+
+def test_a_budget_lowers_the_cost_and_keeps_the_targets(priced):
+    free = meal_plan.generate(TARGETS, priced, seed=1, days=3)
+    budget = 5000
+    tight = meal_plan.generate(TARGETS, priced, seed=1, days=3, budget=budget)
+
+    assert tight["restrictions"]["budget"] == budget
+    assert max(d["cost"] for d in free["days"]) > budget  # the budget binds
+    for day in tight["days"]:
+        assert day["cost"] <= budget * 1.01, day["day"]
+        assert abs(day["deviation_percent"]["energy"]) <= CFG["tolerance_percent"]["energy"] + 0.3
+        assert not any("presupuesto" in n for n in day["notes"])
+
+
+def test_a_budget_too_low_is_exceeded_as_little_as_possible(priced):
+    plan = meal_plan.generate(TARGETS, priced, seed=1, budget=1000)
+    day = plan["days"][0]
+
+    assert day["cost"] > 1000
+    assert any(n.startswith("Cuesta $") and "sobre el presupuesto de $1.000" in n for n in day["notes"])
+
+
+def test_with_a_budget_foods_without_price_are_left_out(priced):
+    foods = [{**f, "price": None} if f["name"] == "Pollo" else f for f in priced]
+    plan = meal_plan.generate(TARGETS, foods, seed=1, days=3, budget=8000)
+
+    assert "Pollo" not in {i["name"] for d in plan["days"] for m in d["meals"] for i in m["items"]}
+    assert any(n == "Sin precio, no se usan con presupuesto: Pollo." for n in plan["notes"])
+
+
+def test_allergies_and_budget_together(priced):
+    plan = meal_plan.generate(TARGETS, priced, seed=1, days=2, budget=5500, allergies=["intolerancia a la lactosa"])
+
+    for day in plan["days"]:
+        assert day["cost"] <= 5500 * 1.01
+        assert not [i for m in day["meals"] for i in m["items"] if "lactosa" in next(f for f in priced if f["id"] == i["food_id"])["allergens"]]

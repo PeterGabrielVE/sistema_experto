@@ -115,7 +115,7 @@ el servicio responde.
   `MAC-xx` con la misma combinación (gana el valor más restrictivo; el ajuste de energía se suma). Si
   falta el dato, la regla no se aplica. En la evaluación aparecen como `CFG-<id>` con `configured: true`.
 - **Plan alimentario por programación lineal** ([expert/app/meal_plan.py](expert/app/meal_plan.py),
-  `scipy.optimize.milp` con HiGHS): elige medias porciones de intercambio del catálogo `foods` para
+  PuLP con el solver HiGHS): elige medias porciones de intercambio del catálogo `foods` para
   desayuno, colación, almuerzo, once y cena, de modo que el día cumpla el requerimiento y los gramos de
   la consulta (±3 % energía, ±5 % macronutrientes, ±10 % la energía de cada comida; fuera de esa banda el
   desvío se minimiza). Restricciones (en `meal_plan` de `shared/clinical_thresholds.json`): alimentos
@@ -133,9 +133,18 @@ el servicio responde.
   porciones mínimas (carnes, verduras y cereales desde 1 porción) y topes por alimento (huevo: 2).
   Con `days` (hasta 7) genera un menú por día; cada día resuelve su propio modelo y encarece lo que ya
   usaron los días anteriores, así la semana varía en estructura y no solo en nombres.
+  **Alergias** ([expert/app/allergies.py](expert/app/allergies.py)): `allergies` recibe etiquetas
+  (`gluten`) o el texto libre de la ficha clínica ("celíaca, alergia al maní"); reconoce los alérgenos
+  del vocabulario `meal_plan.allergens` (gluten, lactosa, leche, huevo, soya, maní, frutos secos,
+  pescado, mariscos) y los alimentos nombrados (kiwi), y deja fuera esos alimentos antes de optimizar:
+  es una restricción dura. Lo que no reconoce se informa para revisarlo a mano. **Presupuesto**:
+  `budget` (CLP por día) limita el costo del día con el `price` por porción del catálogo; superarlo pesa
+  más que alejarse de las metas, y si las pautas no caben en él el plan lo dice. Cada alimento y día
+  trae su `cost`. Laravel envía las alergias de la ficha y el presupuesto del editor (`?presupuesto=`).
 - **Catálogo de composición nutricional** ([shared/food_catalog.csv](shared/food_catalog.csv)): una fila
   por porción de intercambio con `id`, nombre, grupo, gramos, energía, proteínas, grasas, grasa saturada,
-  carbohidratos, índice glicémico y sodio, potasio, fósforo y calcio (mg); celda vacía = dato desconocido,
+  carbohidratos, índice glicémico, alérgenos (`allergens`, etiquetas separadas por `;`), precio
+  referencial en CLP por porción (`price`, a actualizar) y sodio, potasio, fósforo y calcio (mg); celda vacía = dato desconocido,
   se acepta coma decimal. Es la fuente única: `php artisan foods:import` (también `FoodsSeeder`) lo carga en
   la tabla `foods` por `id` y conserva los alimentos que ya no están en el archivo, porque los menús
   guardados los referencian; si una fila está mal no escribe nada y lista cada error con su línea. El

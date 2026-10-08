@@ -177,6 +177,7 @@ class MealItem(NutrientsAndQuality):
     group: str
     portions: float = Field(description="Exchange portions, in halves")
     grams: int | None = Field(description="null when the food has no grams per portion (oils: spoons)")
+    cost: float | None = Field(default=None, description="CLP; null when the food has no price")
 
 
 class Meal(BaseModel):
@@ -191,8 +192,17 @@ class MealDay(BaseModel):
     day: int
     meals: list[Meal]
     totals: NutrientsAndQuality
+    cost: float | None = Field(default=None, description="CLP of the day; null when a food has no price")
     deviation_percent: Nutrients = Field(description="(total - target) / target × 100")
     notes: list[str]
+
+
+class Restrictions(BaseModel):
+    allergens: list[str] = Field(description="Allergen tags recognized in the allergies (meal_plan.allergens)")
+    foods: list[str] = Field(description="Words of the allergies matched against food names (kiwi)")
+    excluded_foods: list[str] = Field(description="Foods left out by the allergies")
+    unrecognized: list[str] = Field(description="Allergies that name no allergen or food of the catalog: to review by hand")
+    budget: float | None = Field(description="CLP per day")
 
 
 class MealPlan(BaseModel):
@@ -200,6 +210,7 @@ class MealPlan(BaseModel):
     seed: int | None = None
     targets: Nutrients | None = None
     limits: Quality | None = Field(default=None, description="Daily ceilings applied")
+    restrictions: Restrictions | None = None
     days: list[MealDay] = Field(description="One menu per day; the same targets every day")
     notes: list[str] = Field(description="About the whole plan; each day has its own")
 

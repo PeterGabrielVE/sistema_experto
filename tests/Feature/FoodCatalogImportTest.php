@@ -37,6 +37,17 @@ class FoodCatalogImportTest extends TestCase
         $this->assertNull($oil->gr);
         $this->assertEquals(0, $oil->clna_mg);
         $this->assertEquals(140, Food::where('name', 'Mote Crudo')->value('kcal'));
+        // Allergen tags and the price per portion, for the meal plan generator.
+        $this->assertSame('leche;lactosa', Food::where('name', 'Yogurt Natural o Diet')->value('allergens'));
+        $this->assertNull(Food::where('name', 'Quinoa Cruda')->value('allergens'));
+        $this->assertEquals(125, $bread->price);
+    }
+
+    public function test_imports_a_catalog_without_allergens_or_prices(): void
+    {
+        app(FoodCatalogImporter::class)->import($this->csv('1,Pollo,Carnes,4,1,50,65,11,2,0.5,1,,,,,'));
+
+        $this->assertSame([null, null], [Food::find(1)->allergens, Food::find(1)->price]);
     }
 
     public function test_updates_by_id_and_keeps_foods_that_are_not_in_the_file(): void

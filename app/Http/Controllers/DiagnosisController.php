@@ -101,11 +101,11 @@ class DiagnosisController extends Controller
             ? $expert->evaluate($diagnosis, $data['patient'])
             : null;
 
-        // The saved menu proposal, otherwise a generated one (?variante=n, ?dias=n).
+        // The saved menu proposal, otherwise a generated one (?variante=n, ?dias=n, ?presupuesto=CLP).
         $data['variant'] = MealPlanController::variant($request);
         $data['days'] = MealPlanController::days($request);
         $data['savedPlan'] = $diagnosis->mealPlan()->with('author')->first();
-        $data['mealPlan'] = $data['savedPlan']?->plan ?? $plans->generate($diagnosis, $data['variant'], $data['days'], $data['expert']);
+        $data['mealPlan'] = $data['savedPlan']?->plan ?? $plans->generate($diagnosis, $data['variant'], $data['days'], $data['expert'], MealPlanController::budget($request));
 
         return view('diagnoses.result', $data);
     }
@@ -120,7 +120,7 @@ class DiagnosisController extends Controller
         return Pdf::loadView('result-pdf', [
             ...$this->diagnoses->resultData($diagnosis),
             'mealPlan' => $diagnosis->mealPlan?->plan
-                ?? $plans->generate($diagnosis, MealPlanController::variant($request), MealPlanController::days($request)),
+                ?? $plans->generate($diagnosis, MealPlanController::variant($request), MealPlanController::days($request), budget: MealPlanController::budget($request)),
         ])->stream('diagnostico-'.$diagnosis->id.'.pdf');
     }
 

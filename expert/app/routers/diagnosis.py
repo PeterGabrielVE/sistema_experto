@@ -36,11 +36,13 @@ def evaluate(facts: EvaluationRequest) -> dict:
 
 @router.post("/meal-plan", response_model=MealPlan, response_model_exclude_unset=True)
 def generate_meal_plan(request: MealPlanRequest) -> dict:
-    """Daily menu by integer linear programming: exchange portions of the given foods per meal that
-    best meet the energy and macronutrient targets within the dietary guideline constraints and the
-    glycemic load and saturated fat ceilings. Without foods, the service's catalog."""
+    """Daily menu by integer linear programming (PuLP): exchange portions of the given foods per meal
+    that best meet the energy and macronutrient targets within the dietary guideline constraints, the
+    glycemic load and saturated fat ceilings and the budget, never with foods the patient is allergic
+    or intolerant to. Without foods, the service's catalog."""
     foods = [f.model_dump() for f in request.foods] if request.foods is not None else _catalog().foods
-    return meal_plan.generate(request.targets.model_dump(), foods, request.seed, request.limits.model_dump(), request.days)
+    return meal_plan.generate(request.targets.model_dump(), foods, request.seed, request.limits.model_dump(), request.days,
+                              request.allergies, request.budget)
 
 
 @router.get("/foods", response_model=FoodCatalog)

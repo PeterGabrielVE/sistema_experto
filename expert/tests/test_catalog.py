@@ -50,9 +50,36 @@ def test_parse_accepts_decimal_comma_quotes_and_blank_cells():
     foods = catalog.parse(rows('7,"Atún, en agua",Carnes,4,1,60,65,11,2,"0,3",1,,,,,'))
     assert foods == [{
         "id": 7, "name": "Atún, en agua", "item": "Carnes", "grams": 60.0, "kcal": 65.0, "protein": 11.0, "fat": 2.0,
-        "saturated_fat": 0.3, "cho": 1.0, "glycemic_index": None, "group_id": 4, "portion": "1",
+        "saturated_fat": 0.3, "cho": 1.0, "glycemic_index": None, "allergens": [], "price": None, "group_id": 4, "portion": "1",
         "sodium_mg": None, "potassium_mg": None, "phosphorus_mg": None, "calcium_mg": None,
     }]
+
+
+def test_parse_reads_allergens_and_price():
+    text = (
+        "id,name,group,group_id,kcal,protein,fat,cho,allergens,price\n"
+        '12,Pan Marraqueta,Pan,3,140,3,1,30,Gluten,"125,5"\n'
+        "58,Leche en Polvo,Lácteos,7,110,5,6,9,leche; lactosa,240\n"
+        "70,Nuez,Aceites,10,180,0,15,0,frutos secos,\n"
+    )
+    foods = catalog.parse(text)
+
+    assert [(f["allergens"], f["price"]) for f in foods] == [(["gluten"], 125.5), (["leche", "lactosa"], 240.0), (["frutos_secos"], None)]
+    warnings = catalog.check(foods)
+    assert any(w.startswith("Sin precio") and "Nuez" in w for w in warnings)
+    assert not any("Alérgenos fuera del vocabulario" in w for w in warnings)
+    assert any("Alérgenos fuera del vocabulario" in w and "sesamo" in w for w in catalog.check([{**foods[0], "allergens": ["sesamo"]}]))
+
+
+def test_the_shared_catalog_has_allergens_and_prices(shared):
+    assert all(f["price"] for f in shared.foods)
+    assert not [w for w in shared.warnings if "Alérgenos" in w or "Sin precio" in w]
+    by_name = {f["name"]: f["allergens"] for f in shared.foods}
+    assert by_name["Pan Marraqueta"] == ["gluten"]
+    assert by_name["Huevo"] == ["huevo"]
+    assert set(by_name["Yogurt Natural o Diet"]) == {"leche", "lactosa"}
+    assert by_name["Maní sin sal"] == ["mani"]
+    assert by_name["Quinoa Cruda"] == []
 
 
 def test_parse_lists_every_bad_row():

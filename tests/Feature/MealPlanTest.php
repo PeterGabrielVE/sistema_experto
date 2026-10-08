@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ClinicalRecord;
 use App\Models\Diagnosis;
 use App\Models\Food;
 use App\Models\MealPlan;
@@ -101,7 +102,9 @@ class MealPlanTest extends TestCase
         $body = json_decode($request->body(), true);
         $this->assertEquals(['energy' => 1750, 'carbohydrates' => 197, 'proteins' => 88, 'fats' => 68], $body['targets']);
         $this->assertSame([$this->diagnosis->id * 1000, 1], [$body['seed'], $body['days']]);
-        $this->assertEquals(['id' => 1, 'name' => 'Pollo', 'item' => 'Carnes', 'grams' => 50, 'kcal' => 65, 'protein' => 11, 'fat' => 2, 'saturated_fat' => 0.5, 'cho' => 1, 'glycemic_index' => null], $body['foods'][0]);
+        $this->assertEquals(['id' => 1, 'name' => 'Pollo', 'item' => 'Carnes', 'grams' => 50, 'kcal' => 65, 'protein' => 11, 'fat' => 2, 'saturated_fat' => 0.5, 'cho' => 1, 'glycemic_index' => null, 'allergens' => [], 'price' => null], $body['foods'][0]);
+        // No allergies in the clinical record, no budget.
+        $this->assertSame([[], null], [$body['allergies'], $body['budget']]);
         // No macronutrient plan (the evaluation failed): the general ceilings.
         $this->assertEquals(['glycemic_load' => 120, 'saturated_fat' => 19], $body['limits']);
     }
@@ -118,6 +121,38 @@ class MealPlanTest extends TestCase
 
         $body = json_decode($this->sentPlanRequests()[0]->body(), true);
         $this->assertSame([$this->diagnosis->id * 1000 + 2, 3], [$body['seed'], $body['days']]);
+    }
+
+    public function test_sends_the_allergies_of_the_clinical_record_and_the_budget(): void
+    {
+        ClinicalRecord::create(['patient_id' => $this->diagnosis->id_patient, 'consultation_reason' => 'Control', 'food_allergies' => 'Celíaca, alergia al maní']);
+        Food::where('name', 'Pan Marraqueta')->update(['allergens' => 'gluten', 'price' => 125]);
+        $plan = $this->plan();
+        $plan['days'][0]['cost'] = 4850;
+        $plan['restrictions'] = ['allergens' => ['gluten', 'mani'], 'foods' => [], 'excluded_foods' => ['Pan Marraqueta'], 'unrecognized' => [], 'budget' => 5000];
+        Http::fake(['expert:8000/meal-plan' => Http::response($plan), '*' => Http::response([], 503)]);
+
+        $this->actingAs($this->doctor)->get("/result/{$this->diagnosis->id}?presupuesto=5000")
+            ->assertOk()
+            ->assertSeeInOrder(['Costo estimado', '$4.850', 'máx.', '$5.000']);
+
+        $body = json_decode($this->sentPlanRequests()[0]->body(), true);
+        $this->assertSame([['Celíaca, alergia al maní'], 5000], [$body['allergies'], $body['budget']]);
+        $bread = collect($body['foods'])->firstWhere('name', 'Pan Marraqueta');
+        $this->assertEquals([['gluten'], 125.0], [$bread['allergens'], $bread['price']]);
+    }
+
+    public function test_a_budget_out_of_range_is_ignored(): void
+    {
+        Http::fake(['expert:8000/meal-plan' => Http::response($this->plan()), '*' => Http::response([], 503)]);
+
+        $this->actingAs($this->doctor)->get(route('meal-plan.edit', ['diagnosis' => $this->diagnosis, 'nueva' => 1, 'presupuesto' => 'abc']))->assertOk();
+        $this->actingAs($this->doctor)->get(route('meal-plan.edit', ['diagnosis' => $this->diagnosis, 'nueva' => 1, 'presupuesto' => 6000]))
+            ->assertOk()
+            ->assertSee('name="presupuesto"', false);
+
+        $budgets = array_map(fn (Request $request) => json_decode($request->body(), true)['budget'], $this->sentPlanRequests());
+        $this->assertSame([null, 6000], $budgets);
     }
 
     public function test_ceilings_come_from_the_macronutrient_plan(): void

@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from . import thresholds as t
+from .text import plain
 
 
 class Anthropometry(BaseModel):
@@ -143,6 +144,17 @@ class Food(BaseModel):
     saturated_fat: float | None = Field(default=None, ge=0, le=200, description="g per portion")
     cho: float = Field(ge=0, le=500)
     glycemic_index: float | None = Field(default=None, ge=0, le=150, description="Glucose = 100; null without carbohydrates to speak of")
+    allergens: list[str] = Field(
+        default=[], max_length=20, description="Tags of meal_plan.allergens (gluten, lactosa, mani…); the catalog separates them with ;"
+    )
+    price: float | None = Field(default=None, ge=0, le=100_000, description="CLP per exchange portion; null when unknown")
+
+    @field_validator("allergens", mode="before")
+    @classmethod
+    def allergen_tags(cls, value):
+        if isinstance(value, str):
+            value = value.split(";")
+        return [plain(tag.strip()).replace(" ", "_") for tag in value if tag and tag.strip()]
 
 
 class CatalogFood(Food):
@@ -178,3 +190,14 @@ class MealPlanRequest(BaseModel):
     limits: MealPlanLimits = MealPlanLimits()
     seed: int = Field(default=0, ge=0, le=1_000_000, description="Another seed, another menu with the same targets")
     days: int = Field(default=1, ge=1, le=t.MEAL_PLAN["max_days"], description="Menus to generate, different from each other")
+    allergies: list[str] = Field(
+        default=[], max_length=20, description="Allergies and intolerances: allergen tags (gluten) or the clinical record's free text; those foods are never used"
+    )
+    budget: float | None = Field(default=None, ge=500, le=1_000_000, description="CLP per day; foods without price are not used then")
+
+    @field_validator("allergies")
+    @classmethod
+    def short_entries(cls, value: list[str]) -> list[str]:
+        if any(len(entry) > 500 for entry in value):
+            raise ValueError("each entry up to 500 characters")
+        return value

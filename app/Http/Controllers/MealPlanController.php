@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Gate;
 
 /**
  * Menu proposal editor of a consultation: start from the saved proposal or a generated
- * one (?nueva=1, ?variante=n, ?dias=n), change foods and portions, save.
+ * one (?nueva=1, ?variante=n, ?dias=n, ?presupuesto=CLP), change foods and portions, save.
  */
 class MealPlanController extends Controller
 {
@@ -31,7 +31,8 @@ class MealPlanController extends Controller
         $saved = $diagnosis->mealPlan;
         $variant = self::variant($request);
         $days = self::days($request);
-        $plan = $saved && ! $request->boolean('nueva') ? $saved->plan : $this->plans->generate($diagnosis, $variant, $days);
+        $budget = self::budget($request);
+        $plan = $saved && ! $request->boolean('nueva') ? $saved->plan : $this->plans->generate($diagnosis, $variant, $days, budget: $budget);
 
         return view('meal_plans.edit', [
             'diagnosis' => $diagnosis,
@@ -41,6 +42,7 @@ class MealPlanController extends Controller
             'generated' => $plan !== null && ($plan['status'] ?? null) !== 'editado',
             'variant' => $variant,
             'days' => $plan ? count($plan['days']) : $days,
+            'budget' => $plan['restrictions']['budget'] ?? $budget,
             'targets' => $targets,
             'limits' => $plan['limits'] ?? $this->plans->limits($diagnosis, $targets),
             'meals' => config('clinical.meal_plan.meals'),
@@ -83,5 +85,15 @@ class MealPlanController extends Controller
     public static function days(Request $request): int
     {
         return min(max((int) $request->query('dias', 1), 1), (int) config('clinical.meal_plan.max_days'));
+    }
+
+    /**
+     * Daily budget in CLP (?presupuesto=n); none when missing or out of the expert service's range.
+     */
+    public static function budget(Request $request): ?int
+    {
+        $budget = (int) $request->query('presupuesto');
+
+        return $budget >= 500 && $budget <= 1_000_000 ? $budget : null;
     }
 }

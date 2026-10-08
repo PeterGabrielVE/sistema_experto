@@ -141,6 +141,19 @@ def test_meal_plan(client):
     assert client.post("/meal-plan", json={**payload, "days": 8}).status_code == 422
 
 
+def test_meal_plan_with_allergies_and_budget(client):
+    targets = {"energy": 1750, "carbohydrates": 197, "proteins": 88, "fats": 68}
+    body = client.post("/meal-plan", json={"targets": targets, "seed": 1, "allergies": ["Alergia al maní, intolerancia a la lactosa"], "budget": 6000}).json()
+
+    assert body["restrictions"]["allergens"] == ["lactosa", "mani"]
+    assert body["restrictions"]["budget"] == 6000
+    assert "Maní sin sal" in body["restrictions"]["excluded_foods"]
+    assert body["days"][0]["cost"] <= 6000 * 1.01
+    assert all(i["cost"] is not None for m in body["days"][0]["meals"] for i in m["items"])
+    assert client.post("/meal-plan", json={"targets": targets, "budget": 10}).status_code == 422
+    assert client.post("/meal-plan", json={"targets": targets, "allergies": ["x" * 501]}).status_code == 422
+
+
 def test_food_catalog(client):
     body = client.get("/foods").json()
 

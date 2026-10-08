@@ -1,74 +1,74 @@
-id,name,group,group_id,portion,grams,kcal,protein,fat,saturated_fat,cho,glycemic_index,sodium_mg,potassium_mg,phosphorus_mg,calcium_mg
-1,Carne de Vacuno,Carnes,4,1,50,65,11,2,0.8,1,,,,,
-2,Cerdo,Carnes,4,1,50,65,11,2,0.7,1,,,,,
-3,Pollo,Carnes,4,1,50,65,11,2,0.5,1,,,,,
-4,Pavo,Carnes,4,1,50,65,11,2,0.5,1,,,,,
-5,Jamon de Pavo,Carnes,4,1,50,65,11,2,0.6,1,,,,,
-6,Carne Vegetal,Carnes,4,1,25,65,11,2,0.3,1,,,,,
-7,Atún en Agua,Carnes,4,1,60,65,11,2,0.3,1,,,,,
-8,Pescados en General,Carnes,4,1,80,65,11,2,0.4,1,,,,,
-9,Mariscos Frescos,Carnes,4,1,60,65,11,2,0.3,1,,,,,
-10,Clara de Huevo,Carnes,4,1,100,65,11,2,0,1,,,,,
-11,Huevo,Carnes,4,1,50,65,11,2,0.7,1,,,,,
-12,Pan Marraqueta,Pan,3,1,50,140,3,1,0.2,30,75,2226,135,120,63
-13,Cebolla,Verduras,2,1,60,60,4,0,0,14,15,30,550,68,54
-14,Tomate,Verduras,2,1,120,60,4,0,0,14,15,30,550,68,54
-15,Zanahoria,Verduras,2,1,50,60,4,0,0,14,39,30,550,68,54
-16,Acelga,Verduras,2,1,110,60,4,0,0,14,15,16,400,28,80
-17,Betarraga,Verduras,2,1,90,60,4,0,0,14,64,16,400,28,80
-18,"Brocoli, Coliflor",Verduras,2,1,100,60,4,0,0,14,15,16,400,28,80
-19,Champiñones,Verduras,2,1,110,60,4,0,0,14,15,16,400,28,80
-20,Espárragos,Verduras,2,1,100,60,4,0,0,14,15,16,400,28,80
-21,Espinaca,Verduras,2,1,130,60,4,0,0,14,15,16,400,28,80
-22,Porotos Verdes,Verduras,2,1,70,60,4,0,0,14,30,16,400,28,80
-24,Zapallo Italiano,Verduras,2,1,150,60,4,0,0,14,15,16,400,28,80
-25,Zapallo,Verduras,2,1,70,60,4,0,0,14,75,16,400,28,80
-26,Pan Molde,Pan,3,1,60,140,3,1,0.2,30,72,226,135,120,63
-27,Arroz o Fideos Cocidos,Cereales,3,1,100,140,3,1,0.2,30,60,7.5,69,75,39
-28,Galletas de Agua o Soda,Cereales,3,1,40,140,3,1,0.4,30,70,7.5,69,75,39
-29,Galletas Integrales,Cereales,3,1,40,140,3,1,0.4,30,62,7.5,69,75,39
-30,Arvejas Cocidas,Cereales,3,1,190,140,3,1,0.1,30,51,7.5,69,75,39
-31,Choclo Cocido,Cereales,3,1,160,140,3,1,0.2,30,52,7.5,69,75,39
-32,Habas Cocidas,Cereales,3,1,150,140,3,1,0.1,30,79,7.5,69,75,39
-34,Harina Tostada,Pan,3,1,40,140,3,1,0.2,30,65,2226,135,120,63
-35,Avena Cruda,Cereales,3,1,50,140,3,1,0.2,30,55,2226,135,120,63
-36,Mote Crudo,Cereales,3,1,100,140,3,1,0.2,30,55,,,,
-37,Quinoa Cruda,Cereales,3,1,40,140,3,1,0.1,30,53,,,,
-38,Papas Cocidas,Cereales,3,1,150,140,3,1,0.1,30,78,7.5,69,75,39
-39,"Pera, Durazno, Manzana, Naranja",Frutas,1,1,130,65,1,0,0,15,38,,,,
-40,Cerezas,Frutas,1,1,90,65,1,0,0,15,22,,,,
-41,Kiwi,Frutas,1,1,100,65,1,0,0,15,50,,,,
-42,"Melon, Sandía",Frutas,1,1,180,65,1,0,0,15,70,,,,
-43,Piña,Frutas,1,1,120,65,1,0,0,15,59,,,,
-44,Platano,Frutas,1,1,60,65,1,0,0,15,51,,,,
-45,Uvas,Frutas,1,1,90,65,1,0,0,15,53,,,,
-46,Mandarina,Frutas,1,1,,65,1,0,0,15,47,,,,
-47,Arveja Seca Cruda,Legumbres,6,1,190,170,11,1,0.1,30,22,,,,
-48,Poroto Crudo,Legumbres,6,1,50,170,11,1,0.1,30,29,,,,
-49,Lenteja Cruda,Legumbres,6,1,50,170,11,1,0.1,30,29,,,,
-50,Garbanzo Crudo,Legumbres,6,1,50,170,11,1,0.1,30,28,,,,
-51,Haba Seca Cruda,Legumbres,6,1,60,170,11,1,0.1,30,40,,,,
-52,Poroto Cocido,Legumbres,6,1,100,170,11,1,0.1,30,29,,,,
-53,Lenteja Cocida,Legumbres,6,1,140,170,11,1,0.1,30,29,,,,
-54,Garbanzo Cocido,Legumbres,6,1,130,170,11,1,0.1,30,28,,,,
-55,Harina de Arveja Cocida,Legumbres,6,1,50,170,11,1,0.1,30,35,,,,
-56,Harina de Garbanzo Precocida,Legumbres,6,1,50,170,11,1,0.1,30,35,,,,
-57,Harina de Lenteja Precocida,Legumbres,6,1,50,170,11,1,0.1,30,35,,,,
-58,Leche Entera en Polvo,Lácteos,7,1,20,110,5,6,3.7,9,39,,,,
-59,Yogurt Natural o Diet,Lácteos,7,1,125,110,5,6,3.5,9,35,,,,
-60,Queso Mantecoso o Chanco,Lácteos,7,1,20,80,5,0,0,1,,,,,
-61,Queso Crema,Lácteos,7,1,25,110,5,6,3.6,9,30,,,,
-62,Leche de Soya,Lácteos,7,1,150,110,5,6,0.9,9,34,,,,
-63,Quesillo,Lácteos,7,1,60,110,5,6,3.5,9,30,,,,
-64,Aceites,Aceites,10,1,,180,0,15,2,0,,,,,
-65,Aceite de Oliva,Aceites,10,3,,180,0,15,2.1,0,,,,,
-66,Aceite de Maíz,Aceites,10,3,,180,0,15,2,0,,,,,
-67,Almendras,Aceites,10,1,26,180,0,15,1.2,0,,,,,
-68,Avellana,Aceites,10,1,30,180,0,15,1.1,0,,,,,
-69,Maní sin sal,Aceites,10,1,30,180,0,15,2.1,0,,,,,
-70,Nuez,Aceites,10,1,25,180,0,15,1.4,0,,,,,
-71,Pístacho,Aceites,10,1,30,180,0,15,1.8,0,,,,,
-72,Aceituna,Aceites,10,1,115,180,0,15,2,0,,,,,
-73,Palta,Aceites,10,1,90,180,0,15,2.1,0,,,,,
-74,Aceite de Soya,Aceites,10,3,,180,0,15,2.3,0,,,,,
-75,Aceite de Pepita,Aceites,10,3,,180,0,15,1.5,0,,,,,
+id,name,group,group_id,portion,grams,kcal,protein,fat,saturated_fat,cho,glycemic_index,allergens,price,sodium_mg,potassium_mg,phosphorus_mg,calcium_mg
+1,Carne de Vacuno,Carnes,4,1,50,65,11,2,0.8,1,,,650,,,,
+2,Cerdo,Carnes,4,1,50,65,11,2,0.7,1,,,400,,,,
+3,Pollo,Carnes,4,1,50,65,11,2,0.5,1,,,300,,,,
+4,Pavo,Carnes,4,1,50,65,11,2,0.5,1,,,450,,,,
+5,Jamon de Pavo,Carnes,4,1,50,65,11,2,0.6,1,,,600,,,,
+6,Carne Vegetal,Carnes,4,1,25,65,11,2,0.3,1,,soya;gluten,125,,,,
+7,Atún en Agua,Carnes,4,1,60,65,11,2,0.3,1,,pescado,560,,,,
+8,Pescados en General,Carnes,4,1,80,65,11,2,0.4,1,,pescado,720,,,,
+9,Mariscos Frescos,Carnes,4,1,60,65,11,2,0.3,1,,mariscos,720,,,,
+10,Clara de Huevo,Carnes,4,1,100,65,11,2,0,1,,huevo,600,,,,
+11,Huevo,Carnes,4,1,50,65,11,2,0.7,1,,huevo,250,,,,
+12,Pan Marraqueta,Pan,3,1,50,140,3,1,0.2,30,75,gluten,125,2226,135,120,63
+13,Cebolla,Verduras,2,1,60,60,4,0,0,14,15,,70,30,550,68,54
+14,Tomate,Verduras,2,1,120,60,4,0,0,14,15,,220,30,550,68,54
+15,Zanahoria,Verduras,2,1,50,60,4,0,0,14,39,,50,30,550,68,54
+16,Acelga,Verduras,2,1,110,60,4,0,0,14,15,,220,16,400,28,80
+17,Betarraga,Verduras,2,1,90,60,4,0,0,14,64,,135,16,400,28,80
+18,"Brocoli, Coliflor",Verduras,2,1,100,60,4,0,0,14,15,,300,16,400,28,80
+19,Champiñones,Verduras,2,1,110,60,4,0,0,14,15,,660,16,400,28,80
+20,Espárragos,Verduras,2,1,100,60,4,0,0,14,15,,800,16,400,28,80
+21,Espinaca,Verduras,2,1,130,60,4,0,0,14,15,,520,16,400,28,80
+22,Porotos Verdes,Verduras,2,1,70,60,4,0,0,14,30,,210,16,400,28,80
+24,Zapallo Italiano,Verduras,2,1,150,60,4,0,0,14,15,,225,16,400,28,80
+25,Zapallo,Verduras,2,1,70,60,4,0,0,14,75,,85,16,400,28,80
+26,Pan Molde,Pan,3,1,60,140,3,1,0.2,30,72,gluten,180,226,135,120,63
+27,Arroz o Fideos Cocidos,Cereales,3,1,100,140,3,1,0.2,30,60,gluten,60,7.5,69,75,39
+28,Galletas de Agua o Soda,Cereales,3,1,40,140,3,1,0.4,30,70,gluten,180,7.5,69,75,39
+29,Galletas Integrales,Cereales,3,1,40,140,3,1,0.4,30,62,gluten,200,7.5,69,75,39
+30,Arvejas Cocidas,Cereales,3,1,190,140,3,1,0.1,30,51,,600,7.5,69,75,39
+31,Choclo Cocido,Cereales,3,1,160,140,3,1,0.2,30,52,,480,7.5,69,75,39
+32,Habas Cocidas,Cereales,3,1,150,140,3,1,0.1,30,79,,450,7.5,69,75,39
+34,Harina Tostada,Pan,3,1,40,140,3,1,0.2,30,65,gluten,140,2226,135,120,63
+35,Avena Cruda,Cereales,3,1,50,140,3,1,0.2,30,55,gluten,125,2226,135,120,63
+36,Mote Crudo,Cereales,3,1,100,140,3,1,0.2,30,55,gluten,200,,,,
+37,Quinoa Cruda,Cereales,3,1,40,140,3,1,0.1,30,53,,320,,,,
+38,Papas Cocidas,Cereales,3,1,150,140,3,1,0.1,30,78,,180,7.5,69,75,39
+39,"Pera, Durazno, Manzana, Naranja",Frutas,1,1,130,65,1,0,0,15,38,,195,,,,
+40,Cerezas,Frutas,1,1,90,65,1,0,0,15,22,,450,,,,
+41,Kiwi,Frutas,1,1,100,65,1,0,0,15,50,,250,,,,
+42,"Melon, Sandía",Frutas,1,1,180,65,1,0,0,15,70,,270,,,,
+43,Piña,Frutas,1,1,120,65,1,0,0,15,59,,300,,,,
+44,Platano,Frutas,1,1,60,65,1,0,0,15,51,,80,,,,
+45,Uvas,Frutas,1,1,90,65,1,0,0,15,53,,225,,,,
+46,Mandarina,Frutas,1,1,,65,1,0,0,15,47,,150,,,,
+47,Arveja Seca Cruda,Legumbres,6,1,190,170,11,1,0.1,30,22,,400,,,,
+48,Poroto Crudo,Legumbres,6,1,50,170,11,1,0.1,30,29,,150,,,,
+49,Lenteja Cruda,Legumbres,6,1,50,170,11,1,0.1,30,29,,125,,,,
+50,Garbanzo Crudo,Legumbres,6,1,50,170,11,1,0.1,30,28,,150,,,,
+51,Haba Seca Cruda,Legumbres,6,1,60,170,11,1,0.1,30,40,,180,,,,
+52,Poroto Cocido,Legumbres,6,1,100,170,11,1,0.1,30,29,,120,,,,
+53,Lenteja Cocida,Legumbres,6,1,140,170,11,1,0.1,30,29,,125,,,,
+54,Garbanzo Cocido,Legumbres,6,1,130,170,11,1,0.1,30,28,,150,,,,
+55,Harina de Arveja Cocida,Legumbres,6,1,50,170,11,1,0.1,30,35,,250,,,,
+56,Harina de Garbanzo Precocida,Legumbres,6,1,50,170,11,1,0.1,30,35,,250,,,,
+57,Harina de Lenteja Precocida,Legumbres,6,1,50,170,11,1,0.1,30,35,,250,,,,
+58,Leche Entera en Polvo,Lácteos,7,1,20,110,5,6,3.7,9,39,leche;lactosa,240,,,,
+59,Yogurt Natural o Diet,Lácteos,7,1,125,110,5,6,3.5,9,35,leche;lactosa,350,,,,
+60,Queso Mantecoso o Chanco,Lácteos,7,1,20,80,5,0,0,1,,leche;lactosa,220,,,,
+61,Queso Crema,Lácteos,7,1,25,110,5,6,3.6,9,30,leche;lactosa,225,,,,
+62,Leche de Soya,Lácteos,7,1,150,110,5,6,0.9,9,34,soya,300,,,,
+63,Quesillo,Lácteos,7,1,60,110,5,6,3.5,9,30,leche;lactosa,480,,,,
+64,Aceites,Aceites,10,1,,180,0,15,2,0,,,45,,,,
+65,Aceite de Oliva,Aceites,10,3,,180,0,15,2.1,0,,,150,,,,
+66,Aceite de Maíz,Aceites,10,3,,180,0,15,2,0,,,55,,,,
+67,Almendras,Aceites,10,1,26,180,0,15,1.2,0,,frutos_secos,390,,,,
+68,Avellana,Aceites,10,1,30,180,0,15,1.1,0,,frutos_secos,540,,,,
+69,Maní sin sal,Aceites,10,1,30,180,0,15,2.1,0,,mani,180,,,,
+70,Nuez,Aceites,10,1,25,180,0,15,1.4,0,,frutos_secos,350,,,,
+71,Pístacho,Aceites,10,1,30,180,0,15,1.8,0,,frutos_secos,750,,,,
+72,Aceituna,Aceites,10,1,115,180,0,15,2,0,,,690,,,,
+73,Palta,Aceites,10,1,90,180,0,15,2.1,0,,,360,,,,
+74,Aceite de Soya,Aceites,10,3,,180,0,15,2.3,0,,soya,40,,,,
+75,Aceite de Pepita,Aceites,10,3,,180,0,15,1.5,0,,,45,,,,

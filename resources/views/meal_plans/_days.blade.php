@@ -45,6 +45,18 @@
                     </div>
                 @endisset
             @endforeach
+            @isset($day['cost'])
+                @php($budget = $plan['restrictions']['budget'] ?? null)
+                <div class="col-6 col-md-3">
+                    <div class="border border-radius-lg p-2 h-100">
+                        <p class="text-xs text-uppercase text-secondary font-weight-bolder mb-0">{{ __('Costo estimado') }}</p>
+                        <span class="text-sm font-weight-bold">${{ number_format($day['cost'], 0, ',', '.') }}</span>
+                        @if ($budget)
+                            <span @class(['text-xs', 'text-success' => $day['cost'] <= $budget * 1.01, 'text-warning' => $day['cost'] > $budget * 1.01])>/ {{ __('máx.') }} ${{ number_format($budget, 0, ',', '.') }}</span>
+                        @endif
+                    </div>
+                </div>
+            @endisset
         </div>
 
         <div class="row g-3">

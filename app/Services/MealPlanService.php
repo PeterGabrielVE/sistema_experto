@@ -65,8 +65,9 @@ class MealPlanService
      *
      * @param  int  $variant  another variant, another menu with the same targets
      * @param  int  $days  menus, different from each other
+     * @param  int|null  $budget  CLP per day
      */
-    public function generate(Diagnosis $diagnosis, int $variant = 0, int $days = 1, ?array $evaluation = null): ?array
+    public function generate(Diagnosis $diagnosis, int $variant = 0, int $days = 1, ?array $evaluation = null, ?int $budget = null): ?array
     {
         if (! ($targets = $this->targets($diagnosis)) || ! config('services.expert.url')) {
             return null;
@@ -78,7 +79,20 @@ class MealPlanService
             'limits' => $this->limits($diagnosis, $targets, $evaluation),
             'seed' => $diagnosis->id * 1000 + $variant,
             'days' => $days,
+            'allergies' => $this->allergies($diagnosis),
+            'budget' => $budget,
         ], ['diagnosis' => $diagnosis->id]);
+    }
+
+    /**
+     * Allergies and intolerances of the clinical record, as the doctor wrote them: the expert
+     * service recognizes the allergens in the text (expert/app/allergies.py).
+     */
+    public function allergies(Diagnosis $diagnosis): array
+    {
+        $text = trim((string) Patient::find($diagnosis->id_patient)?->clinicalRecord?->food_allergies);
+
+        return $text === '' ? [] : [mb_substr($text, 0, 500)];
     }
 
     /**
@@ -183,6 +197,8 @@ class MealPlanService
             'saturated_fat' => $food->saturated_fat === null ? null : (float) $food->saturated_fat,
             'cho' => (float) $food->cho,
             'glycemic_index' => $food->glycemic_index === null ? null : (int) $food->glycemic_index,
+            'allergens' => array_values(array_filter(array_map('trim', explode(';', (string) $food->allergens)))),
+            'price' => $food->price === null ? null : (float) $food->price,
         ];
     }
 

@@ -55,6 +55,10 @@
                             @endforeach
                         </select>
                     </div>
+                    <div>
+                        <label class="form-control-label text-xs" for="input-budget">{{ __('Presupuesto diario (CLP)') }}</label>
+                        <input type="number" name="presupuesto" id="input-budget" class="form-control form-control-sm" min="500" max="1000000" step="100" value="{{ $budget }}" placeholder="{{ __('Sin límite') }}">
+                    </div>
                     <button type="submit" class="btn btn-sm btn-outline-primary mb-0">{{ __('Generar nueva propuesta') }}</button>
                     <span class="text-xs text-secondary">{{ __('Reemplaza lo que esté en el editor; lo guardado no cambia hasta que guarde.') }}</span>
                 </form>
