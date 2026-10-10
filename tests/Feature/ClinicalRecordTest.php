@@ -10,6 +10,7 @@ use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class ClinicalRecordTest extends TestCase
@@ -120,6 +121,29 @@ class ClinicalRecordTest extends TestCase
             ->assertSee('Sugiere resistencia a la insulina');
     }
 
+    #[Group('US-5.1/AC-1')]
+    #[Group('US-5.1/AC-4')]
+    #[Group('US-5.1/AC-7')]
+    public function test_show_page_includes_the_evolution_chart(): void
+    {
+        $this->actingAs($this->doctor)->put($this->url(), $this->payload());
+
+        $this->actingAs($this->doctor)->get($this->url())
+            ->assertOk()
+            ->assertSee('Evolución del peso y HOMA-IR')
+            // The chart is drawn from the JSON endpoint (TK-5.1.2).
+            ->assertSee('data-url="'.route('patient.evolution', $this->patient).'"', false)
+            ->assertSee('id="patient-evolution-chart"', false)
+            // Period filter, with the whole history selected when the page opens.
+            ->assertSeeInOrder(['Últimos 3 meses', 'Últimos 6 meses', 'Últimos 12 meses', 'Todo el historial'])
+            ->assertSee('data-period="all" aria-pressed="true"', false)
+            // Messages for a series without enough data, with the way to record it.
+            ->assertSee('se necesitan al menos dos mediciones con peso')
+            ->assertSee('se necesitan al menos dos exámenes con glicemia e insulina en ayunas')
+            ->assertSee(route('patient.measurements.create', $this->patient))
+            ->assertSee(route('patient.lab-results.create', $this->patient));
+    }
+
     public function test_findrisc_answers(): void
     {
         $this->actingAs($this->doctor)->put($this->url(), $this->payload([
@@ -172,6 +196,7 @@ class ClinicalRecordTest extends TestCase
         $this->assertDatabaseCount('clinical_records', 0);
     }
 
+    #[Group('US-5.1/AC-5')]
     public function test_administrator_cannot_read_or_write_clinical_data(): void
     {
         $this->actingAs($this->doctor)->put($this->url(), $this->payload());

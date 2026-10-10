@@ -157,6 +157,8 @@
                         </p>
                     </div>
                 </div>
+
+                @include('clinical_records._evolution')
             </div>
         </div>
     </div>
