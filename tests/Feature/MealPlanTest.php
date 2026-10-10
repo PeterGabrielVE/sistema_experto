@@ -102,7 +102,7 @@ class MealPlanTest extends TestCase
         $body = json_decode($request->body(), true);
         $this->assertEquals(['energy' => 1750, 'carbohydrates' => 197, 'proteins' => 88, 'fats' => 68], $body['targets']);
         $this->assertSame([$this->diagnosis->id * 1000, 1], [$body['seed'], $body['days']]);
-        $this->assertEquals(['id' => 1, 'name' => 'Pollo', 'item' => 'Carnes', 'grams' => 50, 'kcal' => 65, 'protein' => 11, 'fat' => 2, 'saturated_fat' => 0.5, 'cho' => 1, 'glycemic_index' => null, 'allergens' => [], 'price' => null], $body['foods'][0]);
+        $this->assertEquals(['id' => Food::where('name', 'Pollo')->value('id'), 'name' => 'Pollo', 'item' => 'Carnes', 'grams' => 50, 'kcal' => 65, 'protein' => 11, 'fat' => 2, 'saturated_fat' => 0.5, 'cho' => 1, 'glycemic_index' => null, 'allergens' => [], 'price' => null], $body['foods'][0]);
         // No allergies in the clinical record, no budget.
         $this->assertSame([[], null], [$body['allergies'], $body['budget']]);
         // No macronutrient plan (the evaluation failed): the general ceilings.

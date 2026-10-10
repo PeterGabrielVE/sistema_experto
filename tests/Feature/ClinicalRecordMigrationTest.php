@@ -21,6 +21,8 @@ class ClinicalRecordMigrationTest extends TestCase
     public function test_moves_clinical_record_labs_to_lab_results_and_back(): void
     {
         $migration = require database_path('migrations/2026_09_30_000000_move_clinical_record_labs_to_lab_results.php');
+        // Rolled back first by migrate:rollback; the lab columns go back after waist_cm.
+        $waistMigration = require database_path('migrations/2026_09_30_000001_move_clinical_record_waist_to_measurements.php');
         $doctor = User::factory()->create();
         $patients = collect(['11111111-1', '22222222-2'])->map(fn ($rut) => Patient::create([
             'first_name' => 'Ana', 'last_name' => 'Rojas', 'rut' => $rut,
@@ -28,6 +30,7 @@ class ClinicalRecordMigrationTest extends TestCase
         ]));
 
         // State before the migration: lab values inside clinical_records.
+        $waistMigration->down();
         $migration->down();
         DB::table('clinical_records')->insert([
             [
@@ -59,7 +62,9 @@ class ClinicalRecordMigrationTest extends TestCase
         $this->assertEquals(18.2, DB::table('clinical_records')->where('patient_id', $patients[0]->id)->value('fasting_insulin'));
         $this->assertNull(DB::table('clinical_records')->where('patient_id', $patients[1]->id)->value('fasting_insulin'));
 
-        $migration->up(); // leave the schema as the other tests expect
+        // Leave the schema as the other tests expect.
+        $migration->up();
+        $waistMigration->up();
     }
 
     public function test_moves_clinical_record_waist_to_measurements_and_back(): void

@@ -94,7 +94,8 @@ class PatientFormApiTest extends TestCase
 
     public function test_list_paginates_and_searches_on_the_server(): void
     {
-        Patient::factory()->count(20)->create();
+        // Fixed names: a random "Soto" or "Carla" would also match the searches below.
+        Patient::factory()->count(20)->create(['first_name' => 'Relleno', 'last_name' => 'Pérez']);
         Patient::factory()->create(['first_name' => 'Carla', 'last_name' => 'Soto', 'rut' => '11111117-0', 'email' => 'cs@correo.cl']);
 
         $this->actingAs($this->doctor)->get('/patient')->assertOk()
