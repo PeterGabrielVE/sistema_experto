@@ -19,8 +19,8 @@ jobs:
     timeout-minutes: 3
     steps:
       # Checks the specs of the PR head: a spec approved in the same PR counts.
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
       - name: Conventional Commits and approved spec for feat
