@@ -1,0 +1,22 @@
+# Production override: run the images published by the CD workflow instead of building locally.
+#   IMAGE_OWNER=<github-owner-lowercase> IMAGE_TAG=sha-<commit> \
+#     docker compose -f compose.yaml -f compose.prod.yaml up -d --no-build
+x-app-image: &app-image ghcr.io/${IMAGE_OWNER:?set IMAGE_OWNER}/sistema-experto:${IMAGE_TAG:-latest}
+
+services:
+  app:
+    build: !reset null
+    image: *app-image
+  queue:
+    image: *app-image
+  scheduler:
+    image: *app-image
+  inference:
+    build: !reset null
+    image: ghcr.io/${IMAGE_OWNER:?set IMAGE_OWNER}/sistema-experto-inference:${IMAGE_TAG:-latest}
+  expert:
+    build: !reset null
+    image: ghcr.io/${IMAGE_OWNER:?set IMAGE_OWNER}/sistema-experto-expert:${IMAGE_TAG:-latest}
+  # The database stays inside the Docker network in production.
+  db:
+    ports: !reset []

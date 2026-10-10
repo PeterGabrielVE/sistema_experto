@@ -18,5 +18,8 @@ bootstrap/cache/*.php
 .phpunit.cache
 .phpunit.result.cache
 compose.yaml
+compose.prod.yaml
 Dockerfile
+.github
+expert
 inference

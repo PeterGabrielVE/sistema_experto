@@ -34,6 +34,11 @@ Volúmenes persistentes: `db-data` (MySQL), `storage` (logs, sesiones, caché) y
 
 Con `APP_ENV=production` el contenedor ejecuta `php artisan optimize` al arrancar.
 
+## CI/CD
+
+GitHub Actions: tests, lint y build en cada PR; publicación de imágenes en GHCR y despliegue
+opcional al hacer merge a `main`. Detalles y configuración en [docs/ci-cd.md](docs/ci-cd.md).
+
 ## Motor de inferencia (Python + ML)
 
 El servicio `inference` (FastAPI + scikit-learn, carpeta [inference/](inference/)) clasifica

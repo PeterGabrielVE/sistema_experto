@@ -1,0 +1,157 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One release at a time per ref; a newer push waits instead of cancelling a deploy halfway.
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+    with:
+      full: true
+    permissions:
+      contents: read
+      pull-requests: read
+
+  publish:
+    name: Publish · ${{ matrix.image }}
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - image: sistema-experto
+            context: .
+            build-contexts: ""
+          - image: sistema-experto-inference
+            context: inference
+            build-contexts: shared=shared
+          - image: sistema-experto-expert
+            context: expert
+            build-contexts: shared=shared
+    steps:
+      - uses: actions/checkout@v5
+      # GHCR image names must be lowercase; the repository owner is not.
+      - id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${{ matrix.image }}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=sha,format=long
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          build-contexts: ${{ matrix.build-contexts }}
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          provenance: mode=max
+          sbom: true
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,scope=${{ matrix.image }},mode=max
+
+      - uses: actions/attest-build-provenance@v3
+        with:
+          subject-name: ${{ steps.image.outputs.name }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+  # Optional: enabled by setting the repository variable DEPLOY_HOST (see docs/ci-cd.md).
+  # Approval rules and secrets live in the "production" environment.
+  deploy:
+    name: Deploy · production
+    needs: publish
+    if: vars.DEPLOY_HOST != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: ${{ vars.APP_URL }}
+    permissions:
+      contents: read
+      packages: read
+    env:
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/sistema_experto' }}
+      IMAGE_TAG: sha-${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            compose.yaml
+            compose.prod.yaml
+          sparse-checkout-cone-mode: false
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf 'Host target\n  HostName %s\n  User %s\n  IdentityFile ~/.ssh/id_deploy\n  StrictHostKeyChecking yes\n' \
+            "$DEPLOY_HOST" "$DEPLOY_USER" > ~/.ssh/config
+
+      - name: Upload compose files
+        run: |
+          ssh target "mkdir -p '$DEPLOY_PATH'"
+          scp compose.yaml compose.prod.yaml "target:$DEPLOY_PATH/"
+
+      - name: Log in to GHCR on the server
+        env:
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Short-lived job token, sent over stdin; logged out again after the pull.
+        run: printf '%s' "$REGISTRY_TOKEN" | ssh target "docker login ghcr.io -u '$GITHUB_ACTOR' --password-stdin"
+
+      - name: Pull and restart
+        run: |
+          ssh target bash -s -- "$DEPLOY_PATH" "$IMAGE_TAG" "${GITHUB_REPOSITORY_OWNER,,}" <<'EOF'
+          set -euo pipefail
+          cd "$1"
+          export IMAGE_TAG="$2" IMAGE_OWNER="$3"
+          test -f .env || { echo ".env is missing in $1 (it is managed on the server)" >&2; exit 1; }
+          compose="docker compose -f compose.yaml -f compose.prod.yaml"
+          trap 'docker logout ghcr.io >/dev/null' EXIT
+          $compose pull
+          $compose up -d --no-build --remove-orphans --wait --wait-timeout 300
+          docker image prune -f
+          EOF
+
+      - name: Health check
+        if: vars.APP_URL != ''
+        run: curl --fail --silent --show-error --retry 10 --retry-delay 5 --retry-all-errors "${{ vars.APP_URL }}/up"
