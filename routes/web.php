@@ -9,6 +9,7 @@ use App\Http\Controllers\MacroRuleController;
 use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PatientEvolutionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\RulesController;
@@ -71,6 +72,9 @@ Route::middleware('auth')->group(function () {
             ->parameters(['lab-results' => 'lab_result'])
             ->except(['show'])
             ->scoped();
+
+        // Weight and HOMA-IR history (JSON) for the evolution chart of the clinical record.
+        Route::get('patient/{patient}/evolution', PatientEvolutionController::class)->name('patient.evolution');
     });
 
     Route::middleware('can:viewAny,'.Diagnosis::class)->group(function () {
