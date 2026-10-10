@@ -2,7 +2,7 @@
 id: US-5.1
 title: Ver la evolución del peso y HOMA-IR del paciente
 epic: EPIC-05
-status: approved
+status: in-progress
 owner: Frontend Dev · Laravel Dev
 ---
 

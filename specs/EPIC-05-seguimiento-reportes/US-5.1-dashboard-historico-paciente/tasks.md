@@ -6,7 +6,7 @@ Una tarea es un cambio que se puede revisar y mergear solo (un PR `feat(TK-5.1.n
 Cada tarea nombra los criterios que cubre; entre todas cubren todos los AC de la spec.
 Orden por dependencia: la gráfica consume el endpoint, así que TK-5.1.2 va primero.
 
-- [ ] **TK-5.1.2** — Crear el endpoint `GET /patient/{patient}/evolution` y `PatientEvolutionService`
+- [x] **TK-5.1.2** — Crear el endpoint `GET /patient/{patient}/evolution` y `PatientEvolutionService`
   (series de peso y HOMA-IR, corte, `above_threshold`, `excluded`, `enough_data`, filtro `period`),
   protegido con `viewClinicalRecord`, con `PatientEvolutionTest`. Sin cambios visibles en la interfaz.
   Cubre AC-2, AC-3, AC-4, AC-5, AC-6, AC-7.
