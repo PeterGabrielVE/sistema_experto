@@ -21,7 +21,7 @@ RUN composer dump-autoload --no-dev --optimize --no-scripts
 ############################
 # Front-end assets (Vite)
 ############################
-FROM node:24-alpine AS assets
+FROM node:25-alpine AS assets
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -34,7 +34,7 @@ RUN npm run build
 ############################
 # Runtime image
 ############################
-FROM php:8.4-apache AS app
+FROM php:8.5-apache AS app
 
 COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions gd intl opcache pdo_mysql zip
