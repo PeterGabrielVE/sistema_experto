@@ -40,12 +40,12 @@ jobs:
       python: ${{ steps.python.outputs.services }}
       docker: ${{ inputs.full || github.event_name == 'workflow_dispatch' || steps.filter.outputs.docker == 'true' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Detect changed paths
         id: filter
         if: ${{ !inputs.full && github.event_name != 'workflow_dispatch' }}
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         with:
           filters: |
             php:
@@ -126,7 +126,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: shivammathur/setup-php@v2
@@ -134,7 +134,7 @@ jobs:
           php-version: ${{ env.PHP_VERSION }}
           coverage: none
           tools: cs2pr
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
       # Legacy code predates Pint: enforce formatting only on files touched by the PR.
       - name: Check changed PHP formatting
         shell: bash
@@ -167,13 +167,13 @@ jobs:
           --health-timeout=5s
           --health-retries=20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ env.PHP_VERSION }}
           extensions: gd, intl, zip, pdo_sqlite, pdo_mysql
           coverage: none
-      - uses: ramsey/composer-install@v3
+      - uses: ramsey/composer-install@v4
       - name: Prepare environment
         run: |
           cp .env.example .env
@@ -206,7 +206,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ env.PHP_VERSION }}
@@ -221,8 +221,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -246,8 +246,8 @@ jobs:
       run:
         working-directory: ${{ matrix.service }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
@@ -281,12 +281,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
-      - uses: docker/setup-buildx-action@v3
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
 
       # These local tags match compose.yaml for the no-build smoke test.
       - name: Build app
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           tags: sistema-experto:latest
@@ -294,7 +294,7 @@ jobs:
           cache-from: type=gha,scope=app
           cache-to: type=gha,scope=app,mode=max
       - name: Build inference
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: inference
           build-contexts: shared=shared
@@ -303,7 +303,7 @@ jobs:
           cache-from: type=gha,scope=inference
           cache-to: type=gha,scope=inference,mode=max
       - name: Build expert
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: expert
           build-contexts: shared=shared
@@ -337,8 +337,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Validate specs and test tags
