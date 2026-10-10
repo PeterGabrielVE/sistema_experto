@@ -3,15 +3,14 @@ name: CD
 on:
   push:
     branches: [main]
-    tags: ["v*.*.*"]
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# One release at a time per ref; a newer push waits instead of cancelling a deploy halfway.
+# Serialize deployments to main; do not cancel a deployment in progress.
 concurrency:
-  group: cd-${{ github.ref }}
+  group: cd-production
   cancel-in-progress: false
 
 jobs:
@@ -27,6 +26,8 @@ jobs:
   publish:
     name: Publish · ${{ matrix.image }}
     needs: ci
+    # workflow_dispatch can be started from another branch; never publish from it.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -49,11 +50,16 @@ jobs:
             build-contexts: shared=shared
     steps:
       - uses: actions/checkout@v5
-      # GHCR image names must be lowercase; the repository owner is not.
+
+      # GHCR image names must be lowercase; repository owner names are not guaranteed lowercase.
       - id: image
+        shell: bash
         run: echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${{ matrix.image }}" >> "$GITHUB_OUTPUT"
+
       - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -65,8 +71,6 @@ jobs:
           images: ${{ steps.image.outputs.name }}
           tags: |
             type=sha,format=long
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - id: build
@@ -83,18 +87,19 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.image }}
           cache-to: type=gha,scope=${{ matrix.image }},mode=max
 
-      - uses: actions/attest-build-provenance@v3
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v3
         with:
           subject-name: ${{ steps.image.outputs.name }}
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
 
-  # Optional: enabled by setting the repository variable DEPLOY_HOST (see docs/ci-cd.md).
-  # Approval rules and secrets live in the "production" environment.
+  # Configure DEPLOY_HOST to enable deployment. Secrets and approval rules belong
+  # to the GitHub "production" environment.
   deploy:
     name: Deploy · production
     needs: publish
-    if: vars.DEPLOY_HOST != ''
+    if: github.ref == 'refs/heads/main' && vars.DEPLOY_HOST != ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
@@ -120,38 +125,81 @@ jobs:
         env:
           SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        shell: bash
         run: |
+          set -euo pipefail
+          test -n "$DEPLOY_HOST"
+          test -n "$DEPLOY_USER"
+          test -n "$SSH_KEY"
+          test -n "$KNOWN_HOSTS"
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
           printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
-          printf 'Host target\n  HostName %s\n  User %s\n  IdentityFile ~/.ssh/id_deploy\n  StrictHostKeyChecking yes\n' \
-            "$DEPLOY_HOST" "$DEPLOY_USER" > ~/.ssh/config
+          chmod 600 ~/.ssh/known_hosts
+          {
+            printf 'Host target\n'
+            printf '  HostName %s\n' "$DEPLOY_HOST"
+            printf '  User %s\n' "$DEPLOY_USER"
+            printf '  IdentityFile ~/.ssh/id_deploy\n'
+            printf '  IdentitiesOnly yes\n'
+            printf '  StrictHostKeyChecking yes\n'
+          } > ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
-      - name: Upload compose files
+      - name: Upload Compose files
+        shell: bash
         run: |
+          set -euo pipefail
           ssh target "mkdir -p '$DEPLOY_PATH'"
           scp compose.yaml compose.prod.yaml "target:$DEPLOY_PATH/"
 
       - name: Log in to GHCR on the server
         env:
           REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # Short-lived job token, sent over stdin; logged out again after the pull.
-        run: printf '%s' "$REGISTRY_TOKEN" | ssh target "docker login ghcr.io -u '$GITHUB_ACTOR' --password-stdin"
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' "$REGISTRY_TOKEN" |
+            ssh target "docker login ghcr.io --username '$GITHUB_ACTOR' --password-stdin"
 
       - name: Pull and restart
+        shell: bash
         run: |
-          ssh target bash -s -- "$DEPLOY_PATH" "$IMAGE_TAG" "${GITHUB_REPOSITORY_OWNER,,}" <<'EOF'
           set -euo pipefail
-          cd "$1"
-          export IMAGE_TAG="$2" IMAGE_OWNER="$3"
-          test -f .env || { echo ".env is missing in $1 (it is managed on the server)" >&2; exit 1; }
-          compose="docker compose -f compose.yaml -f compose.prod.yaml"
-          trap 'docker logout ghcr.io >/dev/null' EXIT
-          $compose pull
-          $compose up -d --no-build --remove-orphans --wait --wait-timeout 300
+          ssh target bash -s -- "$DEPLOY_PATH" "$IMAGE_TAG" "${GITHUB_REPOSITORY_OWNER,,}" <<'REMOTE'
+          set -euo pipefail
+          deploy_path="$1"
+          image_tag="$2"
+          image_owner="$3"
+
+          cd "$deploy_path"
+          export IMAGE_TAG="$image_tag"
+          export IMAGE_OWNER="$image_owner"
+
+          test -f .env || {
+            echo ".env is missing in $deploy_path (create it on the server; do not commit it)." >&2
+            exit 1
+          }
+
+          compose=(docker compose -f compose.yaml -f compose.prod.yaml)
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+
+          "${compose[@]}" config --quiet
+          "${compose[@]}" pull
+          "${compose[@]}" up -d --no-build --remove-orphans --wait --wait-timeout 300
           docker image prune -f
-          EOF
+          REMOTE
 
       - name: Health check
         if: vars.APP_URL != ''
-        run: curl --fail --silent --show-error --retry 10 --retry-delay 5 --retry-all-errors "${{ vars.APP_URL }}/up"
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error \
+            --retry 10 --retry-delay 5 --retry-all-errors \
+            "${{ vars.APP_URL }}/up"
+
+      - name: Log out from GHCR on the server
+        if: always()
+        run: ssh target "docker logout ghcr.io" || true
