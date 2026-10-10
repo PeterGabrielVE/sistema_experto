@@ -10,6 +10,7 @@ use App\Models\User;
 use Database\Seeders\RulesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class MealPlanEditorTest extends TestCase
@@ -54,6 +55,7 @@ class MealPlanEditorTest extends TestCase
         ]);
     }
 
+    #[Group('US-3.1/AC-9')]
     public function test_saves_the_menu_recomputing_every_amount(): void
     {
         $this->save([
@@ -85,6 +87,7 @@ class MealPlanEditorTest extends TestCase
             ->assertSeeInOrder(['Guardada', 'ajustada a mano', 'Día 1', 'Día 2', 'Pan Marraqueta:', '75 g']);
     }
 
+    #[Group('US-3.1/AC-9')]
     public function test_saved_as_generated_is_not_marked_as_edited(): void
     {
         $this->save([['meals' => [['key' => 'almuerzo', 'items' => [['food_id' => $this->chicken->id, 'portions' => 1]]]]]], generated: true);
@@ -93,6 +96,7 @@ class MealPlanEditorTest extends TestCase
         $this->assertSame('generado', MealPlan::firstOrFail()->plan['status']);
     }
 
+    #[Group('US-3.1/AC-9')]
     public function test_validation(): void
     {
         $this->save([['meals' => [['key' => 'merienda', 'items' => [['food_id' => 999, 'portions' => 0.3]]]]]])
@@ -106,6 +110,7 @@ class MealPlanEditorTest extends TestCase
         $this->assertSame(0, MealPlan::count());
     }
 
+    #[Group('US-3.1/AC-9')]
     public function test_editor_starts_from_the_saved_proposal_or_a_new_one(): void
     {
         $this->save([['meals' => [['key' => 'almuerzo', 'items' => [['food_id' => $this->chicken->id, 'portions' => 2]]]]]]);
@@ -128,6 +133,7 @@ class MealPlanEditorTest extends TestCase
         Http::assertSent(fn ($request) => str_ends_with($request->url(), '/meal-plan') && json_decode($request->body(), true)['days'] === 3);
     }
 
+    #[Group('US-3.1/AC-9')]
     public function test_discard_returns_to_the_automatic_proposal(): void
     {
         MealPlan::create(['diagnosis_id' => $this->diagnosis->id, 'plan' => ['days' => [], 'notes' => []], 'edited' => false]);
@@ -137,6 +143,7 @@ class MealPlanEditorTest extends TestCase
         $this->assertSame(0, MealPlan::count());
     }
 
+    #[Group('US-3.1/AC-11')]
     public function test_without_targets_the_editor_is_not_available(): void
     {
         $this->diagnosis->update(['carbohydrate' => null]);
@@ -146,6 +153,7 @@ class MealPlanEditorTest extends TestCase
             ->assertSessionHasErrors('menu');
     }
 
+    #[Group('US-3.1/AC-9')]
     public function test_only_doctors_edit_proposals(): void
     {
         $admin = User::factory()->admin()->create();

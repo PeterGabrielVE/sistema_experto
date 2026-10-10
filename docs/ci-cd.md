@@ -15,6 +15,7 @@ archivos cambiaron (`shared/` y los workflows activan todo lo que depende de ell
 | Front-end | `npm audit` (high+), `npm run build` con Vite. |
 | Python · expert / inference | Ruff (errores de sintaxis y pyflakes), pytest y `pip-audit` (informativo, ver abajo). |
 | Docker | Construye las 3 imágenes, levanta el stack con `docker compose` y comprueba `/up`, `/` y los `/health` de los servicios Python. |
+| Specs · Trazabilidad | `scripts/spec_check.py`: specs, tareas y tests etiquetados alineados ([specs/README.md](../specs/README.md)). |
 | **CI passed** | Gate único: falla si algún job falló o se canceló. |
 
 Pint se aplica de forma incremental porque el código existente es anterior a la regla:
@@ -23,6 +24,9 @@ de una vez: `vendor/bin/pint` en un PR dedicado.
 
 `pip-audit` no bloquea todavía: `fastapi==0.118.*` fija `starlette 0.48`, que tiene advisories
 conocidos (además de `pytest 8.4`). Al actualizar FastAPI, quitar `continue-on-error` del paso.
+
+Aparte, [pr.yml](../.github/workflows/pr.yml) valida el título de cada PR (Conventional Commits; un
+`feat` debe nombrar una historia o tarea con spec aprobada). Corre también al editar el título.
 
 ## CD ([cd.yml](../.github/workflows/cd.yml))
 

@@ -1,0 +1,30 @@
+name: PR
+
+# Separate from CI so that editing the title re-runs only this check.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  title:
+    name: PR · Título y spec
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      # Checks the specs of the PR head: a spec approved in the same PR counts.
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Conventional Commits and approved spec for feat
+        env:
+          # Never interpolate the title into the script: it is user input.
+          TITLE: ${{ github.event.pull_request.title }}
+        run: python scripts/spec_check.py pr "$TITLE"

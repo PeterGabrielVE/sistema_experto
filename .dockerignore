@@ -21,5 +21,8 @@ compose.yaml
 compose.prod.yaml
 Dockerfile
 .github
+.claude
+scripts
+specs
 expert
 inference

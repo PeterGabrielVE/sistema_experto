@@ -331,10 +331,32 @@ jobs:
 
   # Configure this single check as required in branch protection.
   # Skipped jobs are accepted only because their path/event conditions can be intentional.
+  specs:
+    name: Specs · Trazabilidad
+    # Cheap and cross-cutting (specs, tests and the scripts): always runs.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Validate specs and test tags
+        run: python scripts/spec_check.py
+      - name: Spec index
+        if: ${{ !cancelled() }}
+        run: |
+          {
+            echo '### Specs'
+            echo '```'
+            python scripts/spec_check.py list
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   ci-ok:
     name: CI passed
     if: always()
-    needs: [changes, php-lint, php-tests, php-audit, frontend, python, docker]
+    needs: [changes, specs, php-lint, php-tests, php-audit, frontend, python, docker]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:

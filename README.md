@@ -34,6 +34,13 @@ Volúmenes persistentes: `db-data` (MySQL), `storage` (logs, sesiones, caché) y
 
 Con `APP_ENV=production` el contenedor ejecuta `php artisan optimize` al arrancar.
 
+## Desarrollo guiado por specs
+
+Cada historia de usuario tiene su spec en [specs/](specs/) (qué, criterios de aceptación, plan y
+tareas) y cada criterio, un test que lo declara. El CI verifica que estén alineados. Proceso,
+convenciones y comandos en [specs/README.md](specs/README.md); principios en
+[specs/constitution.md](specs/constitution.md).
+
 ## CI/CD
 
 GitHub Actions: tests, lint y build en cada PR; publicación de imágenes en GHCR y despliegue

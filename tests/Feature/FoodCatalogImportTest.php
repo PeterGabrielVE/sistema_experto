@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Models\Food;
 use App\Services\FoodCatalogImporter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Group;
 use RuntimeException;
 use Tests\TestCase;
 
+#[Group('US-3.1/AC-8')]
 class FoodCatalogImportTest extends TestCase
 {
     use RefreshDatabase;

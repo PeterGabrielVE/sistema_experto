@@ -4,6 +4,8 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     target-branch: develop
+    commit-message:
+      prefix: deps # PR titles follow Conventional Commits (scripts/spec_check.py pr)
     schedule:
       interval: weekly
     groups:
@@ -13,6 +15,8 @@ updates:
   - package-ecosystem: composer
     directory: /
     target-branch: develop
+    commit-message:
+      prefix: deps
     schedule:
       interval: weekly
     groups:
@@ -22,6 +26,8 @@ updates:
   - package-ecosystem: npm
     directory: /
     target-branch: develop
+    commit-message:
+      prefix: deps
     schedule:
       interval: weekly
     groups:
@@ -31,6 +37,8 @@ updates:
   - package-ecosystem: pip
     directories: [/expert, /inference]
     target-branch: develop
+    commit-message:
+      prefix: deps
     schedule:
       interval: weekly
     groups:
@@ -40,5 +48,7 @@ updates:
   - package-ecosystem: docker
     directories: [/, /expert, /inference]
     target-branch: develop
+    commit-message:
+      prefix: deps
     schedule:
       interval: monthly
