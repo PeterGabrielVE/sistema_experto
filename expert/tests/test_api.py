@@ -122,6 +122,7 @@ def test_rejects_invalid_macro_rules(client, rule):
     assert client.post("/evaluate", json=payload).status_code == 422
 
 
+@pytest.mark.spec("US-3.1/AC-1", "US-3.1/AC-5")
 def test_meal_plan(client):
     import json
     from pathlib import Path
@@ -141,6 +142,7 @@ def test_meal_plan(client):
     assert client.post("/meal-plan", json={**payload, "days": 8}).status_code == 422
 
 
+@pytest.mark.spec("US-3.1/AC-6", "US-3.1/AC-7")
 def test_meal_plan_with_allergies_and_budget(client):
     targets = {"energy": 1750, "carbohydrates": 197, "proteins": 88, "fats": 68}
     body = client.post("/meal-plan", json={"targets": targets, "seed": 1, "allergies": ["Alergia al maní, intolerancia a la lactosa"], "budget": 6000}).json()
@@ -154,6 +156,7 @@ def test_meal_plan_with_allergies_and_budget(client):
     assert client.post("/meal-plan", json={"targets": targets, "allergies": ["x" * 501]}).status_code == 422
 
 
+@pytest.mark.spec("US-3.1/AC-8")
 def test_food_catalog(client):
     body = client.get("/foods").json()
 
@@ -162,6 +165,7 @@ def test_food_catalog(client):
     assert isinstance(body["warnings"], list)
 
 
+@pytest.mark.spec("US-3.1/AC-8")
 def test_meal_plan_with_the_service_catalog(client):
     targets = {"energy": 2000, "carbohydrates": 250, "proteins": 100, "fats": 67}
     body = client.post("/meal-plan", json={"targets": targets, "seed": 3}).json()

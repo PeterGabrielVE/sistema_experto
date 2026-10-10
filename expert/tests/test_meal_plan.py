@@ -29,6 +29,7 @@ def week():
     return meal_plan.generate(TARGETS, FOODS, seed=1, days=7)
 
 
+@pytest.mark.spec("US-3.1/AC-2")
 def test_meets_the_targets_within_the_tolerance(plan):
     day = plan["days"][0]
     assert plan["status"] == "optimo"
@@ -38,6 +39,7 @@ def test_meets_the_targets_within_the_tolerance(plan):
     assert [m["key"] for m in day["meals"]] == [m["key"] for m in CFG["meals"]]
 
 
+@pytest.mark.spec("US-3.1/AC-3")
 def test_respects_the_guideline_constraints(week):
     for day in week["days"]:
         portions = {}
@@ -59,6 +61,7 @@ def test_respects_the_guideline_constraints(week):
             assert low <= portions.get(plain(group), 0) <= high, (day["day"], group)
 
 
+@pytest.mark.spec("US-3.1/AC-3")
 def test_realistic_meals(week):
     items = [(meal["key"], i) for day in week["days"] for meal in day["meals"] for i in meal["items"]]
     # One fruit per meal at most, two eggs at most, no crumbs of meat.
@@ -67,24 +70,28 @@ def test_realistic_meals(week):
     assert all(i["portions"] >= 1 for _, i in items if i["group"] in ("Carnes", "Verduras"))
 
 
+@pytest.mark.spec("US-3.1/AC-2")
 def test_totals_add_up(plan):
     day = plan["days"][0]
     for key in ("energy", "carbohydrates", "proteins", "fats", "glycemic_load", "saturated_fat"):
         assert day["totals"][key] == pytest.approx(sum(m["totals"][key] for m in day["meals"]), abs=0.2)
 
 
+@pytest.mark.spec("US-3.1/AC-1")
 def test_grams_come_from_the_exchange_portion(plan):
     for item in [i for m in plan["days"][0]["meals"] for i in m["items"]]:
         source = food(item["food_id"])
         assert item["grams"] == (int(item["portions"] * source["grams"] + 0.5) if source["grams"] else None)  # half up
 
 
+@pytest.mark.spec("US-3.1/AC-8")
 def test_skips_foods_without_nutrients(plan):
     used = {i["food_id"] for m in plan["days"][0]["meals"] for i in m["items"]}
     assert not used & {f["id"] for f in FOODS if f["kcal"] == 0}
     assert "Mote Crudo" in plan["notes"][0]
 
 
+@pytest.mark.spec("US-3.1/AC-5")
 def test_another_seed_gives_another_menu_with_the_same_quality():
     one, other = meal_plan.generate(TARGETS, FOODS, seed=1), meal_plan.generate(TARGETS, FOODS, seed=7)
     foods = lambda p: [i["name"] for m in p["days"][0]["meals"] for i in m["items"]]  # noqa: E731
@@ -93,6 +100,7 @@ def test_another_seed_gives_another_menu_with_the_same_quality():
     assert meal_plan.generate(TARGETS, FOODS, seed=1) == one  # reproducible
 
 
+@pytest.mark.spec("US-3.1/AC-5")
 def test_week_has_different_days_all_within_the_targets(week):
     assert [d["day"] for d in week["days"]] == list(range(1, 8))
     menus = [frozenset((m["key"], i["name"]) for m in d["meals"] for i in m["items"]) for d in week["days"]]
@@ -104,10 +112,12 @@ def test_week_has_different_days_all_within_the_targets(week):
         assert abs(day["deviation_percent"]["energy"]) <= CFG["tolerance_percent"]["energy"] + 0.3
 
 
+@pytest.mark.spec("US-3.1/AC-5")
 def test_first_day_of_a_week_is_the_single_day_plan(plan, week):
     assert week["days"][0]["deviation_percent"] == plan["days"][0]["deviation_percent"]
 
 
+@pytest.mark.spec("US-3.1/AC-2")
 def test_flags_targets_out_of_reach():
     # 1200 kcal: the guideline minimums of fruit, vegetables and dairy leave no room.
     plan = meal_plan.generate({"energy": 1200, "carbohydrates": 120, "proteins": 75, "fats": 47}, FOODS)
@@ -115,6 +125,7 @@ def test_flags_targets_out_of_reach():
     assert any("Fuera de la tolerancia" in n for n in plan["days"][0]["notes"])
 
 
+@pytest.mark.spec("US-3.1/AC-2")
 def test_without_matching_foods():
     plan = meal_plan.generate(TARGETS, [{"id": 1, "name": "Agua", "item": "Bebidas", "grams": 200, "kcal": 1, "protein": 0, "fat": 0, "cho": 0}])
 
@@ -122,6 +133,7 @@ def test_without_matching_foods():
     assert plan["days"] == []
 
 
+@pytest.mark.spec("US-3.1/AC-4")
 def test_respects_the_glycemic_load_and_saturated_fat_ceilings():
     default = meal_plan.generate(TARGETS, FOODS, seed=1)
     strict = meal_plan.generate(TARGETS, FOODS, seed=1, limits={"glycemic_load": 80, "saturated_fat": 14})
@@ -133,6 +145,7 @@ def test_respects_the_glycemic_load_and_saturated_fat_ceilings():
     assert day["totals"]["saturated_fat"] <= 14 * 1.02
 
 
+@pytest.mark.spec("US-3.1/AC-4")
 def test_glycemic_load_of_a_portion(plan):
     bread = next(f for f in FOODS if f["name"] == "Pan Marraqueta")  # GI 75, 30 g of carbohydrates
     items = [i for m in plan["days"][0]["meals"] for i in m["items"]]
@@ -141,6 +154,7 @@ def test_glycemic_load_of_a_portion(plan):
     assert all(i["glycemic_load"] == 0 for i in items if i["group"] in ("Carnes", "Aceites"))
 
 
+@pytest.mark.spec("US-3.1/AC-4")
 def test_foods_without_glycemic_index_are_reported():
     foods = [{**f, "glycemic_index": None} if f["item"] == "Pan" else f for f in FOODS]
     plan = meal_plan.generate(TARGETS, foods, seed=1)
@@ -157,6 +171,7 @@ def priced():
     return catalog.load().foods
 
 
+@pytest.mark.spec("US-3.1/AC-7")
 def test_reports_the_cost_of_each_food_and_day(priced):
     day = meal_plan.generate(TARGETS, priced, seed=1)["days"][0]
     items = [i for m in day["meals"] for i in m["items"]]
@@ -166,11 +181,13 @@ def test_reports_the_cost_of_each_food_and_day(priced):
     assert day["cost"] == pytest.approx(sum(i["cost"] for i in items), abs=1)
 
 
+@pytest.mark.spec("US-3.1/AC-7")
 def test_without_prices_there_is_no_cost(plan):
     assert plan["days"][0]["cost"] is None
     assert plan["restrictions"]["budget"] is None
 
 
+@pytest.mark.spec("US-3.1/AC-7")
 def test_a_budget_lowers_the_cost_and_keeps_the_targets(priced):
     free = meal_plan.generate(TARGETS, priced, seed=1, days=3)
     budget = 5000
@@ -184,6 +201,7 @@ def test_a_budget_lowers_the_cost_and_keeps_the_targets(priced):
         assert not any("presupuesto" in n for n in day["notes"])
 
 
+@pytest.mark.spec("US-3.1/AC-7")
 def test_a_budget_too_low_is_exceeded_as_little_as_possible(priced):
     plan = meal_plan.generate(TARGETS, priced, seed=1, budget=1000)
     day = plan["days"][0]
@@ -192,6 +210,7 @@ def test_a_budget_too_low_is_exceeded_as_little_as_possible(priced):
     assert any(n.startswith("Cuesta $") and "sobre el presupuesto de $1.000" in n for n in day["notes"])
 
 
+@pytest.mark.spec("US-3.1/AC-7")
 def test_with_a_budget_foods_without_price_are_left_out(priced):
     foods = [{**f, "price": None} if f["name"] == "Pollo" else f for f in priced]
     plan = meal_plan.generate(TARGETS, foods, seed=1, days=3, budget=8000)
@@ -200,6 +219,7 @@ def test_with_a_budget_foods_without_price_are_left_out(priced):
     assert any(n == "Sin precio, no se usan con presupuesto: Pollo." for n in plan["notes"])
 
 
+@pytest.mark.spec("US-3.1/AC-6", "US-3.1/AC-7")
 def test_allergies_and_budget_together(priced):
     plan = meal_plan.generate(TARGETS, priced, seed=1, days=2, budget=5500, allergies=["intolerancia a la lactosa"])
 

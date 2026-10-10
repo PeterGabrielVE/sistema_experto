@@ -4,6 +4,8 @@ import pytest
 
 from app import catalog, meal_plan
 
+pytestmark = pytest.mark.spec("US-3.1/AC-8")
+
 HEADER = "id,name,group,group_id,portion,grams,kcal,protein,fat,saturated_fat,cho,glycemic_index,sodium_mg,potassium_mg,phosphorus_mg,calcium_mg\n"
 
 

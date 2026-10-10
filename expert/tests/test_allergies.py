@@ -2,6 +2,8 @@ import pytest
 
 from app import allergies, catalog, meal_plan
 
+pytestmark = pytest.mark.spec("US-3.1/AC-6")
+
 TARGETS = {"energy": 1750, "carbohydrates": 197, "proteins": 88, "fats": 68}
 
 

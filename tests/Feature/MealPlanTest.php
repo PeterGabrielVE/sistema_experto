@@ -12,6 +12,7 @@ use Database\Seeders\RulesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class MealPlanTest extends TestCase
@@ -87,6 +88,8 @@ class MealPlanTest extends TestCase
         ));
     }
 
+    #[Group('US-3.1/AC-1')]
+    #[Group('US-3.1/AC-4')]
     public function test_result_page_shows_the_generated_proposal(): void
     {
         Http::fake(['expert:8000/meal-plan' => Http::response($this->plan()), '*' => Http::response([], 503)]);
@@ -102,13 +105,14 @@ class MealPlanTest extends TestCase
         $body = json_decode($request->body(), true);
         $this->assertEquals(['energy' => 1750, 'carbohydrates' => 197, 'proteins' => 88, 'fats' => 68], $body['targets']);
         $this->assertSame([$this->diagnosis->id * 1000, 1], [$body['seed'], $body['days']]);
-        $this->assertEquals(['id' => 1, 'name' => 'Pollo', 'item' => 'Carnes', 'grams' => 50, 'kcal' => 65, 'protein' => 11, 'fat' => 2, 'saturated_fat' => 0.5, 'cho' => 1, 'glycemic_index' => null, 'allergens' => [], 'price' => null], $body['foods'][0]);
+        $this->assertEquals(['id' => Food::where('name', 'Pollo')->value('id'), 'name' => 'Pollo', 'item' => 'Carnes', 'grams' => 50, 'kcal' => 65, 'protein' => 11, 'fat' => 2, 'saturated_fat' => 0.5, 'cho' => 1, 'glycemic_index' => null, 'allergens' => [], 'price' => null], $body['foods'][0]);
         // No allergies in the clinical record, no budget.
         $this->assertSame([[], null], [$body['allergies'], $body['budget']]);
         // No macronutrient plan (the evaluation failed): the general ceilings.
         $this->assertEquals(['glycemic_load' => 120, 'saturated_fat' => 19], $body['limits']);
     }
 
+    #[Group('US-3.1/AC-5')]
     public function test_several_days_and_variant(): void
     {
         Http::fake(['expert:8000/meal-plan' => Http::response($this->plan(3)), '*' => Http::response([], 503)]);
@@ -123,6 +127,8 @@ class MealPlanTest extends TestCase
         $this->assertSame([$this->diagnosis->id * 1000 + 2, 3], [$body['seed'], $body['days']]);
     }
 
+    #[Group('US-3.1/AC-6')]
+    #[Group('US-3.1/AC-7')]
     public function test_sends_the_allergies_of_the_clinical_record_and_the_budget(): void
     {
         ClinicalRecord::create(['patient_id' => $this->diagnosis->id_patient, 'consultation_reason' => 'Control', 'food_allergies' => 'Celíaca, alergia al maní']);
@@ -142,6 +148,7 @@ class MealPlanTest extends TestCase
         $this->assertEquals([['gluten'], 125.0], [$bread['allergens'], $bread['price']]);
     }
 
+    #[Group('US-3.1/AC-7')]
     public function test_a_budget_out_of_range_is_ignored(): void
     {
         Http::fake(['expert:8000/meal-plan' => Http::response($this->plan()), '*' => Http::response([], 503)]);
@@ -155,6 +162,7 @@ class MealPlanTest extends TestCase
         $this->assertSame([null, 6000], $budgets);
     }
 
+    #[Group('US-3.1/AC-4')]
     public function test_ceilings_come_from_the_macronutrient_plan(): void
     {
         $evaluation = ['indices' => [], 'ruleset_version' => '2026.10.5.1', 'findings' => [], 'assessments' => [
@@ -182,6 +190,7 @@ class MealPlanTest extends TestCase
         Http::assertSentCount(2); // the evaluation of the page is reused
     }
 
+    #[Group('US-3.1/AC-10')]
     public function test_saved_proposal_is_shown_instead_of_generating_one(): void
     {
         MealPlan::create(['diagnosis_id' => $this->diagnosis->id, 'plan' => $this->plan(), 'edited' => true, 'created_by' => $this->doctor->id]);
@@ -200,6 +209,7 @@ class MealPlanTest extends TestCase
         $this->assertSame([], $this->sentPlanRequests());
     }
 
+    #[Group('US-3.1/AC-5')]
     public function test_pdf_view_lists_the_days(): void
     {
         $html = view('diagnoses._meal-plan-pdf', ['mealPlan' => $this->plan(2)])->render();
@@ -210,6 +220,7 @@ class MealPlanTest extends TestCase
         $this->assertStringContainsString('Carga glucémica 91,4', $html);
     }
 
+    #[Group('US-3.1/AC-5')]
     public function test_pdf_generates_the_same_variant(): void
     {
         Http::fake(['expert:8000/meal-plan' => Http::response($this->plan()), '*' => Http::response([], 503)]);
@@ -220,6 +231,7 @@ class MealPlanTest extends TestCase
         $this->assertSame([$this->diagnosis->id * 1000 + 2, 3], [$body['seed'], $body['days']]);
     }
 
+    #[Group('US-3.1/AC-11')]
     public function test_without_targets_nothing_is_requested(): void
     {
         $this->diagnosis->update(['result_pulgar' => null]);
@@ -231,6 +243,7 @@ class MealPlanTest extends TestCase
         $this->assertSame([], $this->sentPlanRequests());
     }
 
+    #[Group('US-3.1/AC-11')]
     public function test_service_down(): void
     {
         Http::fake(['*' => Http::response([], 500)]);

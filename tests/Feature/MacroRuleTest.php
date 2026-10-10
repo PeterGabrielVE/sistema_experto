@@ -42,7 +42,8 @@ class MacroRuleTest extends TestCase
             ->assertRedirect(route('macro-rules.index'));
 
         $rule = MacroRule::firstOrFail();
-        $this->assertSame(['glycemic_load' => 80, 'carbohydrates' => 45], $rule->actions);
+        // MySQL JSON columns do not keep key order.
+        $this->assertSame(['carbohydrates' => 45, 'glycemic_load' => 80], collect($rule->actions)->sortKeys()->all());
         $this->assertTrue($rule->active);
         $this->assertSame($this->chief->id, (int) $rule->created_by);
 
@@ -106,14 +107,17 @@ class MacroRuleTest extends TestCase
             ->postJson("/diagnosis/{$patient->id}/macros", ['weight' => 70, 'size' => 165, 'age' => 35, 'physical_activity' => 1])
             ->assertOk();
 
-        Http::assertSent(fn (Request $request) => json_decode($request->body(), true)['macro_rules'] === [[
-            'id' => 'CFG-'.$active->id,
-            'title' => 'Resistencia a la insulina por HOMA-IR',
-            'advice' => 'Preferir alimentos de bajo índice glicémico.',
-            'variable' => 'homa_ir',
-            'operator' => '>',
-            'value' => 2.5,
-            'actions' => ['glycemic_load' => 80, 'carbohydrates' => 45],
-        ]]);
+        // MySQL JSON columns do not keep key order, so the actions are compared sorted.
+        Http::assertSent(fn (Request $request) => collect(json_decode($request->body(), true)['macro_rules'])
+            ->map(fn (array $rule) => ['actions' => collect($rule['actions'])->sortKeys()->all()] + $rule)
+            ->all() === [[
+                'actions' => ['carbohydrates' => 45, 'glycemic_load' => 80],
+                'id' => 'CFG-'.$active->id,
+                'title' => 'Resistencia a la insulina por HOMA-IR',
+                'advice' => 'Preferir alimentos de bajo índice glicémico.',
+                'variable' => 'homa_ir',
+                'operator' => '>',
+                'value' => 2.5,
+            ]]);
     }
 }

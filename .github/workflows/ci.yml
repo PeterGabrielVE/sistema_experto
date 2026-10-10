@@ -5,7 +5,7 @@ on:
   push:
     branches: [develop]
   workflow_dispatch:
-  # Called by the CD workflow so nothing is published without a green build.
+  # Called by CD before anything is published.
   workflow_call:
     inputs:
       full:
@@ -18,7 +18,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  # Never cancel a run that the CD workflow is waiting on.
+  # Do not cancel a CI run that a CD workflow is waiting for.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
@@ -41,18 +41,16 @@ jobs:
       docker: ${{ inputs.full || github.event_name == 'workflow_dispatch' || steps.filter.outputs.docker == 'true' }}
     steps:
       - uses: actions/checkout@v5
-      - uses: dorny/paths-filter@v3
+
+      - name: Detect changed paths
         id: filter
         if: ${{ !inputs.full && github.event_name != 'workflow_dispatch' }}
+        uses: dorny/paths-filter@v3
         with:
           filters: |
-            shared: &shared
-              - 'shared/**'
-            ci: &ci
-              - '.github/workflows/**'
             php:
-              - *shared
-              - *ci
+              - '.github/workflows/**'
+              - 'shared/**'
               - 'app/**'
               - 'bootstrap/**'
               - 'config/**'
@@ -62,36 +60,64 @@ jobs:
               - 'routes/**'
               - 'tests/**'
               - 'artisan'
-              - 'composer.*'
+              - 'composer.json'
+              - 'composer.lock'
               - 'phpunit.xml'
               - 'pint.json'
             frontend:
-              - *ci
+              - '.github/workflows/**'
               - 'resources/js/**'
               - 'resources/sass/**'
-              - 'package*.json'
+              - 'resources/css/**'
+              - 'package.json'
+              - 'package-lock.json'
               - 'vite.config.js'
             expert:
-              - *shared
-              - *ci
+              - '.github/workflows/**'
+              - 'shared/**'
               - 'expert/**'
             inference:
-              - *shared
-              - *ci
+              - '.github/workflows/**'
+              - 'shared/**'
               - 'inference/**'
             docker:
-              - '**'
-      # matrix is not available in a job-level `if`, so the Python matrix is built here.
+              - '.github/workflows/**'
+              - 'Dockerfile'
+              - 'docker/**'
+              - 'inference/Dockerfile'
+              - 'expert/Dockerfile'
+              - 'compose.yaml'
+              - 'compose.prod.yaml'
+              - '.dockerignore'
+              - '.env.example'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'shared/**'
+              - 'app/**'
+              - 'bootstrap/**'
+              - 'config/**'
+              - 'database/**'
+              - 'resources/**'
+              - 'routes/**'
+              - 'expert/**'
+              - 'inference/**'
+
+      # Build the Python matrix as a JSON array.
       - id: python
         env:
           ALL: ${{ inputs.full || github.event_name == 'workflow_dispatch' }}
           EXPERT: ${{ steps.filter.outputs.expert }}
           INFERENCE: ${{ steps.filter.outputs.inference }}
+        shell: bash
         run: |
           services=()
-          [[ "$ALL" == true || "$EXPERT" == true ]] && services+=('"expert"')
-          [[ "$ALL" == true || "$INFERENCE" == true ]] && services+=('"inference"')
-          echo "services=[$(IFS=,; echo "${services[*]}")]" >> "$GITHUB_OUTPUT"
+          if [[ "$ALL" == "true" || "$EXPERT" == "true" ]]; then
+            services+=('"expert"')
+          fi
+          if [[ "$ALL" == "true" || "$INFERENCE" == "true" ]]; then
+            services+=('"inference"')
+          fi
+          printf 'services=[%s]\n' "$(IFS=,; echo "${services[*]}")" >> "$GITHUB_OUTPUT"
 
   php-lint:
     name: PHP · Pint (changed files)
@@ -109,8 +135,12 @@ jobs:
           coverage: none
           tools: cs2pr
       - uses: ramsey/composer-install@v3
-      # Legacy code predates Pint: only the files touched by the PR are enforced.
-      - run: vendor/bin/pint --test --diff="origin/${{ github.base_ref }}" --format=checkstyle | cs2pr
+      # Legacy code predates Pint: enforce formatting only on files touched by the PR.
+      - name: Check changed PHP formatting
+        shell: bash
+        run: |
+          set -o pipefail
+          vendor/bin/pint --test --diff="origin/${{ github.base_ref }}" --format=checkstyle | cs2pr
 
   php-tests:
     name: PHP · Tests (${{ matrix.database }})
@@ -124,7 +154,7 @@ jobs:
         database: [sqlite, mysql]
     services:
       mysql:
-        # Service containers cannot be conditional: the sqlite leg just ignores it.
+        # Service containers cannot be conditional; the SQLite leg ignores this service.
         image: mysql:8.4
         env:
           MYSQL_DATABASE: testing
@@ -150,7 +180,6 @@ jobs:
           php artisan key:generate --ansi
       - name: Point tests at MySQL
         if: matrix.database == 'mysql'
-        # Real environment variables take precedence over the <env> entries in phpunit.xml.
         run: |
           {
             echo "DB_CONNECTION=mysql"
@@ -160,7 +189,8 @@ jobs:
             echo "DB_USERNAME=root"
             echo "DB_PASSWORD=root"
           } >> "$GITHUB_ENV"
-      - run: php artisan test --compact --log-junit=junit.xml
+      - name: Run tests
+        run: php artisan test --compact --log-junit=junit.xml
       - name: Publish test report
         if: ${{ !cancelled() }}
         uses: mikepenz/action-junit-report@v5
@@ -181,7 +211,8 @@ jobs:
         with:
           php-version: ${{ env.PHP_VERSION }}
           coverage: none
-      - run: composer audit --locked --no-interaction
+      - name: Audit Composer dependencies
+        run: composer audit --locked --no-interaction
 
   frontend:
     name: Front-end · Build & audit
@@ -196,8 +227,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm audit --omit=dev --audit-level=high
-      - run: npm run build
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Build frontend
+        run: npm run build
 
   python:
     name: Python · ${{ matrix.service }}
@@ -219,13 +252,15 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
           cache-dependency-path: ${{ matrix.service }}/requirements.txt
-      - run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
       - name: Ruff (syntax errors and pyflakes)
         run: pipx run ruff check . --select E9,F --target-version py313 --output-format github
       # The services locate shared/ in the repository root when run from a checkout.
-      - run: python -m pytest tests -q --junitxml=junit.xml
-      # Audits the exact installed versions. Not blocking yet: fastapi 0.118 pins a starlette
-      # release with known advisories; drop continue-on-error once fastapi is upgraded.
+      - name: Run tests
+        run: python -m pytest tests -q --junitxml=junit.xml
+      # Not blocking yet because the current dependency set has a known advisory.
+      # Remove continue-on-error after upgrading the affected dependency chain.
       - name: Dependency audit
         continue-on-error: true
         run: |
@@ -249,7 +284,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: docker/setup-buildx-action@v3
 
-      # Tags match compose.yaml so `docker compose up --no-build` uses these images.
+      # These local tags match compose.yaml for the no-build smoke test.
       - name: Build app
         uses: docker/build-push-action@v6
         with:
@@ -276,37 +311,77 @@ jobs:
           load: true
           cache-from: type=gha,scope=expert
           cache-to: type=gha,scope=expert,mode=max
-
-      - name: Start the stack
+      - name: Start stack
         run: |
           cp .env.example .env
           sed -i "s|^APP_KEY=.*|APP_KEY=base64:$(openssl rand -base64 32)|" .env
           docker compose up -d --no-build --wait --wait-timeout 180
-
       - name: Smoke test
         run: |
           curl --fail --silent --show-error --retry 10 --retry-delay 3 --retry-all-errors http://localhost:8000/up
           curl --fail --silent --show-error --output /dev/null http://localhost:8000/
           docker compose exec -T expert python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"
           docker compose exec -T inference python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"
-
       - name: Container logs
         if: failure()
         run: docker compose logs --no-color --tail=200
-
-      - name: Stop the stack
+      - name: Stop stack
         if: always()
         run: docker compose down --volumes
 
-  # Single required check for branch protection: skipped jobs count as success,
-  # failed or cancelled ones fail the gate.
+  # Configure this single check as required in branch protection.
+  # Skipped jobs are accepted only because their path/event conditions can be intentional.
+  specs:
+    name: Specs · Trazabilidad
+    # Cheap and cross-cutting (specs, tests and the scripts): always runs.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Validate specs and test tags
+        run: python scripts/spec_check.py
+      - name: Spec index
+        if: ${{ !cancelled() }}
+        run: |
+          {
+            echo '### Specs'
+            echo '```'
+            python scripts/spec_check.py list
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   ci-ok:
     name: CI passed
     if: always()
-    needs: [php-lint, php-tests, php-audit, frontend, python, docker]
+    needs: [changes, specs, php-lint, php-tests, php-audit, frontend, python, docker]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
-        run: exit 1
-      - run: echo "All required jobs passed or were not needed."
+      - name: Validate job results
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import sys
+
+          jobs = json.loads(os.environ["RESULTS"])
+          if jobs["changes"]["result"] != "success":
+              print("Change detection did not succeed.")
+              sys.exit(1)
+
+          invalid = {
+              name: job["result"]
+              for name, job in jobs.items()
+              if name != "changes" and job["result"] not in ("success", "skipped")
+          }
+          if invalid:
+              print(f"CI failed: {invalid}")
+              sys.exit(1)
+
+          print("CI passed: executed jobs succeeded; conditional jobs were skipped.")
+          PY
