@@ -2,5 +2,5 @@ fastapi==0.142.*
 uvicorn[standard]==0.54.*
 pytest==8.4.*
 httpx==0.28.*
-pulp==3.3.*
+pulp==4.0.*
 highspy==1.15.*
