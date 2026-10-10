@@ -21,7 +21,7 @@ RUN composer dump-autoload --no-dev --optimize --no-scripts
 ############################
 # Front-end assets (Vite)
 ############################
-FROM node:24-alpine AS assets
+FROM node:25-alpine AS assets
 
 WORKDIR /app
 COPY package.json package-lock.json ./
