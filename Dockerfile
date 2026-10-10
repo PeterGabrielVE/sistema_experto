@@ -34,7 +34,7 @@ RUN npm run build
 ############################
 # Runtime image
 ############################
-FROM php:8.4-apache AS app
+FROM php:8.5-apache AS app
 
 COPY --from=mlocati/php-extension-installer:latest /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions gd intl opcache pdo_mysql zip
