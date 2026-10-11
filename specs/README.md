@@ -88,7 +88,7 @@ cd expert && python -m pytest tests --spec US-3.1   # tests Python de una spec (
 | Check | Regla |
 | --- | --- |
 | **Specs · Trazabilidad** (`ci.yml`) | Encabezado (`id`, `title`, `epic`, `status`) y secciones obligatorias; ids y carpetas coherentes; AC y tareas sin repetir; desde `approved` existen `plan.md` y `tasks.md` y cada AC está cubierto por alguna tarea; en `implemented`, todas las tareas `[x]` y cada AC con test (o `[manual]`); ningún test referencia un criterio o spec inexistente. |
-| **PR · Título y spec** (`pr.yml`) | Título en Conventional Commits. Un `feat` debe nombrar una `US-x.y` o `TK-x.y.n` que exista y cuya spec no esté en `draft` (la tarea debe estar en `tasks.md`). `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`, `perf`, `style`, `revert` y `deps` no requieren spec. |
+| **PR · Título y spec** (`pr.yml`) | Título en Conventional Commits. Un `feat` debe nombrar una `US-x.y` o `TK-x.y.n` que exista y cuya spec no esté en `draft` (la tarea debe estar en `tasks.md`). `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`, `perf`, `style`, `revert` y `deps` no requieren spec. No se aplica a los PR de release `develop` → `main`: sus commits ya se validaron al entrar a `develop`. |
 
 En `in-progress`, un AC sin test es un aviso; en `implemented`, un error.
 

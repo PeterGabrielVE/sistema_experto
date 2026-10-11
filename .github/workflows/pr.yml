@@ -15,6 +15,9 @@ concurrency:
 jobs:
   title:
     name: PR · Título y spec
+    # Release PRs (develop → main) carry commits already checked one by one when they reached develop.
+    # A skipped job still satisfies a required status check.
+    if: ${{ !(github.head_ref == 'develop' && github.base_ref == 'main') }}
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
