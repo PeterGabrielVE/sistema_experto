@@ -16,7 +16,7 @@ primero TK-6.1.3 y TK-6.1.4.
   la casilla en `PatientForm.vue`, y la baja por enlace firmado (`GET` confirma, `POST` da de baja) con sus
   vistas públicas sin datos del paciente; la ficha muestra la baja y su fecha, con
   `ReminderUnsubscribeTest` y el test de reactivación en `PatientFormApiTest`. Cubre AC-4, AC-8.
-- [ ] **TK-6.1.1** — Crear el Mailable `AppointmentReminderMail` (Markdown, con el enlace de baja) y el job
+- [x] **TK-6.1.1** — Crear el Mailable `AppointmentReminderMail` (Markdown, con el enlace de baja) y el job
   `SendAppointmentReminder` (reintentos con espera, `failed()` marca `failed`, vuelve a validar la cita
   antes de enviar), con los tests de contenido, reintentos e idempotencia del job en
   `AppointmentReminderTest`. Cubre AC-2, AC-3, AC-5, AC-6.

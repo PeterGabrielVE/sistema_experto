@@ -30,6 +30,15 @@ class Appointment extends Model
 
     public const CANCELLED = 'cancelled';
 
+    // Reminder states; null is pending.
+    public const REMINDER_QUEUED = 'queued';
+
+    public const REMINDER_SENT = 'sent';
+
+    public const REMINDER_SKIPPED = 'skipped';
+
+    public const REMINDER_FAILED = 'failed';
+
     protected $fillable = [
         'patient_id', 'user_id', 'diagnosis_id', 'scheduled_at', 'notes', 'status', 'cancelled_at',
         'reminder_status', 'reminder_reason', 'reminder_at',
@@ -62,6 +71,20 @@ class Appointment extends Model
     public function diagnosis(): BelongsTo
     {
         return $this->belongsTo(Diagnosis::class);
+    }
+
+    /**
+     * Why this appointment gets no reminder (cancelled, or Patient::reminderSkipReason),
+     * or null if it can be sent.
+     */
+    public function reminderSkipReason(): ?string
+    {
+        return $this->status === self::CANCELLED ? 'cancelled' : $this->patient->reminderSkipReason();
+    }
+
+    public function markReminder(string $status, ?string $reason = null): void
+    {
+        $this->update(['reminder_status' => $status, 'reminder_reason' => $reason, 'reminder_at' => now()]);
     }
 
     /**
