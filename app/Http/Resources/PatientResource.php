@@ -26,6 +26,8 @@ class PatientResource extends JsonResource
             'gender' => $this->gender,
             'gender_label' => $this->genderLabel(),
             'comment' => $this->comment,
+            'appointment_reminders' => (bool) $this->appointment_reminders,
+            'reminders_unsubscribed_at' => $this->reminders_unsubscribed_at?->toDateString(),
             'links' => [
                 'edit' => route('patient.edit', $this->resource),
                 'clinical_record' => route('patient.clinical-record.show', $this->resource),

@@ -13,6 +13,7 @@ use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientEvolutionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecommendationController;
+use App\Http\Controllers\ReminderUnsubscribeController;
 use App\Http\Controllers\RulesController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StatisticsController;
@@ -41,6 +42,12 @@ Route::get('/', function () {
 
 // Accounts are created by administrators only.
 Auth::routes(['register' => false]);
+
+// Unsubscribe link of the appointment reminder e-mail (US-6.1): public, protected by its signature.
+Route::middleware(['signed', 'throttle:10,1'])->whereNumber('patient')->group(function () {
+    Route::get('recordatorios/baja/{patient}', [ReminderUnsubscribeController::class, 'show'])->name('reminders.unsubscribe');
+    Route::post('recordatorios/baja/{patient}', [ReminderUnsubscribeController::class, 'store'])->name('reminders.unsubscribe.store');
+});
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('downloadManual', [UserController::class, 'downloadManualPdf'])->name('downloadManual');

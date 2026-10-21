@@ -59,6 +59,8 @@ class PatientRequest extends FormRequest
             'birthdate' => ['required', 'date', 'before:today', 'after:1900-01-01'],
             'gender' => ['required', Rule::in(array_keys(Patient::GENDERS))],
             'comment' => ['nullable', 'string', 'max:255'],
+            // Consent to appointment reminders by e-mail (US-6.1, D-3); off when not sent.
+            'appointment_reminders' => ['sometimes', 'boolean'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ];
     }
@@ -74,6 +76,7 @@ class PatientRequest extends FormRequest
             'birthdate' => 'fecha de nacimiento',
             'gender' => 'sexo',
             'comment' => 'comentario',
+            'appointment_reminders' => 'recordatorios de consulta',
             'image' => 'imagen',
         ];
     }

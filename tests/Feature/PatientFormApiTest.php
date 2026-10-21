@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 /**
@@ -90,6 +91,40 @@ class PatientFormApiTest extends TestCase
             ->assertJsonPath('data.first_name', 'Carolina')
             ->assertJsonPath('data.rut', '11111117-0')
             ->assertJsonPath('meta.redirect', route('patient.index'));
+    }
+
+    #[Group('US-6.1/AC-4')]
+    public function test_reminders_are_off_by_default(): void
+    {
+        $this->actingAs($this->doctor)->postJson('/patient', $this->payload())
+            ->assertCreated()
+            ->assertJsonPath('data.appointment_reminders', false);
+
+        $this->assertFalse(Patient::firstOrFail()->appointment_reminders);
+    }
+
+    #[Group('US-6.1/AC-8')]
+    public function test_doctor_can_reenable_reminders_and_clears_unsubscribe_date(): void
+    {
+        $patient = Patient::factory()->create([
+            'rut' => '11111117-0', 'appointment_reminders' => false, 'reminders_unsubscribed_at' => '2026-10-01 12:00:00',
+        ]);
+
+        $this->actingAs($this->doctor)->get("/patient/{$patient->id}/edit")
+            ->assertOk()
+            ->assertSee('&quot;reminders_unsubscribed_at&quot;:&quot;2026-10-01&quot;', false);
+
+        $data = $this->payload(['appointment_reminders' => true]);
+        unset($data['rut']);
+
+        $this->actingAs($this->doctor)->putJson("/patient/{$patient->id}", $data)
+            ->assertOk()
+            ->assertJsonPath('data.appointment_reminders', true)
+            ->assertJsonPath('data.reminders_unsubscribed_at', null);
+
+        $patient->refresh();
+        $this->assertTrue($patient->appointment_reminders);
+        $this->assertNull($patient->reminders_unsubscribed_at);
     }
 
     public function test_list_paginates_and_searches_on_the_server(): void

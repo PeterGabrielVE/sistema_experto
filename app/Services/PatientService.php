@@ -35,9 +35,30 @@ class PatientService
         return $patient;
     }
 
+    /**
+     * Turning reminders back on (at the patient's request) clears a past unsubscribe.
+     */
     public function update(Patient $patient, array $data): Patient
     {
-        $patient->update($data);
+        $patient->fill($data);
+
+        if ($patient->appointment_reminders) {
+            $patient->reminders_unsubscribed_at = null;
+        }
+
+        $patient->save();
+
+        return $patient;
+    }
+
+    /**
+     * From the signed link of the reminder e-mail. The first date is kept.
+     */
+    public function unsubscribeFromReminders(Patient $patient): Patient
+    {
+        $patient->appointment_reminders = false;
+        $patient->reminders_unsubscribed_at ??= now();
+        $patient->save();
 
         return $patient;
     }

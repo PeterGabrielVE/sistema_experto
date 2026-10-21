@@ -19,6 +19,26 @@
             <p class="text-muted mb-1">{{ __('Sin próxima consulta programada.') }}</p>
         @endif
 
+        {{-- Consent to reminders by e-mail (D-3), changed in the patient's data. --}}
+        <p class="text-sm mb-1">
+            @switch($patient->reminderSkipReason())
+                @case('no_email')
+                    <span class="text-warning">{{ __('El paciente no tiene correo registrado.') }}</span>
+                    @break
+                @case('unsubscribed')
+                    <span class="text-warning">{{ __('El paciente se dio de baja el :date.', ['date' => $patient->reminders_unsubscribed_at->copy()->setTimezone(config('app.clinic_timezone'))->format('d/m/Y')]) }}</span>
+                    @break
+                @case('no_consent')
+                    <span class="text-muted">{{ __('El paciente no ha aceptado recibir recordatorios por correo.') }}</span>
+                    @break
+                @default
+                    <span class="text-success">{{ __('Recordatorios por correo activados.') }}</span>
+            @endswitch
+            @can('update', $patient)
+                <a href="{{ route('patient.edit', $patient) }}" class="ml-1">{{ __('Cambiar en los datos del paciente') }}</a>
+            @endcan
+        </p>
+
         @can('update', $patient)
             <form method="post" action="{{ route('patient.appointment.update', $patient) }}" class="row align-items-end mt-3" autocomplete="off">
                 @csrf

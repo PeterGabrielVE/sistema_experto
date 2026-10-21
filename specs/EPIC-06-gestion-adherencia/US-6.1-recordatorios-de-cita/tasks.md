@@ -12,7 +12,7 @@ primero TK-6.1.3 y TK-6.1.4.
   (`schedule`, `cancel`); agregar *Próxima consulta* e *Indicaciones* al formulario de la consulta y la
   tarjeta *Próxima consulta* en la ficha clínica, con las rutas para cambiarla y cancelarla (solo médicos),
   con `AppointmentTest`. Todavía no se envía ningún correo. Cubre AC-1, AC-7.
-- [ ] **TK-6.1.4** — Agregar el consentimiento (`appointment_reminders`, `reminders_unsubscribed_at`) con
+- [x] **TK-6.1.4** — Agregar el consentimiento (`appointment_reminders`, `reminders_unsubscribed_at`) con
   la casilla en `PatientForm.vue`, y la baja por enlace firmado (`GET` confirma, `POST` da de baja) con sus
   vistas públicas sin datos del paciente; la ficha muestra la baja y su fecha, con
   `ReminderUnsubscribeTest` y el test de reactivación en `PatientFormApiTest`. Cubre AC-4, AC-8.

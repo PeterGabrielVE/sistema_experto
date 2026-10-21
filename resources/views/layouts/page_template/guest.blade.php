@@ -5,9 +5,12 @@
             <div class="row justify-content-center">
                 <div class="col-lg-6 text-center mx-auto">
                     <h1 class="text-white mb-2 mt-5">KATRINA</h1>
-                    <p class="text-lead text-white">
-                        {{ __('Sistema experto de recomendaciones dietéticas para pacientes con resistencia a la insulina') }}
-                    </p>
+                    {{-- Pages patients open (reminder unsubscribe) do not name the condition. --}}
+                    @unless($forPatients ?? false)
+                        <p class="text-lead text-white">
+                            {{ __('Sistema experto de recomendaciones dietéticas para pacientes con resistencia a la insulina') }}
+                        </p>
+                    @endunless
                 </div>
             </div>
         </div>

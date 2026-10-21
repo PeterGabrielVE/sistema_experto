@@ -31,7 +31,13 @@ const form = reactive({
     birthdate: props.patient?.birthdate ?? '',
     gender: props.patient?.gender ?? '',
     comment: props.patient?.comment ?? '',
+    // Consent to appointment reminders by e-mail (US-6.1): off by default.
+    appointment_reminders: props.patient?.appointment_reminders ?? false,
 });
+
+const unsubscribedOn = props.patient?.reminders_unsubscribed_at
+    ? props.patient.reminders_unsubscribed_at.split('-').reverse().join('/')
+    : null;
 
 const initial = JSON.stringify(form);
 const errors = ref({});
@@ -64,6 +70,7 @@ const rules = {
     birthdate: (v) => (!v ? 'La fecha de nacimiento es obligatoria.' : v >= today ? 'Debe ser anterior a hoy.' : ''),
     gender: (v) => (!v ? 'Seleccione el sexo.' : ''),
     comment: () => '',
+    appointment_reminders: () => '',
 };
 
 function validate(field) {
@@ -181,6 +188,26 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnsaved));
             <div class="col-md-6">
                 <FormInput id="address" v-model="form.address" label="Dirección" required maxlength="255"
                     autocomplete="street-address" :error="error('address')" @blur="blur('address')" />
+            </div>
+            <div class="col-12 mb-3">
+                <div class="form-check form-switch">
+                    <input id="appointment_reminders" v-model="form.appointment_reminders" class="form-check-input"
+                        type="checkbox" name="appointment_reminders" aria-describedby="appointment_reminders-hint">
+                    <label class="form-check-label" for="appointment_reminders">
+                        Acepta recibir recordatorios de consulta por correo
+                    </label>
+                </div>
+                <small id="appointment_reminders-hint" class="form-text text-muted">
+                    <template v-if="unsubscribedOn && !form.appointment_reminders">
+                        Se dio de baja el {{ unsubscribedOn }} desde el enlace del correo. Actívelo solo si el paciente lo pide.
+                    </template>
+                    <template v-else-if="!form.email.trim()">
+                        Requiere un correo registrado.
+                    </template>
+                    <template v-else>
+                        Se envía un correo el día antes de la próxima consulta, sin datos clínicos.
+                    </template>
+                </small>
             </div>
             <div class="col-12">
                 <FormTextarea id="comment" v-model="form.comment" label="Comentario (opcional)" :rows="2"

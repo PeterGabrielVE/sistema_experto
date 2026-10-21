@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\URL;
 
 /**
  * @property string $first_name
@@ -19,6 +20,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $email
  * @property Carbon|null $birthdate
  * @property string $gender H | M
+ * @property bool $appointment_reminders consent to reminders by e-mail
+ * @property Carbon|null $reminders_unsubscribed_at
  * @property-read int|null $age
  */
 class Patient extends Model
@@ -35,12 +38,15 @@ class Patient extends Model
 
     protected $fillable = [
         'first_name', 'last_name', 'rut', 'email', 'address', 'comment', 'birthdate', 'image', 'gender', 'created_by',
+        'appointment_reminders',
     ];
 
     protected function casts(): array
     {
         return [
             'birthdate' => 'date',
+            'appointment_reminders' => 'boolean',
+            'reminders_unsubscribed_at' => 'datetime',
         ];
     }
 
@@ -90,6 +96,29 @@ class Patient extends Model
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    /**
+     * Why the patient gets no appointment reminders (no_email | unsubscribed | no_consent),
+     * or null if they can receive them.
+     */
+    public function reminderSkipReason(): ?string
+    {
+        return match (true) {
+            ! $this->email => 'no_email',
+            $this->appointment_reminders => null,
+            $this->reminders_unsubscribed_at !== null => 'unsubscribed',
+            default => 'no_consent',
+        };
+    }
+
+    /**
+     * Link of the reminder e-mail to stop receiving them, without logging in. It does
+     * not expire, so an old e-mail still works.
+     */
+    public function reminderUnsubscribeUrl(): string
+    {
+        return URL::signedRoute('reminders.unsubscribe', ['patient' => $this->id]);
     }
 
     /**
