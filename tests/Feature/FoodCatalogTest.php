@@ -2,9 +2,22 @@
 
 namespace Tests\Feature;
 
+use App\Events\FoodCatalogChanged;
+use App\Listeners\RecordAuditTrail;
+use App\Models\Diagnosis;
 use App\Models\Food;
+use App\Models\MealPlan;
+use App\Models\Patient;
 use App\Models\User;
+use App\Services\MealPlanService;
+use Database\Seeders\RulesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Mockery;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
@@ -17,10 +30,25 @@ class FoodCatalogTest extends TestCase
 
     private User $doctor;
 
+    private User $chief;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->doctor = User::factory()->create();
+        $this->chief = User::factory()->chiefDoctor()->create();
+    }
+
+    /**
+     * The food form (column names of the CSV), valid unless overridden.
+     */
+    private function payload(array $overrides = []): array
+    {
+        return array_merge([
+            'name' => 'Pan Integral', 'group' => 'Pan', 'portion' => '1 rebanada', 'grams' => '50',
+            'kcal' => '135,5', 'protein' => '5', 'fat' => '1,5', 'saturated_fat' => '0,3', 'cho' => '26',
+            'glycemic_index' => '51', 'allergens' => ['gluten', 'soya'], 'price' => '120',
+        ], $overrides);
     }
 
     /**
@@ -85,11 +113,193 @@ class FoodCatalogTest extends TestCase
     #[Group('US-4.2/AC-6')]
     public function test_doctor_can_view_but_not_change_the_catalog(): void
     {
-        $this->food('Avena', 'Cereales');
+        $avena = $this->food('Avena', 'Cereales');
 
         $this->actingAs($this->doctor)->get(route('home'))->assertSee(route('foods.index'));
-        $this->actingAs(User::factory()->chiefDoctor()->create())->get(route('foods.index'))->assertOk()->assertSee('Avena');
-        $this->actingAs($this->doctor)->get(route('foods.index'))->assertOk()->assertSee('Avena');
+        $this->actingAs($this->chief)->get(route('foods.index'))->assertOk()->assertSee('Avena')
+            ->assertSee(route('foods.create'))->assertSee(route('foods.edit', $avena));
+        $this->actingAs($this->doctor)->get(route('foods.index'))->assertOk()->assertSee('Avena')
+            ->assertDontSee(route('foods.create'))->assertDontSee(route('foods.edit', $avena));
+
+        $this->actingAs($this->doctor)->get(route('foods.create'))->assertForbidden();
+        $this->actingAs($this->doctor)->post(route('foods.store'), $this->payload())->assertForbidden();
+        $this->actingAs($this->doctor)->get(route('foods.edit', $avena))->assertForbidden();
+        $this->actingAs($this->doctor)->put(route('foods.update', $avena), $this->payload())->assertForbidden();
+
+        $this->assertSame(1, Food::count());
+        $this->assertSame('Avena', $avena->refresh()->name);
+    }
+
+    #[Group('US-4.2/AC-2')]
+    public function test_chief_doctor_creates_and_edits_a_food(): void
+    {
+        $this->food('Pan Marraqueta', 'Pan', ['id_group' => 3]);
+
+        $this->actingAs($this->chief)->get(route('foods.create'))->assertOk()->assertSee('Nuevo alimento');
+        $this->actingAs($this->chief)->post(route('foods.store'), $this->payload())
+            ->assertRedirect(route('foods.index'))
+            ->assertSessionHas('status', 'Alimento creado correctamente.')
+            ->assertSessionMissing('warning');
+
+        $food = Food::where('name', 'Pan Integral')->sole();
+        $this->assertSame('Pan', $food->item);
+        $this->assertSame(3, (int) $food->id_group); // from the foods of the group
+        $this->assertSame('1 rebanada', $food->portion);
+        $this->assertSame(50.0, (float) $food->gr);
+        $this->assertSame(135.5, (float) $food->kcal); // decimal comma accepted
+        $this->assertSame(1.5, (float) $food->lipid);
+        $this->assertSame(0.3, (float) $food->saturated_fat);
+        $this->assertSame(51, (int) $food->glycemic_index);
+        $this->assertSame('gluten;soya', $food->allergens);
+        $this->assertSame(120.0, (float) $food->price);
+
+        $this->actingAs($this->chief)->get(route('foods.edit', $food))->assertOk()->assertSee('Editar alimento')->assertSee('135,5');
+        $this->actingAs($this->chief)->put(route('foods.update', $food), $this->payload([
+            'kcal' => '140', 'glycemic_index' => '', 'allergens' => [], 'price' => '',
+        ]))->assertRedirect(route('foods.index'))->assertSessionHas('status', 'Alimento actualizado correctamente.');
+
+        $food->refresh();
+        $this->assertSame(140.0, (float) $food->kcal);
+        $this->assertNull($food->glycemic_index); // unknown, not 0
+        $this->assertNull($food->allergens);
+        $this->assertNull($food->price);
+    }
+
+    public static function invalidFoods(): array
+    {
+        return [
+            'group the generator does not use' => [['group' => 'Snacks'], 'group'],
+            'portion of 0 g' => [['grams' => '0'], 'grams'],
+            'no energy' => [['kcal' => '0'], 'kcal'],
+            'negative protein' => [['protein' => '-1'], 'protein'],
+            'negative carbohydrates' => [['cho' => '-0,5'], 'cho'],
+            'not a number' => [['fat' => 'mucho'], 'fat'],
+            'unknown allergen' => [['allergens' => ['gluten', 'chocolate']], 'allergens.1'],
+            'more saturated fat than fat' => [['saturated_fat' => '2'], 'saturated_fat'],
+            'glycemic index out of range' => [['glycemic_index' => '200'], 'glycemic_index'],
+            'no name' => [['name' => ''], 'name'],
+        ];
+    }
+
+    #[Group('US-4.2/AC-2')]
+    #[DataProvider('invalidFoods')]
+    public function test_validation_rejects_bad_values_without_saving(array $overrides, string $field): void
+    {
+        $food = $this->food('Avena', 'Cereales');
+
+        $this->actingAs($this->chief)->post(route('foods.store'), $this->payload($overrides))->assertSessionHasErrors($field);
+        $this->actingAs($this->chief)->put(route('foods.update', $food), $this->payload($overrides))->assertSessionHasErrors($field);
+
+        $this->assertSame(1, Food::count());
+        $this->assertSame('Avena', $food->refresh()->name);
+    }
+
+    #[Group('US-4.2/AC-2')]
+    public function test_energy_out_of_tolerance_is_saved_with_a_warning(): void
+    {
+        // 6 g protein = 24 kcal, declared 80 (cheese with fat left out).
+        $this->actingAs($this->chief)->post(route('foods.store'), $this->payload([
+            'name' => 'Queso Chanco', 'group' => 'Lácteos', 'kcal' => '80', 'protein' => '6', 'fat' => '0',
+            'saturated_fat' => '', 'cho' => '0', 'glycemic_index' => '', 'allergens' => ['leche'],
+        ]))
+            ->assertRedirect(route('foods.index'))
+            ->assertSessionHas('warning', 'Queso Chanco se guardó, pero quedó con datos a revisar. Energía: 80 kcal declaradas, 24 calculadas con 4/4/9 kcal/g (tolerancia 15 %).');
+
+        $this->assertSame(80.0, (float) Food::where('name', 'Queso Chanco')->sole()->kcal);
+        $this->actingAs($this->chief)->get(route('foods.index'))->assertSee('1 con datos a revisar');
+    }
+
+    #[Group('US-4.2/AC-3')]
+    public function test_new_proposals_use_the_edited_values(): void
+    {
+        [$diagnosis, $pollo] = $this->consultation();
+        Http::fake(['expert:8000/meal-plan' => Http::response(['status' => 'optimo', 'days' => []]), '*' => Http::response([], 503)]);
+
+        $this->actingAs($this->chief)->put(route('foods.update', $pollo), $this->payload([
+            'name' => 'Pollo', 'group' => 'Carnes', 'kcal' => '70', 'protein' => '12', 'fat' => '2', 'saturated_fat' => '0,5',
+            'cho' => '0', 'glycemic_index' => '', 'allergens' => [],
+        ]))->assertSessionHasNoErrors();
+        app(MealPlanService::class)->generate($diagnosis);
+
+        $sent = Http::recorded()->map(fn ($pair) => $pair[0])
+            ->first(fn (Request $request) => $request->url() === 'http://expert:8000/meal-plan');
+        $food = collect($sent['foods'])->firstWhere('id', $pollo->id);
+        $this->assertSame(70.0, $food['kcal']);
+        $this->assertSame(12.0, $food['protein']);
+        $this->assertSame(0.0, $food['cho']);
+    }
+
+    #[Group('US-4.2/AC-3')]
+    public function test_saved_proposals_do_not_change(): void
+    {
+        [$diagnosis, $pollo] = $this->consultation();
+        $plan = ['status' => 'editado', 'days' => [['day' => 1, 'meals' => [['key' => 'almuerzo', 'label' => 'Almuerzo', 'items' => [
+            ['food_id' => $pollo->id, 'name' => 'Pollo', 'group' => 'Carnes', 'portions' => 2, 'grams' => 100, 'energy' => 130],
+        ]]]]]];
+        $saved = MealPlan::create(['diagnosis_id' => $diagnosis->id, 'plan' => $plan, 'edited' => true, 'created_by' => $this->doctor->id]);
+
+        $this->actingAs($this->chief)->put(route('foods.update', $pollo), $this->payload([
+            'name' => 'Pollo', 'group' => 'Carnes', 'kcal' => '90', 'protein' => '12', 'fat' => '4,7', 'saturated_fat' => '',
+            'cho' => '0', 'glycemic_index' => '', 'allergens' => [],
+        ]))->assertSessionHasNoErrors();
+
+        $this->assertSame($plan, $saved->refresh()->plan);
+    }
+
+    #[Group('US-4.2/AC-7')]
+    public function test_changes_are_audited_with_old_and_new_values(): void
+    {
+        Event::fake([FoodCatalogChanged::class]);
+
+        $this->actingAs($this->chief)->post(route('foods.store'), $this->payload());
+        $food = Food::where('name', 'Pan Integral')->sole();
+        Event::assertDispatched(FoodCatalogChanged::class, fn ($e) => $e->action === 'created'
+            && $e->actor->is($this->chief) && $e->food->is($food)
+            && $e->changes['kcal'] === [null, '135.5'] && $e->changes['allergens'] === [null, 'gluten;soya']);
+
+        $this->actingAs($this->chief)->put(route('foods.update', $food), $this->payload(['kcal' => '140', 'allergens' => ['gluten']]));
+        Event::assertDispatched(FoodCatalogChanged::class, fn ($e) => $e->action === 'updated'
+            && $e->changes === ['kcal' => ['135.5', '140'], 'allergens' => ['gluten;soya', 'gluten']]);
+
+        // Saving without changes does not create an audit entry ("140,0" is the same value).
+        $this->actingAs($this->chief)->put(route('foods.update', $food), $this->payload(['kcal' => '140,0', 'allergens' => ['gluten']]));
+        Event::assertDispatchedTimes(FoodCatalogChanged::class, 2);
+    }
+
+    #[Group('US-4.2/AC-7')]
+    public function test_audit_trail_records_who_when_and_the_values(): void
+    {
+        $food = new Food;
+        $food->id = 12;
+
+        $channel = Mockery::mock();
+        $channel->shouldReceive('info')->once()->with('food.updated', Mockery::on(
+            fn ($context) => $context['actor_id'] === $this->chief->id
+                && $context['actor_role'] === 'ChiefDoctor'
+                && $context['food_id'] === 12
+                && $context['changes'] === ['kcal' => ['140', '150']]
+        ));
+        Log::shouldReceive('channel')->with('audit')->andReturn($channel);
+
+        (new RecordAuditTrail)->handleFoodCatalogChanged(new FoodCatalogChanged($food, $this->chief, 'updated', ['kcal' => ['140', '150']]));
+    }
+
+    /**
+     * A consultation with energy and macronutrient targets, and a food of its menus.
+     *
+     * @return array{0: Diagnosis, 1: Food}
+     */
+    private function consultation(): array
+    {
+        config(['services.inference.url' => null, 'services.expert.url' => 'http://expert:8000', 'services.expert.token' => 't0k']);
+        $this->seed(RulesSeeder::class);
+        $diagnosis = Diagnosis::create([
+            'id_patient' => Patient::factory()->create()->id, 'age' => 36, 'weight' => 80, 'size' => 165, 'imc' => 29.38,
+            'physical_activity' => 2, 'id_rule' => 3, 'created_by' => $this->doctor->id,
+            'result_pulgar' => 1750, 'carbohydrate' => 197, 'protein' => 88, 'lipido' => 68,
+        ]);
+
+        return [$diagnosis, $this->food('Pollo', 'Carnes', ['id_group' => 4, 'kcal' => '65', 'protein' => '11', 'lipid' => '2', 'cho' => '1', 'glycemic_index' => null])];
     }
 
     #[Group('US-4.2/AC-6')]

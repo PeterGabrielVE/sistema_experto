@@ -20,6 +20,9 @@
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
+            @can('create', \App\Models\Food::class)
+              <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('foods.create') }}">{{ __('Agregar alimento') }}</a>
+            @endcan
             <h4 class="card-title">{{ __('Alimentos') }}</h4>
             <p class="text-sm text-secondary mb-0">
               {{ __('Catálogo de porciones de intercambio que usa el generador de menús. Los datos a revisar no impiden usar el alimento.') }}
@@ -27,6 +30,9 @@
             <div class="col-12 mt-2">
               @include('alerts.success')
               @include('alerts.errors')
+              @if (session('warning'))
+                <div class="alert alert-warning text-white" role="alert">{{ session('warning') }}</div>
+              @endif
             </div>
 
             <form method="get" action="{{ route('foods.index') }}" class="row g-2 align-items-end mt-2" role="search">
@@ -79,6 +85,9 @@
                       <th class="text-right">{{ __('Índice glicémico') }}</th>
                       <th>{{ __('Alérgenos') }}</th>
                       <th class="text-right">{{ __('Precio (CLP)') }}</th>
+                      @can('create', \App\Models\Food::class)
+                        <th class="text-right">{{ __('Acciones') }}</th>
+                      @endcan
                     </tr>
                   </thead>
                   <tbody>
@@ -106,6 +115,15 @@
                           @endforelse
                         </td>
                         <td class="text-right">{{ $food->price === null ? '—' : number_format((float) $food->price, 0, ',', '.') }}</td>
+                        @can('create', \App\Models\Food::class)
+                          <td class="text-right text-nowrap">
+                            @can('update', $food)
+                              <a href="{{ route('foods.edit', $food) }}" class="btn btn-success btn-sm mb-0" title="{{ __('Editar') }}" aria-label="{{ __('Editar') }}">
+                                <i class="fas fa-pen" aria-hidden="true"></i>
+                              </a>
+                            @endcan
+                          </td>
+                        @endcan
                       </tr>
                     @endforeach
                   </tbody>

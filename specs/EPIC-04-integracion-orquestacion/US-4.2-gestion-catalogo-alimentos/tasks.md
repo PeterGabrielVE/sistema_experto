@@ -15,7 +15,7 @@ constitución (plan, *Verificación de la constitución*).
 - [x] **TK-4.2.2** — Crear la sección *Alimentos* (lista con búsqueda por nombre, filtro por grupo y
   marcas a revisar), la entrada del menú y `FoodPolicy` (médicos ven; Administrador 403), con los tests de
   lista, permisos y NFR-1. Cubre AC-1, AC-6.
-- [ ] **TK-4.2.4** — Crear el alta y la edición para el Doctor Jefe (`FoodRequest`, `FoodCatalogService`,
+- [x] **TK-4.2.4** — Crear el alta y la edición para el Doctor Jefe (`FoodRequest`, `FoodCatalogService`,
   advertencia de energía) y el evento `FoodCatalogChanged` auditado con los valores anteriores y nuevos,
   con los tests de validación, de propuestas nuevas con los valores editados y de auditoría.
   Cubre AC-2, AC-3, AC-6, AC-7.

@@ -6,6 +6,7 @@ use App\Events\ClinicalMeasurementRecorded;
 use App\Events\ClinicalRecordSaved;
 use App\Events\DiagnosisCategoryConfirmed;
 use App\Events\DiagnosisCreated;
+use App\Events\FoodCatalogChanged;
 use App\Events\LabResultRecorded;
 use App\Events\PatientDeleted;
 use App\Events\PatientRegistered;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Log;
  * Clinical audit trail: who did what, on which record, when.
  * Written to the "audit" log channel (storage/logs/audit-YYYY-MM-DD.log).
  * Runs synchronously on purpose: an audit entry must not be lost in a queue.
- * Personal data is limited to identifiers.
+ * Personal data is limited to identifiers; changes to the food catalog keep their values.
  */
 class RecordAuditTrail
 {
@@ -103,6 +104,14 @@ class RecordAuditTrail
             'user_id' => $event->user->id,
             'from' => $event->from?->name,
             'to' => $event->to?->name,
+        ]);
+    }
+
+    public function handleFoodCatalogChanged(FoodCatalogChanged $event): void
+    {
+        $this->record('food.'.$event->action, $event->actor, [
+            'food_id' => $event->food->id,
+            'changes' => $event->changes,
         ]);
     }
 

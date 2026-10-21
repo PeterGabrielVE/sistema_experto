@@ -12,6 +12,21 @@ class Food extends Model
         'id_group', 'name', 'item', 'portion', 'gr', 'kcal', 'protein', 'lipid', 'saturated_fat', 'cho', 'glycemic_index', 'allergens', 'price', 'clna_mg', 'k_mg', 'p_mg', 'ca_mg',
     ];
 
+    /**
+     * Exchange groups the meal plan generator uses (meal_plan in shared/clinical_thresholds.json):
+     * a food of another group is never chosen.
+     *
+     * @return array<int, string>
+     */
+    public static function groups(): array
+    {
+        $plan = config('clinical.meal_plan');
+
+        return collect(array_keys($plan['daily_portions']))
+            ->merge(collect($plan['meals'])->pluck('items')->flatten())
+            ->unique()->sort()->values()->all();
+    }
+
     // kcal per gram of carbohydrates, proteins and fats (general Atwater factors).
     private const ATWATER = ['cho' => 4, 'protein' => 4, 'lipid' => 9];
 
