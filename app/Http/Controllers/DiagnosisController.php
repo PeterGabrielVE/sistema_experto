@@ -7,6 +7,7 @@ use App\Http\Requests\MacroPlanRequest;
 use App\Http\Requests\StoreDiagnosisRequest;
 use App\Models\Diagnosis;
 use App\Models\Patient;
+use App\Services\AppointmentService;
 use App\Services\ClinicalMeasurementService;
 use App\Services\DiagnosisService;
 use App\Services\ExpertDiagnosisService;
@@ -18,9 +19,7 @@ use Illuminate\Support\Facades\Gate;
 
 class DiagnosisController extends Controller
 {
-    public function __construct(private DiagnosisService $diagnoses)
-    {
-    }
+    public function __construct(private DiagnosisService $diagnoses) {}
 
     /**
      * New consultation form for a patient, pre-filled with the last weight and
@@ -64,15 +63,19 @@ class DiagnosisController extends Controller
         ]]);
     }
 
-    public function store(StoreDiagnosisRequest $request)
+    public function store(StoreDiagnosisRequest $request, AppointmentService $appointments)
     {
         $patient = Patient::findOrFail($request->validated('id_patient'));
 
         $diagnosis = $this->diagnoses->create(
             $patient,
-            $request->safe()->except('id_patient'),
+            $request->safe()->except(['id_patient', 'next_appointment_at', 'next_appointment_notes']),
             $request->user(),
         );
+
+        if ($at = $request->nextAppointmentAt()) {
+            $appointments->schedule($patient, $at, $request->validated('next_appointment_notes'), $request->user(), $diagnosis);
+        }
 
         return redirect()->route('result', $diagnosis)->withStatus(__('Diagnóstico creado correctamente.'));
     }

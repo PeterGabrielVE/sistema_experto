@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Models\Diagnosis;
+use App\Rules\FutureClinicDateTime;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Carbon;
 
 class StoreDiagnosisRequest extends FormRequest
 {
@@ -34,7 +36,18 @@ class StoreDiagnosisRequest extends FormRequest
             'isocaloric_protein' => $nutrient,
             'imc_desired' => $nutrient,
             'result_pulgar' => $nutrient,
+            // Next appointment (US-6.1), optional; the notes only go with a date.
+            'next_appointment_at' => ['nullable', 'string', new FutureClinicDateTime],
+            'next_appointment_notes' => ['exclude_without:next_appointment_at', 'nullable', 'string', 'max:500'],
         ];
+    }
+
+    /**
+     * The next appointment in UTC, if the doctor set one.
+     */
+    public function nextAppointmentAt(): ?Carbon
+    {
+        return FutureClinicDateTime::parse($this->validated('next_appointment_at'));
     }
 
     public function attributes(): array
@@ -55,6 +68,8 @@ class StoreDiagnosisRequest extends FormRequest
             'isocaloric_protein' => 'isoproteico',
             'imc_desired' => 'factor de corrección',
             'result_pulgar' => 'método del pulgar',
+            'next_appointment_at' => 'próxima consulta',
+            'next_appointment_notes' => 'indicaciones',
         ];
     }
 }

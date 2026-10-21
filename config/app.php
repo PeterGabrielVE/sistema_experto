@@ -67,6 +67,9 @@ return [
 
     'timezone' => 'UTC',
 
+    // Dates stay in UTC; appointments are entered, shown and reminded in the clinic's time.
+    'clinic_timezone' => env('CLINIC_TIMEZONE', 'America/Santiago'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

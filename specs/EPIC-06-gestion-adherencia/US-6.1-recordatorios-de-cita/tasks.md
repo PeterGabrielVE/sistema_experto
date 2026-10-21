@@ -8,7 +8,7 @@ TK-6.1.1 y TK-6.1.2 conservan los ids del backlog (correo y tarea programada). O
 el correo necesita la cita y el consentimiento, y la tarea programada necesita el correo. Por eso van
 primero TK-6.1.3 y TK-6.1.4.
 
-- [ ] **TK-6.1.3** — Crear la tabla `appointments`, el modelo `Appointment` y `AppointmentService`
+- [x] **TK-6.1.3** — Crear la tabla `appointments`, el modelo `Appointment` y `AppointmentService`
   (`schedule`, `cancel`); agregar *Próxima consulta* e *Indicaciones* al formulario de la consulta y la
   tarjeta *Próxima consulta* en la ficha clínica, con las rutas para cambiarla y cancelarla (solo médicos),
   con `AppointmentTest`. Todavía no se envía ningún correo. Cubre AC-1, AC-7.

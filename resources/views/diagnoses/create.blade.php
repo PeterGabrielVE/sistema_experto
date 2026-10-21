@@ -70,6 +70,21 @@
                 </div>
             </div>
 
+            {{-- Next appointment (US-6.1), optional. Entered in the clinic's time. --}}
+            <div class="form-group col-3">
+                <label class="form-control-label" for="input-next-appointment">{{ __('Próxima consulta') }}</label>
+                <input type="datetime-local" name="next_appointment_at" id="input-next-appointment" class="form-control"
+                       value="{{ old('next_appointment_at') }}" min="{{ now(config('app.clinic_timezone'))->format('Y-m-d\TH:i') }}">
+                @include('alerts.feedback', ['field' => 'next_appointment_at'])
+            </div>
+            <div class="form-group col-9">
+                <label class="form-control-label" for="input-next-appointment-notes">{{ __('Indicaciones para la próxima consulta') }}</label>
+                <input type="text" name="next_appointment_notes" id="input-next-appointment-notes" class="form-control" maxlength="500"
+                       value="{{ old('next_appointment_notes') }}" placeholder="{{ __('Por ejemplo: venir en ayuno de 8 horas para el examen') }}">
+                <small class="text-muted">{{ __('Se envían por correo al paciente: no incluya diagnósticos ni resultados.') }}</small>
+                @include('alerts.feedback', ['field' => 'next_appointment_notes'])
+            </div>
+
             <input type="hidden" name="insulin_index" id="indice-insulina">
             <input type="hidden" name="size" id="talla">
             <input type="hidden" name="weight" id="peso">

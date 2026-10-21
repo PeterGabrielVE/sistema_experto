@@ -2,7 +2,7 @@
 id: US-6.1
 title: Enviar recordatorios automáticos de la próxima consulta
 epic: EPIC-06
-status: approved
+status: in-progress
 owner: Laravel Dev
 ---
 
