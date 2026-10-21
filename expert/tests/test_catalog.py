@@ -3,6 +3,7 @@ import os
 import pytest
 
 from app import catalog, meal_plan
+from app import thresholds as t
 
 pytestmark = pytest.mark.spec("US-3.1/AC-8")
 
@@ -123,6 +124,30 @@ def test_check_warns_about_duplicates_empty_foods_and_unknown_groups():
     assert "Sin índice glicémico, no suman a la carga glucémica: Galletón." in warnings
     assert "El grupo Snacks no está en las pautas del generador (meal_plan): sus alimentos no se usan." in warnings
     assert "No hay alimentos de Frutas, grupo diario de las pautas." in warnings
+
+
+@pytest.mark.spec("US-4.2/AC-1")
+def test_check_uses_the_shared_review_thresholds(monkeypatch):
+    review = t.MEAL_PLAN["catalog_review"]
+    assert review["energy_tolerance_percent"] == 15
+    assert review["glycemic_index_min_cho"] == 5
+
+    # 100 kcal declared; 4/4/9 kcal/g give 116 (16 % off) and 114 (14 % off).
+    foods = catalog.parse(rows(
+        "1,Arroz A,Cereales,3,1,50,100,0,0,0,29,55,,,,",
+        "2,Arroz B,Cereales,3,1,50,100,0,0,0,28.5,55,,,,",
+        "3,Choclo,Cereales,3,1,50,20,0,0,0,5,,,,,",
+        "4,Lechuga,Verduras,2,1,50,16,0,0,0,4,,,,,",
+    ))
+    warnings = catalog.check(foods)
+    energy = next(w for w in warnings if w.startswith("Energía"))
+    assert energy == "Energía que no calza con los macronutrientes (4/4/9 kcal/g, ±15 %): Arroz A (100 declaradas, 116 calculadas)."
+    assert "Sin índice glicémico, no suman a la carga glucémica: Choclo." in warnings
+
+    # Read from the shared file, not written in the code.
+    monkeypatch.setitem(t.MEAL_PLAN, "catalog_review", {**review, "energy_tolerance_percent": 20, "glycemic_index_min_cho": 6})
+    warnings = catalog.check(foods)
+    assert not [w for w in warnings if w.startswith("Energía") or w.startswith("Sin índice glicémico")]
 
 
 def test_load_reads_again_when_the_file_changes(tmp_path):

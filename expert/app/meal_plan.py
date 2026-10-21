@@ -286,7 +286,8 @@ def _day(day, targets, limits, budget, members, halves, status, rng, food_days, 
     items = [i for meal in meals for i in meal["items"]]
     cost = None if any(i["cost"] is None for i in items) else _round(sum(i["cost"] for i in items), 0)
     plan_foods = {i["food_id"] for i in items}
-    no_gi = sorted({f["name"] for f in usable if f["id"] in plan_foods and f.get("glycemic_index") is None and f["cho"] >= 5})
+    no_gi = sorted({f["name"] for f in usable if f["id"] in plan_foods and f.get("glycemic_index") is None
+                    and f["cho"] >= cfg["catalog_review"]["glycemic_index_min_cho"]})
     if no_gi:
         notes.append(f"Sin índice glicémico, no suman a la carga glucémica: {', '.join(no_gi)}.")
     over = {"glycemic_load": "la carga glucémica", "saturated_fat": "la grasa saturada"}

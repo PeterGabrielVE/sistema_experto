@@ -190,6 +190,12 @@
         "weights": {"energy": 3, "carbohydrates": 2, "proteins": 2, "fats": 2, "meal_energy": 1, "glycemic_load": 2, "saturated_fat": 2, "budget": 10, "variety": 0.002, "variety_days": 0.02},
         "mip_rel_gap": 0.2,
         "time_limit_seconds": 5,
+        "catalog_review": {
+            "_about": "Datos del catálogo de alimentos a revisar (US-4.2): no impiden guardar ni usar el alimento. Energía declarada que difiere de la calculada con 4/4/9 kcal/g en más de energy_tolerance_percent; alimentos con al menos glycemic_index_min_cho g de carbohidratos por porción sin índice glicémico (no suman a la carga glucémica).",
+            "energy_tolerance_percent": 15,
+            "glycemic_index_min_cho": 5,
+            "source": "Factores de Atwater generales 4/4/9 kcal/g: FAO, Food energy – methods of analysis and conversion factors, Food and Nutrition Paper 77, 2003. Tolerancia de 15 % y mínimo de 5 g de carbohidratos: decisión del Doctor Jefe (US-4.2, D-3), por la fibra, los polialcoholes y el alcohol."
+        },
         "source": "Porciones de intercambio y guías alimentarias (GABA Chile): al menos 3 porciones de verduras y 2 de frutas, 2 a 3 lácteos y legumbres hasta 1 porción diaria. Reparto de energía: desayuno 20 %, colación 10 %, almuerzo 30 %, once 15 %, cena 25 %."
     },
 
