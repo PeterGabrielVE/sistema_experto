@@ -26,10 +26,9 @@ from .text import plain as _plain
 RENAMED = {"group": "item"}
 REQUIRED = ["id", "name", "group", "group_id", "kcal", "protein", "fat", "cho"]
 TEXT = {"name", "item", "portion", "allergens"}
-# kcal per gram of carbohydrates, proteins and fats; a portion further than this from its own
-# declared energy is reported.
+# kcal per gram of carbohydrates, proteins and fats; a portion further from its own declared energy
+# than meal_plan.catalog_review.energy_tolerance_percent is reported.
 ATWATER = {"cho": 4, "protein": 4, "fat": 9}
-ATWATER_TOLERANCE = 0.20
 
 
 class CatalogError(ValueError):
@@ -107,15 +106,17 @@ def check(foods: list[dict]) -> list[str]:
     if empty:
         warnings.append(f"Sin energía, el generador no los usa: {', '.join(empty)}.")
 
+    review = t.MEAL_PLAN["catalog_review"]
+    tolerance = review["energy_tolerance_percent"]
     off = []
     for f in foods:
         computed = sum(f[k] * kcal for k, kcal in ATWATER.items())
-        if f["kcal"] > 0 and abs(computed - f["kcal"]) > f["kcal"] * ATWATER_TOLERANCE:
+        if f["kcal"] > 0 and abs(computed - f["kcal"]) > f["kcal"] * tolerance / 100:
             off.append(f"{f['name']} ({f['kcal']:g} declaradas, {computed:g} calculadas)")
     if off:
-        warnings.append(f"Energía que no calza con los macronutrientes (4/4/9 kcal/g, ±{ATWATER_TOLERANCE:.0%}): {'; '.join(off)}.")
+        warnings.append(f"Energía que no calza con los macronutrientes (4/4/9 kcal/g, ±{tolerance:g} %): {'; '.join(off)}.")
 
-    no_gi = [f["name"] for f in foods if f["glycemic_index"] is None and f["cho"] >= 5]
+    no_gi = [f["name"] for f in foods if f["glycemic_index"] is None and f["cho"] >= review["glycemic_index_min_cho"]]
     if no_gi:
         warnings.append(f"Sin índice glicémico, no suman a la carga glucémica: {', '.join(no_gi)}.")
 

@@ -2,7 +2,7 @@
 id: US-4.2
 title: Gestionar el catálogo de alimentos desde la aplicación
 epic: EPIC-04
-status: approved
+status: in-progress
 owner: Laravel Dev · Python Dev
 ---
 

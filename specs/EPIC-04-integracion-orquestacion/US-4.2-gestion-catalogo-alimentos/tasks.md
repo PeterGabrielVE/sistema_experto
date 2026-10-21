@@ -8,7 +8,7 @@ TK-4.2.1 (ETL con Pandas) se descartó (D-4) y su id queda retirado. TK-4.2.2 co
 (gestión desde la aplicación). **Antes de TK-4.2.6** se mergea el PR que cambia el principio II de la
 constitución (plan, *Verificación de la constitución*).
 
-- [ ] **TK-4.2.3** — Agregar `meal_plan.catalog_review` a `shared/clinical_thresholds.json` (tolerancia
+- [x] **TK-4.2.3** — Agregar `meal_plan.catalog_review` a `shared/clinical_thresholds.json` (tolerancia
   de 15 % y mínimo de 5 g de carbohidratos, con la fuente); hacer que `expert/app/catalog.py` los use en
   lugar de `ATWATER_TOLERANCE`, y crear `Food::reviewFlags()` en Laravel con los mismos valores, con
   `FoodReviewFlagsTest` y el test de pytest. Cubre AC-1.
