@@ -16,8 +16,10 @@ se quiere, se actualiza primero la spec. Los PR `feat` nombran su historia o tar
 
 Los puntos de corte, rangos y vocabularios clínicos viven en
 [shared/clinical_thresholds.json](../shared/clinical_thresholds.json), con la fuente bibliográfica
-de cada valor; el catálogo de alimentos, en [shared/food_catalog.csv](../shared/food_catalog.csv).
-Laravel y los servicios Python los leen de ahí. Ningún valor clínico se escribe en el código.
+de cada valor; Laravel y los servicios Python los leen de ahí. El catálogo de alimentos vive en la
+tabla `foods`, que el Doctor Jefe mantiene desde la aplicación; Laravel lo envía a los servicios
+Python en cada solicitud, y [shared/food_catalog.csv](../shared/food_catalog.csv) es solo la carga
+inicial de un ambiente nuevo y el formato de exportación. Ningún valor clínico se escribe en el código.
 
 ## III. Reglas clínicas trazables
 
