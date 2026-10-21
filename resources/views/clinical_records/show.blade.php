@@ -158,6 +158,7 @@
                     </div>
                 </div>
 
+                @include('clinical_records._appointment')
                 @include('clinical_records._evolution')
             </div>
         </div>

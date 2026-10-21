@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Gate;
 
 class ClinicalRecordController extends Controller
 {
-    public function __construct(private ClinicalRecordService $records)
-    {
-    }
+    public function __construct(private ClinicalRecordService $records) {}
 
     public function show(Patient $patient)
     {
@@ -31,6 +29,7 @@ class ClinicalRecordController extends Controller
             'record' => $patient->clinicalRecord->load(['author', 'editor']),
             'labResult' => $patient->labResults()->latestFirst()->first(),
             'lastWaist' => $patient->measurements()->whereNotNull('waist_cm')->latestFirst()->first(),
+            'appointment' => $patient->nextAppointment()?->load('doctor'),
         ]);
     }
 

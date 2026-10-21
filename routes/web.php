@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClinicalMeasurementController;
 use App\Http\Controllers\ClinicalRecordController;
 use App\Http\Controllers\DiagnosisController;
@@ -72,6 +73,10 @@ Route::middleware('auth')->group(function () {
             ->parameters(['lab-results' => 'lab_result'])
             ->except(['show'])
             ->scoped();
+
+        // Next appointment (US-6.1), from the clinical record: schedule or change, and cancel.
+        Route::put('patient/{patient}/appointment', [AppointmentController::class, 'update'])->name('patient.appointment.update');
+        Route::delete('patient/{patient}/appointment', [AppointmentController::class, 'destroy'])->name('patient.appointment.destroy');
 
         // Weight and HOMA-IR history (JSON) for the evolution chart of the clinical record.
         Route::get('patient/{patient}/evolution', PatientEvolutionController::class)->name('patient.evolution');

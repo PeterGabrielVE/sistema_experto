@@ -10,13 +10,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $first_name
  * @property string $last_name
  * @property string|null $rut
  * @property string|null $email
- * @property \Illuminate\Support\Carbon|null $birthdate
+ * @property Carbon|null $birthdate
  * @property string $gender H | M
  * @property-read int|null $age
  */
@@ -84,6 +85,22 @@ class Patient extends Model
     public function diagnoses(): HasMany
     {
         return $this->hasMany(Diagnosis::class, 'id_patient');
+    }
+
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    /**
+     * The scheduled appointment still to come (at most one, see AppointmentService).
+     */
+    public function nextAppointment(): ?Appointment
+    {
+        return $this->appointments()->scheduled()
+            ->where('scheduled_at', '>', now())
+            ->oldest('scheduled_at')
+            ->first();
     }
 
     /**
