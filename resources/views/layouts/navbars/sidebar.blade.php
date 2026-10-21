@@ -58,6 +58,17 @@
       </li>
       @endcan
 
+      @can('viewAny', \App\Models\Food::class)
+      <li class="nav-item">
+        <a class="{{ $item($page === 'foods') }}" href="{{ route('foods.index') }}">
+          <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+            <i class="ni ni-basket text-success text-sm opacity-10"></i>
+          </div>
+          <span class="nav-link-text ms-1">{{ __('Alimentos') }}</span>
+        </a>
+      </li>
+      @endcan
+
       <li class="nav-item">
         <a class="{{ $item($page === 'information') }}" href="{{ route('page.index', 'information') }}">
           <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">

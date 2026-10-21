@@ -12,7 +12,7 @@ constitución (plan, *Verificación de la constitución*).
   de 15 % y mínimo de 5 g de carbohidratos, con la fuente); hacer que `expert/app/catalog.py` los use en
   lugar de `ATWATER_TOLERANCE`, y crear `Food::reviewFlags()` en Laravel con los mismos valores, con
   `FoodReviewFlagsTest` y el test de pytest. Cubre AC-1.
-- [ ] **TK-4.2.2** — Crear la sección *Alimentos* (lista con búsqueda por nombre, filtro por grupo y
+- [x] **TK-4.2.2** — Crear la sección *Alimentos* (lista con búsqueda por nombre, filtro por grupo y
   marcas a revisar), la entrada del menú y `FoodPolicy` (médicos ven; Administrador 403), con los tests de
   lista, permisos y NFR-1. Cubre AC-1, AC-6.
 - [ ] **TK-4.2.4** — Crear el alta y la edición para el Doctor Jefe (`FoodRequest`, `FoodCatalogService`,
