@@ -4,6 +4,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ClinicalMeasurementController;
 use App\Http\Controllers\ClinicalRecordController;
 use App\Http\Controllers\DiagnosisController;
+use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\MacroRuleController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\UserController;
 use App\Models\Diagnosis;
+use App\Models\Food;
 use App\Models\MacroRule;
 use App\Models\Patient;
 use App\Models\Recommendation;
@@ -116,6 +118,9 @@ Route::middleware('auth')->group(function () {
         ->middleware('can:viewAny,'.Rule::class);
     Route::resource('macro-rules', MacroRuleController::class)->except(['show'])
         ->middleware('can:viewAny,'.MacroRule::class);
+    // Food catalog (US-4.2): the medical team sees it.
+    Route::get('foods', [FoodController::class, 'index'])->name('foods.index')
+        ->middleware('can:viewAny,'.Food::class);
 
     Route::get('{page}', [PageController::class, 'index'])->name('page.index');
 });
