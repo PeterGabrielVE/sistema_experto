@@ -133,7 +133,7 @@ correo.
 | `status` | string(16) | `scheduled` \| `cancelled` |
 | `cancelled_at` | datetime, nullable | |
 | `reminder_status` | string(16), nullable | `null` pendiente \| `queued` \| `sent` \| `skipped` \| `failed` |
-| `reminder_reason` | string(32), nullable | `no_email` \| `no_consent` \| `unsubscribed` \| `cancelled` \| `mail_error` |
+| `reminder_reason` | string(32), nullable | `no_email` \| `no_consent` \| `unsubscribed` \| `cancelled` \| `mail_error` \| `queue_error` (no se pudo encolar el job) |
 | `reminder_at` | datetime, nullable | Cuándo cambió `reminder_status` por última vez |
 | timestamps | | |
 
@@ -166,25 +166,26 @@ hay citas registradas.
 ## Estrategia de pruebas
 
 Todo en Laravel (PHPUnit, `RefreshDatabase`). Archivos nuevos: `tests/Feature/AppointmentTest.php`,
-`tests/Feature/AppointmentReminderTest.php` y `tests/Feature/ReminderUnsubscribeTest.php`.
+`tests/Feature/AppointmentReminderTest.php` (correo y job), `tests/Feature/SendAppointmentRemindersCommandTest.php`
+(comando) y `tests/Feature/ReminderUnsubscribeTest.php`.
 
 | Criterio | Capa | Test |
 | --- | --- | --- |
 | AC-1 | Feature | `AppointmentTest::test_saving_a_consultation_schedules_the_next_appointment` |
 | AC-1 | Feature | `AppointmentTest::test_consultation_without_next_appointment_creates_none` |
 | AC-1 | Feature (vista) | `AppointmentTest::test_clinical_record_shows_the_next_appointment_and_professional` |
-| AC-2 | Feature | `AppointmentReminderTest::test_queues_a_reminder_for_tomorrows_appointments_only` |
-| AC-2 | Feature | `AppointmentReminderTest::test_tomorrow_is_computed_in_the_clinic_timezone` (cita a las 23:30 de Santiago, que en UTC ya es el día siguiente) |
+| AC-2 | Feature | `SendAppointmentRemindersCommandTest::test_queues_a_reminder_for_tomorrows_appointments_only` |
+| AC-2 | Feature | `SendAppointmentRemindersCommandTest::test_tomorrow_is_computed_in_the_clinic_timezone` (cita a las 23:30 de Santiago, que en UTC ya es el día siguiente) |
 | AC-2 | Feature | `AppointmentReminderTest::test_reminder_mail_has_date_time_professional_notes_and_unsubscribe_link` |
-| AC-2 | Feature | `AppointmentReminderTest::test_command_is_scheduled_daily_at_nine_in_santiago` |
-| AC-3 | Feature | `AppointmentReminderTest::test_running_the_command_twice_queues_one_reminder` |
+| AC-2 | Feature | `SendAppointmentRemindersCommandTest::test_command_is_scheduled_daily_at_nine_in_santiago` |
+| AC-3 | Feature | `SendAppointmentRemindersCommandTest::test_running_the_command_twice_queues_one_reminder` |
 | AC-3 | Feature | `AppointmentReminderTest::test_a_retried_job_does_not_send_twice` |
-| AC-4 | Feature | `AppointmentReminderTest::test_skips_patients_without_email_consent_or_unsubscribed` (data provider) |
-| AC-4 | Feature | `AppointmentReminderTest::test_cancelled_appointments_are_skipped` |
-| AC-4 | Feature (vista) | `AppointmentTest::test_clinical_record_shows_why_a_reminder_was_not_sent` |
+| AC-4 | Feature | `SendAppointmentRemindersCommandTest::test_skips_patients_without_email_consent_or_unsubscribed_and_cancelled_appointments` |
+| AC-4 | Feature | `AppointmentReminderTest::test_job_skips_when_the_appointment_or_consent_changed_after_queueing` |
+| AC-4 | Feature (vista) | `SendAppointmentRemindersCommandTest::test_clinical_record_shows_why_a_reminder_was_not_sent` |
 | AC-5 | Feature | `AppointmentReminderTest::test_job_retries_with_backoff` (`$tries`, `backoff()`) |
 | AC-5 | Feature | `AppointmentReminderTest::test_a_failed_job_marks_the_reminder_as_failed` |
-| AC-5 | Feature | `AppointmentReminderTest::test_one_failure_does_not_stop_the_other_reminders` |
+| AC-5 | Feature | `SendAppointmentRemindersCommandTest::test_one_failure_does_not_stop_the_other_reminders` |
 | AC-6 | Feature | `AppointmentReminderTest::test_reminder_mail_has_no_clinical_data` (paciente con consulta, ficha y exámenes: el HTML y el texto no contienen IMC, peso, categoría, glicemia, HOMA-IR ni motivo de consulta) |
 | AC-7 | Feature | `AppointmentTest::test_doctor_reschedules_from_the_clinical_record_and_reminder_resets` |
 | AC-7 | Feature | `AppointmentTest::test_doctor_cancels_the_next_appointment` |

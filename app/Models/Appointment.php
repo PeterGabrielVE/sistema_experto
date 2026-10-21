@@ -39,6 +39,16 @@ class Appointment extends Model
 
     public const REMINDER_FAILED = 'failed';
 
+    // Why a reminder was skipped or failed, as the clinical record shows it.
+    public const REMINDER_REASONS = [
+        'no_email' => 'el paciente no tiene correo',
+        'no_consent' => 'el paciente no aceptó recibir recordatorios',
+        'unsubscribed' => 'el paciente se dio de baja',
+        'cancelled' => 'la consulta fue cancelada',
+        'mail_error' => 'falló el servidor de correo',
+        'queue_error' => 'no se pudo poner en la cola de envío',
+    ];
+
     protected $fillable = [
         'patient_id', 'user_id', 'diagnosis_id', 'scheduled_at', 'notes', 'status', 'cancelled_at',
         'reminder_status', 'reminder_reason', 'reminder_at',
@@ -80,6 +90,23 @@ class Appointment extends Model
     public function reminderSkipReason(): ?string
     {
         return $this->status === self::CANCELLED ? 'cancelled' : $this->patient->reminderSkipReason();
+    }
+
+    /**
+     * State of the reminder for the clinical record (AC-4).
+     */
+    public function reminderLabel(): string
+    {
+        return match ($this->reminder_status) {
+            self::REMINDER_QUEUED => __('Recordatorio: enviándose.'),
+            self::REMINDER_SENT => __('Recordatorio enviado el :date.', [
+                'date' => $this->reminder_at->copy()->setTimezone(config('app.clinic_timezone'))->format('d/m/Y H:i'),
+            ]),
+            self::REMINDER_SKIPPED, self::REMINDER_FAILED => __('Recordatorio no enviado: :reason.', [
+                'reason' => __(self::REMINDER_REASONS[$this->reminder_reason] ?? 'motivo desconocido'),
+            ]),
+            default => __('Recordatorio: se enviará el día anterior.'),
+        };
     }
 
     public function markReminder(string $status, ?string $reason = null): void

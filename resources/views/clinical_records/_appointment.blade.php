@@ -15,6 +15,9 @@
             @if($appointment->notes)
                 <p class="mb-1">{{ __('Indicaciones:') }} {{ $appointment->notes }}</p>
             @endif
+            <p class="text-sm mb-1 {{ $appointment->reminder_status === \App\Models\Appointment::REMINDER_FAILED ? 'text-danger' : 'text-muted' }}">
+                {{ $appointment->reminderLabel() }}
+            </p>
         @else
             <p class="text-muted mb-1">{{ __('Sin próxima consulta programada.') }}</p>
         @endif
