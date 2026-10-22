@@ -12,5 +12,5 @@ nueva y es la única con cambios de código.
   AC-8.
 - [ ] **TK-1.2.2** — Formulario de captura de consulta (implementado): etiquetar los tests del formulario con el
   último peso y talla. Cubre AC-6.
-- [ ] **TK-1.2.3** — Mover los rangos de referencia del laboratorio a `shared/clinical_thresholds.json`
+- [x] **TK-1.2.3** — Mover los rangos de referencia del laboratorio a `shared/clinical_thresholds.json`
   (`lab_reference`, con sus fuentes) y marcar la GGT según el sexo, con sus tests. Cubre AC-9.

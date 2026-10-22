@@ -19,7 +19,9 @@ que vivan en el archivo compartido; además, el Doctor Jefe podrá ajustarlos si
 | Capa | Archivos | Cambio |
 | --- | --- | --- |
 | Datos compartidos | `shared/clinical_thresholds.json` | Bloque `lab_reference` con los rangos y sus fuentes |
-| Laravel | `app/Models/LabResult.php` | Sin `max`/`min` en `ANALYTES`; `isOutOfRange()` lee la configuración y el sexo del paciente para la GGT |
+| Laravel | `app/Models/LabResult.php` | Sin `max`/`min` en `ANALYTES`; `referenceRange($analito, $sexo)` y `analytes($sexo)` leen la configuración; `isOutOfRange()` usa el sexo del paciente |
+| Vistas | `resources/views/lab_results/form.blade.php`, `index.blade.php` | El formulario Vue y la columna de referencia reciben los rangos del sexo del paciente |
+| Front-end | `resources/js/utils/lab.js` | Sin rango de referencia, el valor no se juzga (antes habría dicho "normal") |
 | Tests Laravel | Los de la tabla de abajo | Etiquetas `#[Group(...)]`; tests nuevos de AC-9 |
 | Servicios Python | — | Sin cambios: no usan estos rangos |
 

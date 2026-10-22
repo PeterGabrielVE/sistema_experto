@@ -2,7 +2,7 @@
 id: US-1.2
 title: Registrar las mediciones y los exámenes de laboratorio de cada consulta
 epic: EPIC-01
-status: approved
+status: in-progress
 owner: Laravel Dev · Frontend Dev
 ---
 
