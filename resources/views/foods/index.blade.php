@@ -23,6 +23,9 @@
             @can('create', \App\Models\Food::class)
               <a class="btn btn-primary btn-round text-white pull-right" href="{{ route('foods.create') }}">{{ __('Agregar alimento') }}</a>
             @endcan
+            @can('export', \App\Models\Food::class)
+              <a class="btn btn-outline-primary btn-round pull-right me-2" href="{{ route('foods.export') }}">{{ __('Descargar CSV') }}</a>
+            @endcan
             <h4 class="card-title">{{ __('Alimentos') }}</h4>
             <p class="text-sm text-secondary mb-0">
               {{ __('Catálogo de porciones de intercambio que usa el generador de menús. Los datos a revisar no impiden usar el alimento.') }}

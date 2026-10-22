@@ -120,6 +120,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('can:viewAny,'.MacroRule::class);
     // Food catalog (US-4.2): the medical team sees it; a Doctor Jefe changes it (FoodPolicy).
     Route::middleware('can:viewAny,'.Food::class)->group(function () {
+        Route::get('foods/export', [FoodController::class, 'export'])->name('foods.export');
         Route::resource('foods', FoodController::class)->only(['index', 'create', 'store', 'edit', 'update']);
         Route::patch('foods/{food}/retire', [FoodController::class, 'retire'])->name('foods.retire');
     });

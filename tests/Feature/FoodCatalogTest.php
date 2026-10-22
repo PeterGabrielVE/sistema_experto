@@ -184,6 +184,50 @@ class FoodCatalogTest extends TestCase
         Http::assertNotSent(fn (Request $request) => $request->url() === 'http://expert:8000/meal-plan');
     }
 
+    #[Group('US-4.2/AC-5')]
+    public function test_chief_doctor_exports_the_catalog_in_the_import_format(): void
+    {
+        $this->freezeSecond();
+        $pan = $this->food('Pan Integral', 'Pan', ['portion' => '1 rebanada', 'kcal' => '135.5', 'lipid' => '1.5', 'saturated_fat' => 0.3, 'cho' => '29', 'allergens' => 'gluten;soya', 'price' => 120]);
+        $pollo = $this->food('Pollo', 'Carnes', ['id_group' => 4, 'kcal' => '65', 'protein' => '11', 'lipid' => '2', 'cho' => '1', 'glycemic_index' => null]);
+        $this->food('Mote Crudo', 'Cereales')->forceFill(['retired_at' => now()])->save();
+
+        $this->actingAs($this->doctor)->get(route('foods.export'))->assertForbidden();
+        $this->actingAs($this->doctor)->get(route('foods.index'))->assertDontSee(route('foods.export'));
+        $this->actingAs($this->chief)->get(route('foods.index'))->assertSee(route('foods.export'));
+
+        $response = $this->actingAs($this->chief)->get(route('foods.export'))->assertOk();
+        $this->assertStringStartsWith('text/csv', $response->headers->get('Content-Type'));
+        $this->assertStringContainsString('food_catalog-'.now()->toDateString().'.csv', $response->headers->get('Content-Disposition'));
+
+        $csv = $response->getContent();
+        $lines = explode("\n", trim($csv));
+        $this->assertSame(
+            'id,name,group,group_id,portion,grams,kcal,protein,fat,saturated_fat,cho,glycemic_index,allergens,price,sodium_mg,potassium_mg,phosphorus_mg,calcium_mg',
+            $lines[0],
+        );
+        $this->assertSame("{$pan->id},Pan Integral,Pan,3,1 rebanada,50,135.5,3,1.5,0.3,29,70,gluten;soya,120,0,0,0,0", $lines[1]);
+        $this->assertSame("{$pollo->id},Pollo,Carnes,4,1,50,65,11,2,,1,,,,0,0,0,0", $lines[2]); // empty = unknown
+        $this->assertCount(3, $lines); // the retired food is left out
+        $this->assertStringNotContainsString('Mote Crudo', $csv);
+
+        // The file loads again into an empty database (a new environment).
+        $path = tempnam(sys_get_temp_dir(), 'foods');
+        file_put_contents($path, $csv);
+        Food::query()->delete();
+        $this->artisan('foods:import', ['--path' => $path])->assertSuccessful();
+        $this->assertSame([$pan->id, $pollo->id], Food::orderBy('id')->pluck('id')->all());
+        $this->assertSame('gluten;soya', Food::find($pan->id)->allergens);
+        $this->assertEquals(135.5, Food::find($pan->id)->kcal);
+        $this->assertNull(Food::find($pollo->id)->glycemic_index);
+
+        // The same file from the console.
+        $this->food('Avena', 'Cereales');
+        $out = tempnam(sys_get_temp_dir(), 'export');
+        $this->artisan('foods:export', ['--path' => $out])->assertSuccessful();
+        $this->assertStringContainsString(',Avena,Cereales,', file_get_contents($out));
+    }
+
     #[Group('US-4.2/AC-7')]
     public function test_retiring_is_audited_once(): void
     {
@@ -281,6 +325,7 @@ class FoodCatalogTest extends TestCase
     }
 
     #[Group('US-4.2/AC-3')]
+    #[Group('US-4.2/AC-5')] // Laravel sends its foods to the expert service: both use the same ones
     public function test_new_proposals_use_the_edited_values(): void
     {
         [$diagnosis, $pollo] = $this->consultation();

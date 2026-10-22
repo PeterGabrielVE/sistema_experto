@@ -22,6 +22,6 @@ constitución (plan, *Verificación de la constitución*).
 - [x] **TK-4.2.5** — Agregar `retired_at` a `foods`, la acción *Retirar* (Doctor Jefe, auditada) y
   excluir los retirados de `generate()` y `editorCatalog()` sin afectar a `rebuild()` ni a los menús
   guardados. Cubre AC-4, AC-6, AC-7.
-- [ ] **TK-4.2.6** — Hacer que `foods:import` solo agregue ids nuevos, crear `foods:export` y el botón
+- [x] **TK-4.2.6** — Hacer que `foods:import` solo agregue ids nuevos, crear `foods:export` y el botón
   *Descargar CSV*, y actualizar US-3.1/AC-8 y sus tests, una vez mergeado el cambio a la constitución.
   Cubre AC-5.

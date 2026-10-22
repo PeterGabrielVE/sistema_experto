@@ -51,9 +51,10 @@ macronutrientes de la consulta,
   entonces el costo del día no lo supera si las pautas caben en él; si no caben, lo excede lo menos
   posible y lo informa. Cada alimento y día muestra su costo. Un presupuesto fuera de rango se ignora.
 - **AC-8** — Dado el catálogo `shared/food_catalog.csv`, cuando se importa (`php artisan foods:import`),
-  entonces la tabla `foods` se actualiza por `id`, se conservan los alimentos que ya no están en el
-  archivo y un archivo con errores no escribe nada y lista cada error con su línea. Los alimentos sin
-  valores nutricionales no se usan y se informan.
+  entonces se agregan a la tabla `foods` los alimentos cuyo `id` no está en ella y los existentes no se
+  modifican, porque la tabla es la fuente del catálogo y se mantiene desde la aplicación (US-4.2, D-1);
+  un archivo con errores no escribe nada y lista cada error con su línea. Los alimentos sin valores
+  nutricionales no se usan y se informan.
 - **AC-9** — Dado una propuesta, cuando el médico la revisa en el editor y la guarda, entonces el
   servidor recalcula todas las cantidades desde el catálogo, la guarda en `meal_plans` (una por
   consulta, marcada si se ajustó a mano) y *Descartar* vuelve a la propuesta automática. Solo los

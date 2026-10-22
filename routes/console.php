@@ -4,11 +4,13 @@ use App\Jobs\RetrainInferenceModel;
 use App\Models\Appointment;
 use App\Services\AppointmentService;
 use App\Services\FoodCatalogImporter;
+use App\Services\FoodCatalogService;
 use App\Services\InferenceEngine;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use Symfony\Component\Console\Output\OutputInterface;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -39,12 +41,21 @@ Artisan::command('foods:import {--path= : CSV to load instead of shared/food_cat
         return 1;
     }
 
-    $this->info("Catálogo de alimentos: {$result['created']} nuevos, {$result['updated']} actualizados, {$result['unchanged']} sin cambios.");
-    if ($result['absent']->isNotEmpty()) {
-        $this->warn('En la base pero no en el catálogo (se conservan, los menús guardados los usan): '
-            .$result['absent']->map(fn ($food) => "{$food->id} {$food->name}")->implode(', ').'.');
+    $this->info("Catálogo de alimentos: {$result['created']} nuevos; {$result['existing']} ya estaban en la base y se conservan (los cambios se hacen en Alimentos).");
+})->purpose('Initial load of the food catalog (shared/food_catalog.csv): adds the foods the table lacks');
+
+Artisan::command('foods:export {--path= : File to write instead of the standard output}', function (FoodCatalogService $catalog) {
+    $csv = $catalog->export();
+
+    if ($path = $this->option('path')) {
+        file_put_contents($path, $csv);
+        $this->info("Catálogo exportado a {$path}.");
+
+        return;
     }
-})->purpose('Load the food composition catalog (shared/food_catalog.csv) into the foods table');
+
+    $this->getOutput()->write($csv, false, OutputInterface::OUTPUT_RAW);
+})->purpose('Write the active foods in the format of shared/food_catalog.csv');
 
 Artisan::command('appointments:send-reminders {--date= : Day of the appointments (Y-m-d, clinic timezone); tomorrow by default}', function (AppointmentService $appointments) {
     $timezone = config('app.clinic_timezone');

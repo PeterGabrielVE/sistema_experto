@@ -98,6 +98,35 @@ class FoodCatalogService
     }
 
     /**
+     * The active foods as shared/food_catalog.csv (same columns and order), so the file loads
+     * a new environment with foods:import (US-4.2, D-1). Empty cells are unknown values.
+     */
+    public function export(): string
+    {
+        $lines = [self::csvLine(array_keys(FoodCatalogImporter::COLUMNS))];
+
+        foreach (Food::active()->orderBy('id')->get() as $food) {
+            $lines[] = self::csvLine(array_map(
+                fn (string $column) => self::comparable($food->getAttribute($column)) ?? '',
+                FoodCatalogImporter::COLUMNS,
+            ));
+        }
+
+        return implode("\n", $lines)."\n";
+    }
+
+    /**
+     * Quotes only the cells that need it, like shared/food_catalog.csv, so the files compare line by line.
+     */
+    private static function csvLine(array $cells): string
+    {
+        return implode(',', array_map(
+            fn (string $cell) => strpbrk($cell, ",\"\r\n") === false ? $cell : '"'.str_replace('"', '""', $cell).'"',
+            $cells,
+        ));
+    }
+
+    /**
      * "7.50" and 7.5 are the same value: numbers as their shortest text.
      */
     private static function number(mixed $value): string

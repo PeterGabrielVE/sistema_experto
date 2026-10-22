@@ -47,8 +47,8 @@ def generate_meal_plan(request: MealPlanRequest) -> dict:
 
 @router.get("/foods", response_model=FoodCatalog)
 def food_catalog() -> dict:
-    """The food composition catalog (shared/food_catalog.csv): nutrients per exchange portion,
-    and the data to review."""
+    """The food composition catalog of shared/food_catalog.csv (the initial load; Laravel sends
+    its own foods table with every meal plan): nutrients per exchange portion, and the data to review."""
     loaded = _catalog()
     return {"foods": loaded.foods, "groups": loaded.groups(), "warnings": loaded.warnings}
 

@@ -78,6 +78,19 @@ class FoodController extends Controller
             ->withStatus(__(':name se retiró del catálogo: ya no se usa en propuestas nuevas.', ['name' => $food->name]));
     }
 
+    /**
+     * The catalog as shared/food_catalog.csv, to load another environment (AC-5).
+     */
+    public function export(FoodCatalogService $catalog)
+    {
+        Gate::authorize('export', Food::class);
+
+        return response($catalog->export(), 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="food_catalog-'.now()->toDateString().'.csv"',
+        ]);
+    }
+
     private function formData(Food $food): array
     {
         return [

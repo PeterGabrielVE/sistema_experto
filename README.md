@@ -157,14 +157,16 @@ el servicio responde.
   por porción de intercambio con `id`, nombre, grupo, gramos, energía, proteínas, grasas, grasa saturada,
   carbohidratos, índice glicémico, alérgenos (`allergens`, etiquetas separadas por `;`), precio
   referencial en CLP por porción (`price`, a actualizar) y sodio, potasio, fósforo y calcio (mg); celda vacía = dato desconocido,
-  se acepta coma decimal. Es la fuente única: `php artisan foods:import` (también `FoodsSeeder`) lo carga en
-  la tabla `foods` por `id` y conserva los alimentos que ya no están en el archivo, porque los menús
-  guardados los referencian; si una fila está mal no escribe nada y lista cada error con su línea. El
-  servicio `expert` lo lee con [expert/app/catalog.py](expert/app/catalog.py) (se recarga si el archivo
-  cambia): `GET /foods` lo devuelve con los datos a revisar (nombres repetidos, energía que no calza con
-  4/4/9 kcal/g, carbohidratos sin índice glicémico, grupos que el generador no usa) y `POST /meal-plan`
-  sin `foods` genera con él. Laravel sigue enviando `foods` desde la tabla, así el editor y el generador
-  usan los mismos alimentos.
+  se acepta coma decimal. Es la **carga inicial** de un ambiente nuevo: la fuente del catálogo es la tabla
+  `foods`, que el Doctor Jefe mantiene en *Alimentos* (US-4.2). `php artisan foods:import` (también
+  `FoodsSeeder`) agrega solo los `id` que la tabla no tiene y nunca sobrescribe lo editado en la
+  aplicación; si una fila está mal no escribe nada y lista cada error con su línea. `php artisan
+  foods:export` (o *Descargar CSV* en *Alimentos*) escribe los alimentos activos en el mismo formato.
+  Laravel envía `foods` desde la tabla en cada `POST /meal-plan`, así el editor y el generador usan los
+  mismos alimentos. El servicio `expert` también lee el archivo con
+  [expert/app/catalog.py](expert/app/catalog.py) para usarse solo: `GET /foods` lo devuelve con los datos a
+  revisar (nombres repetidos, energía fuera de la tolerancia de `meal_plan.catalog_review`, carbohidratos
+  sin índice glicémico, grupos que el generador no usa) y `POST /meal-plan` sin `foods` genera con él.
 - **Propuesta de menú de la consulta** ([app/Services/MealPlanService.php](app/Services/MealPlanService.php)):
   la página de resultado muestra la propuesta guardada o, si no hay, una generada (*Otra variante*,
   1/3/7 días). *Revisar y guardar* abre el editor (`/result/{id}/menu`): por día y comida se cambia el

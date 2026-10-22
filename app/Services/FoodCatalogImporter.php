@@ -3,22 +3,21 @@
 namespace App\Services;
 
 use App\Models\Food;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 /**
- * Loads the food composition catalog (shared/food_catalog.csv, exchange portions) into the
- * foods table, by id. The expert service reads the same file (expert/app/catalog.py, GET /foods),
- * which also reports doubtful data. Foods of the table that are not in the file are kept:
- * saved meal plans and the editor refer to them by id.
+ * Initial load of the food composition catalog (shared/food_catalog.csv, exchange portions)
+ * into the foods table. The table is the source of truth (US-4.2, D-1): the Doctor Jefe keeps
+ * it in the application, so only the ids the table lacks are added and the existing foods are
+ * never overwritten. FoodCatalogService::export() writes the table back in this same format.
  */
 class FoodCatalogImporter
 {
     public const PATH = 'shared/food_catalog.csv';
 
     /** CSV column => foods column */
-    private const COLUMNS = [
+    public const COLUMNS = [
         'id' => 'id',
         'name' => 'name',
         'group' => 'item',
@@ -45,25 +44,23 @@ class FoodCatalogImporter
     private const ZERO_WHEN_EMPTY = ['portion', 'clna_mg', 'k_mg', 'p_mg', 'ca_mg'];
 
     /**
-     * @return array{created: int, updated: int, unchanged: int, absent: Collection<int, Food>}
+     * @return array{created: int, existing: int} foods added, and foods of the file already in the table (kept)
      *
      * @throws RuntimeException listing every malformed row; nothing is written then
      */
     public function import(?string $path = null): array
     {
         $rows = $this->rows($path ?? base_path(self::PATH));
-        $counts = ['created' => 0, 'updated' => 0, 'unchanged' => 0];
+        $existing = Food::whereIn('id', array_keys($rows))->pluck('id')->all();
+        $new = array_diff_key($rows, array_flip($existing));
 
-        DB::transaction(function () use ($rows, &$counts) {
-            foreach ($rows as $id => $attributes) {
-                $food = Food::find($id) ?? (new Food)->forceFill(['id' => $id]);
-                $key = ! $food->exists ? 'created' : ($this->changes($food, $attributes) ? 'updated' : 'unchanged');
-                $food->fill($attributes)->save();
-                $counts[$key]++;
+        DB::transaction(function () use ($new) {
+            foreach ($new as $id => $attributes) {
+                (new Food)->forceFill(['id' => $id, ...$attributes])->save();
             }
         });
 
-        return [...$counts, 'absent' => Food::whereNotIn('id', array_keys($rows))->orderBy('id')->get()];
+        return ['created' => count($new), 'existing' => count($existing)];
     }
 
     /**
@@ -160,22 +157,5 @@ class FoodCatalogImporter
         }
 
         return $rows;
-    }
-
-    /**
-     * The foods columns are strings ("7,5", "0.0"): numbers are compared by value.
-     */
-    private function changes(Food $food, array $attributes): bool
-    {
-        foreach ($attributes as $key => $value) {
-            $original = $food->getOriginal($key);
-            $current = is_string($original) ? str_replace(',', '.', $original) : $original;
-            $same = is_numeric($value) && is_numeric($current) ? (float) $value === (float) $current : $value === $original;
-            if (! $same) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

@@ -31,4 +31,9 @@ class FoodPolicy
     {
         return $user->hasRole(Role::ChiefDoctor);
     }
+
+    public function export(User $user): bool
+    {
+        return $user->hasRole(Role::ChiefDoctor);
+    }
 }

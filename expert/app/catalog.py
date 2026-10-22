@@ -1,8 +1,9 @@
 """Food composition catalog: the exchange portions of shared/food_catalog.csv.
 
-The same file is imported by Laravel into the foods table (php artisan foods:import), so the
-menus generated with the service's own catalog and the doctor's editor use the same foods and
-ids. Loaded on demand and kept until the file changes. A malformed row stops the load
+The catalog of the application is the foods table of Laravel (US-4.2, D-1), which sends its
+foods with every POST /meal-plan; this file is its initial load. The service reads it to work on
+its own (GET /foods, POST /meal-plan without foods), so it may lag behind the edits made in the
+application. Loaded on demand and kept until the file changes. A malformed row stops the load
 (CatalogError, with every row at fault); valid but doubtful data (repeated names, energy that does
 not match the macronutrients…) goes to the warnings, for the nutritionist to review.
 """

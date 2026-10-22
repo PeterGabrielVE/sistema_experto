@@ -52,22 +52,31 @@ class FoodCatalogImportTest extends TestCase
         $this->assertSame([null, null], [Food::find(1)->allergens, Food::find(1)->price]);
     }
 
-    public function test_updates_by_id_and_keeps_foods_that_are_not_in_the_file(): void
+    /**
+     * The foods table is the source (US-4.2, D-1): the file only adds the ids it lacks.
+     */
+    #[Group('US-4.2/AC-5')]
+    public function test_importing_again_keeps_the_foods_edited_in_the_app(): void
     {
-        Food::forceCreate(['id' => 1, 'id_group' => 4, 'name' => 'Pollo', 'item' => 'Carnes', 'portion' => '1', 'kcal' => '60', 'protein' => '11', 'lipid' => '2', 'cho' => '1', 'clna_mg' => '0', 'k_mg' => '0', 'p_mg' => '0', 'ca_mg' => '0', 'gr' => '50']);
+        // Edited in the application (70 kcal) and created there (id 9, not in the file).
+        Food::forceCreate(['id' => 1, 'id_group' => 4, 'name' => 'Pollo', 'item' => 'Carnes', 'portion' => '1', 'kcal' => '70', 'protein' => '12', 'lipid' => '2', 'cho' => '0', 'clna_mg' => '0', 'k_mg' => '0', 'p_mg' => '0', 'ca_mg' => '0', 'gr' => '50']);
         Food::forceCreate(['id' => 9, 'id_group' => 2, 'name' => 'Zanahoria', 'item' => 'Verduras', 'portion' => '1', 'kcal' => '60', 'protein' => '4', 'lipid' => '0', 'cho' => '14', 'clna_mg' => '0', 'k_mg' => '0', 'p_mg' => '0', 'ca_mg' => '0', 'gr' => '50']);
         $path = $this->csv('1,Pollo,Carnes,4,1,50,65,11,2,0.5,1,,,,,', '2,Pavo,Carnes,4,1,50,"65,0",11,2,0.5,1,,,,,');
 
         $result = app(FoodCatalogImporter::class)->import($path);
 
-        $this->assertSame([1, 1, 0], [$result['created'], $result['updated'], $result['unchanged']]);
-        $this->assertSame([9], $result['absent']->pluck('id')->all());
-        $this->assertEquals(65, Food::find(1)->kcal);
-        $this->assertEquals(0.5, Food::find(1)->saturated_fat);
-        $this->assertSame(3, Food::count());
+        $this->assertSame(['created' => 1, 'existing' => 1], $result);
+        $this->assertEquals(70, Food::find(1)->kcal);
+        $this->assertEquals(12, Food::find(1)->protein);
+        $this->assertNull(Food::find(1)->saturated_fat);
+        $this->assertSame('Pavo', Food::find(2)->name);
+        $this->assertEquals(0.5, Food::find(2)->saturated_fat);
+        $this->assertSame([1, 2, 9], Food::orderBy('id')->pluck('id')->all());
 
-        $again = app(FoodCatalogImporter::class)->import($path);
-        $this->assertSame([0, 0, 2], [$again['created'], $again['updated'], $again['unchanged']]);
+        $this->assertSame(['created' => 0, 'existing' => 2], app(FoodCatalogImporter::class)->import($path));
+        $this->artisan('foods:import', ['--path' => $path])
+            ->expectsOutput('Catálogo de alimentos: 0 nuevos; 2 ya estaban en la base y se conservan (los cambios se hacen en Alimentos).')
+            ->assertSuccessful();
     }
 
     public function test_rejects_a_malformed_catalog_without_writing(): void
