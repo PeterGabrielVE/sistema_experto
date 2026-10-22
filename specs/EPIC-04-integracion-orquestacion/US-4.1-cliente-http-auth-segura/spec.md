@@ -45,14 +45,15 @@ se filtre.
 ## Criterios de aceptación
 
 - **AC-1** — Dado una consulta, cuando Laravel pide la evaluación, el menú o la clasificación a un servicio
-  Python, entonces la solicitud lleva la credencial de ese servicio y espera a lo sumo el tiempo
-  configurado para él.
+  Python, entonces la solicitud lleva la credencial de ese servicio, un secreto compartido (D-1), y espera
+  a lo sumo el tiempo configurado para él.
 - **AC-2** — Dado un servicio Python con credencial configurada, cuando recibe una solicitud de datos sin
   credencial o con una incorrecta, entonces la rechaza como no autorizada y no procesa los datos; solo la
   verificación de salud (sin datos) responde sin credencial.
 - **AC-3** — Dado un servicio Python desplegado sin credencial configurada, cuando recibe una solicitud de
   datos, entonces la rechaza e informa que falta configurar la credencial, en vez de atenderla sin
-  autenticación (pregunta 2).
+  autenticación. Solo un servicio cuyo ambiente está declarado como local puede atender sin credencial
+  (D-2).
 - **AC-4** — Dado un servicio Python caído, lento, con una respuesta inválida o que rechaza la credencial,
   cuando Laravel lo llama, entonces la consulta se guarda igual: la clasificación usa las reglas de IMC, la
   página de resultado se muestra sin la evaluación experta y el menú indica que no se pudo generar
@@ -74,18 +75,32 @@ se filtre.
   acceso (US-6.3 bloqueó a los pacientes).
 - Rotar las credenciales automáticamente o guardarlas en un gestor de secretos.
 - Cifrar los datos clínicos en reposo.
+- JWT y credenciales con expiración (D-1), y TLS entre Laravel y los servicios dentro del servidor (D-3).
+
+## Decisiones funcionales
+
+### D-1. Tipo de credencial
+
+Un secreto compartido por servicio, como hoy: se envía como token Bearer y el servicio lo compara en
+tiempo constante. Dentro de la red interna es suficiente, y es lo más simple de operar.
+
+### D-2. Servicio sin credencial
+
+Sin credencial configurada, el servicio rechaza toda solicitud de datos. La única excepción es un
+servicio cuyo ambiente está declarado explícitamente como local (desarrollo). Así, un olvido en un
+despliegue deja el servicio cerrado, no abierto.
+
+### D-3. Cifrado entre servicios
+
+Basta con la red interna de Docker: los servicios no publican puertos y solo Laravel los alcanza (AC-7).
+TLS dentro del servidor queda fuera de alcance.
 
 ## Preguntas abiertas
 
-- [ ] **1. Tipo de credencial** (desarrolladores): ¿basta con un secreto compartido por servicio, como hoy
-  (una "API key" enviada como token Bearer), o se requiere JWT con expiración? El backlog (TK-4.1.2) admite
-  ambos. El secreto compartido es más simple; el JWT limita el daño si una credencial se filtra, pero
-  agrega firma, expiración y reloj sincronizado.
-- [ ] **2. Desarrollo local** (desarrolladores): con AC-3, ¿un servicio sin credencial debe rechazar las
-  solicitudes también en desarrollo local, o se permite trabajar sin credencial solo cuando el ambiente
-  se declara explícitamente como local?
-- [ ] **3. Cifrado entre servicios** (desarrolladores e infraestructura): ¿basta con la red interna de
-  Docker entre Laravel y los servicios, o se exige TLS también dentro del servidor?
+- [x] **1. Tipo de credencial.** Respondida en D-1: secreto compartido por servicio.
+- [x] **2. Desarrollo local.** Respondida en D-2: sin credencial solo se atiende en un ambiente declarado
+  como local.
+- [x] **3. Cifrado entre servicios.** Respondida en D-3: basta con la red interna de Docker.
 
 ## Referencias
 
