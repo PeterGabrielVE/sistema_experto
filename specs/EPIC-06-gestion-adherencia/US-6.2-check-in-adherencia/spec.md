@@ -2,7 +2,7 @@
 id: US-6.2
 title: Registrar el cumplimiento diario del plan por el paciente
 epic: EPIC-06
-status: approved
+status: in-progress
 owner: Frontend Dev
 ---
 

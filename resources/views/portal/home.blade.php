@@ -35,6 +35,12 @@
         </div>
     </div>
 
+    @if ($mealPlan && ! empty($mealPlan->plan['days']))
+        @foreach ($days as $day)
+            @include('portal._day', $day)
+        @endforeach
+    @endif
+
     <div class="card">
         <div class="card-body">
             <h6>{{ __('Su plan alimentario') }}</h6>
