@@ -2,7 +2,7 @@
 id: US-5.2
 title: Descargar el plan alimentario en PDF para entregarlo al paciente
 epic: EPIC-05
-status: draft
+status: approved
 owner: Laravel Dev · Frontend Dev
 ---
 
