@@ -17,6 +17,7 @@
 
 @section('content')
     <h4 class="mb-3">{{ __('Hola :name', ['name' => $patient->first_name]) }}</h4>
+    @include('alerts.success')
 
     <div class="card mb-4">
         <div class="card-body">

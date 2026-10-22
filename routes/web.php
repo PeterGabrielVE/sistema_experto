@@ -13,6 +13,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientEvolutionController;
 use App\Http\Controllers\PortalAccessController;
+use App\Http\Controllers\PortalAdherenceController;
 use App\Http\Controllers\PortalController;
 use App\Http\Controllers\PortalInvitationController;
 use App\Http\Controllers\ProfileController;
@@ -61,6 +62,9 @@ Route::middleware(['guest', 'throttle:10,1'])->group(function () {
 });
 Route::middleware(['auth', 'patient'])->prefix('portal')->name('portal.')->group(function () {
     Route::get('/', [PortalController::class, 'home'])->name('home');
+    // Record of the plan (US-6.2): today or yesterday, always the patient of the session.
+    Route::put('cumplimiento/{date}', [PortalAdherenceController::class, 'update'])
+        ->where('date', '\d{4}-\d{2}-\d{2}')->name('adherence.update');
 });
 
 // The staff side: patients with a portal account get 403 (EnsureStaff, US-6.3).

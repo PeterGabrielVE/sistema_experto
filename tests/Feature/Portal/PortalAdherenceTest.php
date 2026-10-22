@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Portal;
 
+use App\Models\AdherenceCheckin;
 use App\Models\Diagnosis;
 use App\Models\MealPlan;
 use App\Models\Patient;
@@ -137,8 +138,137 @@ class PortalAdherenceTest extends TestCase
             ->assertOk()
             ->assertSee('Su profesional aún no le ha guardado un plan alimentario.')
             ->assertDontSee('Menú de hoy')
-            ->assertDontSee('Menú de ayer');
+            ->assertDontSee('Menú de ayer')
+            ->assertDontSee('name="meals[', false);
 
         $this->assertNull(app(AdherenceService::class)->menuFor($this->patient, now()));
+        $this->record('2026-10-21', ['desayuno' => 'done'])->assertStatus(422);
+        $this->assertSame(0, AdherenceCheckin::count());
+    }
+
+    private function record(string $date, array $meals, ?User $as = null)
+    {
+        return $this->actingAs($as ?? $this->account)->put(route('portal.adherence.update', $date), ['meals' => $meals]);
+    }
+
+    /**
+     * @return array<string, string> meal_key => status of the patient's record of a day
+     */
+    private function marks(string $date, ?Patient $patient = null): array
+    {
+        return AdherenceCheckin::where('patient_id', ($patient ?? $this->patient)->id)
+            ->whereDate('date', $date)->pluck('status', 'meal_key')->all();
+    }
+
+    #[Group('US-6.2/AC-1')]
+    public function test_portal_shows_todays_menu_with_a_choice_per_meal(): void
+    {
+        $this->savedPlan('2026-10-19 15:00:00');
+
+        $response = $this->actingAs($this->account)->get(route('portal.home'))->assertOk();
+
+        $response->assertSee('action="'.route('portal.adherence.update', '2026-10-21').'"', false)
+            ->assertSee('action="'.route('portal.adherence.update', '2026-10-20').'"', false);
+        foreach (['done' => 'Cumplí', 'partial' => 'En parte', 'missed' => 'No cumplí', '' => 'Sin marcar'] as $value => $label) {
+            $response->assertSee('name="meals[desayuno]" value="'.$value.'"', false)->assertSee($label);
+        }
+        $response->assertSee('name="meals[almuerzo]"', false)
+            ->assertDontSee('name="meals[colacion_matutina]"', false); // no foods: nothing to mark
+    }
+
+    #[Group('US-6.2/AC-1')]
+    public function test_patient_marks_each_meal(): void
+    {
+        $plan = $this->savedPlan('2026-10-19 15:00:00');
+
+        $this->record('2026-10-21', ['desayuno' => 'done', 'almuerzo' => 'partial'])
+            ->assertRedirect(route('portal.home'))
+            ->assertSessionHas('status', 'Registro guardado.');
+
+        $this->assertSame(['almuerzo' => 'partial', 'desayuno' => 'done'], collect($this->marks('2026-10-21'))->sortKeys()->all());
+        $breakfast = AdherenceCheckin::where('meal_key', 'desayuno')->sole();
+        $this->assertSame($plan->id, $breakfast->meal_plan_id);
+        $this->assertSame(3, $breakfast->plan_day);
+        $this->assertSame('Desayuno', $breakfast->meal_label);
+        $this->assertSame($this->account->id, $breakfast->recorded_by);
+
+        // The page shows what was marked.
+        $this->actingAs($this->account)->get(route('portal.home'))
+            ->assertSee('name="meals[desayuno]" value="done" checked', false)
+            ->assertSee('name="meals[almuerzo]" value="partial" checked', false);
+    }
+
+    #[Group('US-6.2/AC-2')]
+    public function test_patient_corrects_or_unmarks_today_and_yesterday(): void
+    {
+        $this->savedPlan('2026-10-19 15:00:00');
+
+        $this->record('2026-10-20', ['desayuno' => 'missed'])->assertRedirect(route('portal.home'));
+        $this->record('2026-10-21', ['desayuno' => 'done', 'almuerzo' => 'done']);
+        $this->record('2026-10-21', ['desayuno' => 'partial', 'almuerzo' => '']); // correct one, unmark the other
+
+        $this->assertSame(['desayuno' => 'missed'], $this->marks('2026-10-20'));
+        $this->assertSame(['desayuno' => 'partial'], $this->marks('2026-10-21')); // unmarked = no record
+        $this->assertSame(2, AdherenceCheckin::count());
+    }
+
+    #[Group('US-6.2/AC-2')]
+    public function test_older_or_future_days_cannot_be_recorded(): void
+    {
+        $this->savedPlan('2026-10-01 15:00:00');
+
+        foreach (['2026-10-19', '2026-10-22', '2026-02-30'] as $date) {
+            $this->record($date, ['desayuno' => 'done'])->assertStatus(422);
+        }
+        $this->actingAs($this->account)->put('/portal/cumplimiento/ayer', ['meals' => ['desayuno' => 'done']])->assertNotFound();
+
+        $this->assertSame(0, AdherenceCheckin::count());
+    }
+
+    #[Group('US-6.2/AC-2')]
+    public function test_meals_not_in_the_days_menu_are_rejected(): void
+    {
+        $this->savedPlan('2026-10-19 15:00:00');
+
+        $this->record('2026-10-21', ['colacion_matutina' => 'done'])->assertSessionHasErrors('meals');
+        $this->record('2026-10-21', ['cena' => 'done'])->assertSessionHasErrors('meals');
+        $this->record('2026-10-21', ['desayuno' => 'quizas'])->assertSessionHasErrors('meals.desayuno');
+        $this->record('2026-10-21', [])->assertSessionHasErrors('meals');
+
+        $this->assertSame(0, AdherenceCheckin::count());
+    }
+
+    #[Group('US-6.2/AC-2')]
+    public function test_days_are_the_clinic_days(): void
+    {
+        $this->savedPlan('2026-10-19 15:00:00');
+        Carbon::setTestNow('2026-10-22 02:30:00'); // 21/10 23:30 in Santiago
+
+        $this->record('2026-10-21', ['desayuno' => 'done'])->assertRedirect(route('portal.home'));
+        $this->record('2026-10-22', ['desayuno' => 'done'])->assertStatus(422); // tomorrow in Chile
+
+        $this->assertSame(['desayuno' => 'done'], $this->marks('2026-10-21'));
+    }
+
+    #[Group('US-6.2/AC-3')]
+    public function test_a_patient_records_and_sees_only_their_own_meals(): void
+    {
+        $other = Patient::factory()->create(['first_name' => 'Berta']);
+        $otherAccount = User::factory()->patient($other)->create();
+        $this->savedPlan('2026-10-19 15:00:00');
+        $this->savedPlan('2026-10-19 15:00:00', $other);
+
+        $this->record('2026-10-21', ['desayuno' => 'done'], $otherAccount);
+        $this->record('2026-10-21', ['almuerzo' => 'missed']);
+
+        $this->assertSame(['desayuno' => 'done'], $this->marks('2026-10-21', $other));
+        $this->assertSame(['almuerzo' => 'missed'], $this->marks('2026-10-21'));
+        $this->actingAs($this->account)->get(route('portal.home'))
+            ->assertDontSee('name="meals[desayuno]" value="done" checked', false)
+            ->assertSee('name="meals[almuerzo]" value="missed" checked', false);
+
+        // The team does not record for the patient.
+        $this->record('2026-10-21', ['desayuno' => 'done'], User::factory()->create())->assertForbidden();
+        $this->assertSame(['almuerzo' => 'missed'], $this->marks('2026-10-21'));
     }
 }

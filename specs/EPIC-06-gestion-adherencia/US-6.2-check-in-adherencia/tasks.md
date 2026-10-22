@@ -9,7 +9,7 @@ Orden por dependencia: el registro necesita el menú del día, y el resumen de l
 - [x] **TK-6.2.1** — Crear `AdherenceService::menuFor()` (rotación desde la fecha de guardado, en
   `clinic_timezone`) y mostrar en el inicio del portal el menú de hoy y el de ayer, solo de lectura; sin plan
   guardado, el aviso. Cubre AC-1, AC-5.
-- [ ] **TK-6.2.2** — Crear `adherence_checkins` y `adherence.scores` en `clinical_thresholds.json`; el
+- [x] **TK-6.2.2** — Crear `adherence_checkins` y `adherence.scores` en `clinical_thresholds.json`; el
   formulario por comida (*cumplí*, *en parte*, *no cumplí*, *sin marcar*) para hoy y ayer y la ruta
   `PUT /portal/cumplimiento/{date}`, que rechaza otros días y comidas ajenas al menú, con
   `PortalAdherenceTest`. Cubre AC-1, AC-2, AC-3, AC-5.
