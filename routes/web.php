@@ -102,6 +102,7 @@ Route::middleware(['auth', 'staff'])->group(function () {
 
         // Portal access of the patient (US-6.3), from the clinical record.
         Route::post('patient/{patient}/portal/invitation', [PortalAccessController::class, 'invite'])->name('patient.portal.invite');
+        Route::delete('patient/{patient}/portal', [PortalAccessController::class, 'revoke'])->name('patient.portal.revoke');
 
         // Weight and HOMA-IR history (JSON) for the evolution chart of the clinical record.
         Route::get('patient/{patient}/evolution', PatientEvolutionController::class)->name('patient.evolution');

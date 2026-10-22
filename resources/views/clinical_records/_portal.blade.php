@@ -40,5 +40,20 @@
                 </form>
             @endcan
         @endif
+
+        {{-- Removes the account, or cancels an invitation not accepted yet (AC-7). --}}
+        @php
+            $pending = $invitation && in_array($invitation->status, [\App\Models\PatientInvitation::QUEUED, \App\Models\PatientInvitation::SENT, \App\Models\PatientInvitation::FAILED], true);
+        @endphp
+        @if ($portalAccount || $pending)
+            @can('revokePortal', $patient)
+                <form method="post" action="{{ route('patient.portal.revoke', $patient) }}" class="d-inline"
+                      onsubmit="return confirm(@js($portalAccount ? __('¿Quitar el acceso al portal? Se cerrará su sesión y deberá ser invitado de nuevo.') : __('¿Anular la invitación? El enlace dejará de servir.')))">
+                    @csrf
+                    @method('delete')
+                    <button type="submit" class="btn btn-outline-danger btn-sm mb-0">{{ $portalAccount ? __('Quitar acceso') : __('Anular invitación') }}</button>
+                </form>
+            @endcan
+        @endif
     </div>
 </div>

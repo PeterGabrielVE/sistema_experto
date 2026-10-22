@@ -34,4 +34,17 @@ class PortalAccessController extends Controller
             ? $back
             : $back->withStatus(__('Invitación al portal enviada a :email.', ['email' => $invitation->email]));
     }
+
+    /**
+     * Removes the access: deletes the account and cancels the pending invitation (AC-7).
+     */
+    public function revoke(Request $request, Patient $patient)
+    {
+        Gate::authorize('revokePortal', $patient);
+
+        abort_unless($this->portal->revoke($patient, $request->user()), 422, __('El paciente no tiene acceso ni invitaciones pendientes.'));
+
+        return redirect()->route('patient.clinical-record.show', $patient)
+            ->withStatus(__('Se quitó el acceso al portal. Para devolverlo, invítelo de nuevo.'));
+    }
 }

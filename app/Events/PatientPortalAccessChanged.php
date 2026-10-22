@@ -20,6 +20,8 @@ class PatientPortalAccessChanged
 
     public const LOGIN = 'login';
 
+    public const REVOKED = 'revoked';
+
     /**
      * @param  array<string, int|string|null>  $context  Identifiers only: no clinical or contact data.
      */

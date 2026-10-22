@@ -64,6 +64,31 @@ class PortalAccessService
     }
 
     /**
+     * Deletes the portal account and cancels the pending invitations (AC-7). The open session
+     * ends on its next request, when the guard no longer finds the account. Returns false when
+     * there was nothing to revoke.
+     */
+    public function revoke(Patient $patient, User $doctor): bool
+    {
+        $account = $patient->account;
+        $pending = $patient->invitations()
+            ->whereIn('status', [PatientInvitation::QUEUED, PatientInvitation::SENT, PatientInvitation::FAILED]);
+
+        if (! $account && ! $pending->exists()) {
+            return false;
+        }
+
+        DB::transaction(function () use ($account, $pending) {
+            $pending->update(['status' => PatientInvitation::REVOKED, 'token_hash' => null]);
+            $account?->delete();
+        });
+
+        PatientPortalAccessChanged::dispatch($patient, $doctor, PatientPortalAccessChanged::REVOKED, ['account_id' => $account?->id]);
+
+        return true;
+    }
+
+    /**
      * The invitation of a link that still works, or null: unknown or tampered token, expired,
      * used, revoked, or an e-mail another account took meanwhile (AC-3, D-4).
      */

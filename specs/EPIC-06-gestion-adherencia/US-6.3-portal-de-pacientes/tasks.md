@@ -22,6 +22,6 @@ que el equipo esté protegido.
 - [x] **TK-6.3.4** — Crear el inicio del portal con el nombre, la próxima consulta y el último plan
   guardado (solo lectura, sin datos clínicos), con `PortalHomeTest` y la verificación manual de NFR-1
   en el PR. Cubre AC-4, AC-6.
-- [ ] **TK-6.3.5** — Quitar el acceso desde la ficha (borrar la cuenta e invalidar las invitaciones) y
+- [x] **TK-6.3.5** — Quitar el acceso desde la ficha (borrar la cuenta e invalidar las invitaciones) y
   borrar la cuenta junto con el paciente; auditar `portal.revoked`, con `PortalRevokeTest` y
   `PortalAuditTest`. Cubre AC-7, AC-9.
