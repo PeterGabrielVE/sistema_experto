@@ -11,16 +11,19 @@ def rule_ids(result):
     return [r["rule_id"] for r in result["rules"]]
 
 
+@pytest.mark.spec("US-2.2/AC-6")
 def test_bmr_mifflin_st_jeor():
     assert nutrition.bmr("H", 40, 80, 165) == pytest.approx(1636.25)
     assert nutrition.bmr("M", 40, 80, 165) == pytest.approx(1470.25)
 
 
+@pytest.mark.spec("US-2.2/AC-6")
 def test_reference_weight_caps_at_bmi_25():
     assert nutrition.reference_weight(60, 170) == 60
     assert nutrition.reference_weight(110, 170) == 72.2
 
 
+@pytest.mark.spec("US-2.2/AC-6")
 def test_healthy_adult_gets_the_base_distribution(facts):
     result = plan(facts, sex="M", age=30, physical_activity=2, anthropometry={"weight_kg": 58, "height_cm": 162})
 
@@ -36,6 +39,7 @@ def test_healthy_adult_gets_the_base_distribution(facts):
     assert result["rules"] == [] and result["notes"] == []
 
 
+@pytest.mark.spec("US-2.2/AC-6")
 def test_metabolic_patient_lowers_carbohydrates_and_saturated_fat(facts):
     result = plan(
         facts, physical_activity=1,
@@ -54,6 +58,7 @@ def test_metabolic_patient_lowers_carbohydrates_and_saturated_fat(facts):
     assert result["macros"]["proteins"]["g_per_kg"] >= result["protein_min_g_per_kg"] == 1.2
 
 
+@pytest.mark.spec("US-2.2/AC-6")
 def test_diabetes_takes_the_lowest_carbohydrate_share(facts):
     result = plan(facts, sex="M", age=70, physical_activity=0,
                   anthropometry={"weight_kg": 95, "height_cm": 155}, conditions={"diabetes": True})
@@ -66,6 +71,7 @@ def test_diabetes_takes_the_lowest_carbohydrate_share(facts):
     assert any("renal" in n for n in result["notes"])
 
 
+@pytest.mark.spec("US-2.2/AC-6")
 def test_protein_is_raised_to_the_minimum_g_per_kg(facts):
     # Obesity: 1,2 g/kg × 81 kg of reference weight needs 22 % of 1810 kcal; it comes from carbohydrates.
     result = plan(facts, age=40, physical_activity=0, anthropometry={"weight_kg": 120, "height_cm": 180})
@@ -76,6 +82,7 @@ def test_protein_is_raised_to_the_minimum_g_per_kg(facts):
     assert result["macros"]["proteins"]["g_per_kg"] >= 1.2
 
 
+@pytest.mark.spec("US-2.2/AC-6")
 def test_underweight_gets_a_surplus(facts):
     result = plan(facts, sex="M", age=25, physical_activity=1, anthropometry={"weight_kg": 45, "height_cm": 165})
 
@@ -83,6 +90,7 @@ def test_underweight_gets_a_surplus(facts):
     assert result["energy"]["adjustment"] == 400
 
 
+@pytest.mark.spec("US-2.2/AC-6")
 def test_missing_activity_assumes_very_light(facts):
     result = plan(facts, anthropometry={"weight_kg": 70, "height_cm": 175})
 
@@ -90,6 +98,7 @@ def test_missing_activity_assumes_very_light(facts):
     assert any("actividad física" in n for n in result["notes"])
 
 
+@pytest.mark.spec("US-2.2/AC-5")
 def test_no_plan_for_minors_or_without_anthropometry(facts):
     minor = plan(facts, age=15, anthropometry={"weight_kg": 50, "height_cm": 160})
     assert (minor["status"], "energy" in minor) == ("no_aplica", False)
@@ -107,6 +116,7 @@ def evaluate_with(facts, macro_rules, **kw):
     return rules.evaluate({**facts(**kw), "macro_rules": macro_rules})["macronutrients"]
 
 
+@pytest.mark.spec("US-2.2/AC-8")
 def test_configured_rule_adjusts_the_glycemic_load(facts):
     result = evaluate_with(facts, [HOMA_RULE], physical_activity=2,
                            anthropometry={"weight_kg": 70, "height_cm": 175},
@@ -123,6 +133,7 @@ def test_configured_rule_adjusts_the_glycemic_load(facts):
     assert all(not r["configured"] for r in result["rules"][:-1])
 
 
+@pytest.mark.spec("US-2.2/AC-8")
 def test_configured_rule_does_not_apply_below_the_value_or_without_data(facts):
     below = evaluate_with(facts, [HOMA_RULE], anthropometry={"weight_kg": 70, "height_cm": 175},
                           labs={"fasting_glucose": 85, "fasting_insulin": 6})  # HOMA-IR 1,26
@@ -133,6 +144,7 @@ def test_configured_rule_does_not_apply_below_the_value_or_without_data(facts):
         assert result["limits"]["glycemic_load"]["amount"] == 120
 
 
+@pytest.mark.spec("US-2.2/AC-6")
 def test_the_most_restrictive_value_wins(facts):
     # Diabetes (MAC-03) lowers the glycemic load to 100 and carbohydrates to 40; the rule cannot raise them.
     lenient = {**HOMA_RULE, "id": "CFG-2", "variable": "age", "operator": ">=", "value": 18,
@@ -145,6 +157,7 @@ def test_the_most_restrictive_value_wins(facts):
     assert result["rules"][-1]["evidence"] == ["Edad 40 años (≥ 18)"]
 
 
+@pytest.mark.spec("US-2.2/AC-8")
 def test_configured_lab_variable_and_energy(facts):
     rule = {"id": "CFG-3", "title": "TG muy altos", "variable": "triglycerides", "operator": ">=", "value": 500,
             "actions": {"energy": -200, "fats": 25}}

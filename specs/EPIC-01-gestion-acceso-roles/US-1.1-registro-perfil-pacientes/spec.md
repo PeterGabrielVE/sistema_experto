@@ -2,7 +2,7 @@
 id: US-1.1
 title: Registrar y editar los pacientes y su ficha clínica
 epic: EPIC-01
-status: approved
+status: implemented
 owner: Laravel Dev · Frontend Dev
 ---
 

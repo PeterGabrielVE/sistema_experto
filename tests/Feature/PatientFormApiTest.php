@@ -52,6 +52,7 @@ class PatientFormApiTest extends TestCase
             ->assertSee('&quot;birthdate&quot;:&quot;1990-01-01&quot;', false);
     }
 
+    #[Group('US-1.1/AC-1')]
     public function test_store_returns_the_resource_and_next_step(): void
     {
         $response = $this->actingAs($this->doctor)->postJson('/patient', $this->payload())->assertCreated();
@@ -67,6 +68,7 @@ class PatientFormApiTest extends TestCase
         $this->assertSame('Paciente creado correctamente. Complete ahora su ficha clínica.', session('status'));
     }
 
+    #[Group('US-1.1/AC-3')]
     public function test_validation_errors_are_returned_as_json_per_field(): void
     {
         $this->actingAs($this->doctor)->postJson('/patient', $this->payload([
@@ -80,6 +82,7 @@ class PatientFormApiTest extends TestCase
             ]);
     }
 
+    #[Group('US-1.1/AC-2')]
     public function test_update_via_json_keeps_the_rut(): void
     {
         $patient = Patient::factory()->create(['rut' => '11111117-0']);
@@ -127,6 +130,7 @@ class PatientFormApiTest extends TestCase
         $this->assertNull($patient->reminders_unsubscribed_at);
     }
 
+    #[Group('US-1.1/AC-4')]
     public function test_list_paginates_and_searches_on_the_server(): void
     {
         // Fixed names: a random "Soto" or "Carla" would also match the searches below.

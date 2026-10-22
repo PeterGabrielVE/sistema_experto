@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class PatientModelTest extends TestCase
@@ -23,6 +24,7 @@ class PatientModelTest extends TestCase
         $this->assertFalse(Schema::hasColumn('patients', 'age'), 'Age is derived, not stored.');
     }
 
+    #[Group('US-1.1/AC-1')]
     public function test_age_is_derived_from_birthdate(): void
     {
         Carbon::setTestNow('2026-09-24');
@@ -53,6 +55,7 @@ class PatientModelTest extends TestCase
         }
     }
 
+    #[Group('US-1.1/AC-3')]
     public function test_patient_email_is_optional_validated_and_normalized(): void
     {
         $doctor = User::factory()->create();

@@ -20,6 +20,7 @@ def client(monkeypatch):
     return TestClient(app)
 
 
+@pytest.mark.spec("US-2.1/AC-1")
 def test_evaluate(client):
     response = client.post("/evaluate", json=PAYLOAD)
 
@@ -33,6 +34,7 @@ def test_evaluate(client):
     assert body["ruleset_version"]
 
 
+@pytest.mark.spec("US-2.1/AC-1")
 def test_indices_only(client):
     body = client.post("/indices", json=PAYLOAD).json()
 
@@ -40,6 +42,7 @@ def test_indices_only(client):
     assert "findings" not in body
 
 
+@pytest.mark.spec("US-2.2/AC-2")
 def test_rule_catalog(client):
     body = client.get("/rules").json()
 
@@ -64,6 +67,7 @@ def test_macro_plan_without_data_leaves_optional_keys_out(client):
         {"sex": "H", "vitals": {"systolic_bp": 80, "diastolic_bp": 90}},
     ],
 )
+@pytest.mark.spec("US-2.1/AC-8")
 def test_rejects_invalid_facts(client, payload):
     assert client.post("/evaluate", json=payload).status_code == 422
 
@@ -103,6 +107,7 @@ def test_openapi_documents_the_responses(client):
     assert schema("/health", "get").endswith("/Health")
 
 
+@pytest.mark.spec("US-2.2/AC-8")
 def test_evaluate_with_configured_macro_rules(client):
     rule = {"id": "CFG-1", "title": "HOMA-IR alto", "variable": "homa_ir", "operator": ">", "value": 2.5, "actions": {"glycemic_load": 80}}
     body = client.post("/evaluate", json={**PAYLOAD, "macro_rules": [rule]}).json()
@@ -120,6 +125,7 @@ def test_evaluate_with_configured_macro_rules(client):
         {"variable": "homa_ir", "operator": ">", "value": 2.5, "actions": {}},
     ],
 )
+@pytest.mark.spec("US-2.2/AC-8")
 def test_rejects_invalid_macro_rules(client, rule):
     payload = {**PAYLOAD, "macro_rules": [{"id": "CFG-1", "title": "Regla", **rule}]}
     assert client.post("/evaluate", json=payload).status_code == 422

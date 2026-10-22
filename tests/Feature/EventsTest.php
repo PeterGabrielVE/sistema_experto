@@ -18,6 +18,7 @@ use App\Models\User;
 use Database\Seeders\RulesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class EventsTest extends TestCase
@@ -37,6 +38,7 @@ class EventsTest extends TestCase
         Event::assertListening(UserRoleChanged::class, [RecordAuditTrail::class, 'handleUserRoleChanged']);
     }
 
+    #[Group('US-1.1/AC-9')]
     public function test_patient_lifecycle_events(): void
     {
         Event::fake([PatientRegistered::class, PatientDeleted::class]);

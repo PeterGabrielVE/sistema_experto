@@ -2,7 +2,7 @@
 id: US-2.2
 title: Evaluar al paciente con reglas clínicas y sugerir la distribución de macronutrientes
 epic: EPIC-02
-status: approved
+status: implemented
 owner: Python Dev · Laravel Dev
 ---
 

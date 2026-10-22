@@ -5,6 +5,7 @@ namespace Tests\Feature\Access;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class PatientManagementTest extends TestCase
@@ -32,6 +33,7 @@ class PatientManagementTest extends TestCase
         ], $overrides);
     }
 
+    #[Group('US-1.1/AC-1')]
     public function test_doctor_registers_patient(): void
     {
         $response = $this->actingAs($this->doctor)->post('/patient', $this->validPatient())
@@ -45,6 +47,7 @@ class PatientManagementTest extends TestCase
         $this->assertSame($this->doctor->id, (int) $patient->created_by);
     }
 
+    #[Group('US-1.1/AC-3')]
     public function test_patient_validation_rules(): void
     {
         $this->actingAs($this->doctor)->post('/patient', [
@@ -59,6 +62,7 @@ class PatientManagementTest extends TestCase
         $this->assertDatabaseCount('patients', 0);
     }
 
+    #[Group('US-1.1/AC-2')]
     public function test_rut_must_be_unique_in_any_format(): void
     {
         $this->actingAs($this->doctor)->post('/patient', $this->validPatient());
@@ -81,6 +85,7 @@ class PatientManagementTest extends TestCase
         $this->assertFileExists(public_path('index.php'));
     }
 
+    #[Group('US-1.1/AC-2')]
     public function test_doctor_updates_patient_keeping_rut(): void
     {
         $this->actingAs($this->doctor)->post('/patient', $this->validPatient());

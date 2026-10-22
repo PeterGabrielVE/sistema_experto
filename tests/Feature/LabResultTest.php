@@ -65,6 +65,7 @@ class LabResultTest extends TestCase
         return Diagnosis::create(['id_patient' => ($patient ?? $this->patient)->id, 'age' => 36, 'weight' => 80, 'size' => 165]);
     }
 
+    #[Group('US-1.2/AC-2')]
     public function test_doctor_registers_a_lab_result(): void
     {
         $this->actingAs($this->doctor)->get($this->url('/create'))
@@ -82,6 +83,7 @@ class LabResultTest extends TestCase
         $this->assertSame($this->doctor->id, $r->created_by);
     }
 
+    #[Group('US-1.2/AC-2')]
     public function test_vue_form_saves_with_json(): void
     {
         $this->actingAs($this->doctor)->get($this->url('/create'))
@@ -111,6 +113,7 @@ class LabResultTest extends TestCase
         $this->assertSame(6.3, $r->fresh()->hba1c);
     }
 
+    #[Group('US-1.2/AC-5')]
     public function test_history_shows_indicators_and_out_of_range_values(): void
     {
         $this->labResult();
@@ -178,6 +181,7 @@ class LabResultTest extends TestCase
         $this->assertSame(['max' => 99], LabResult::referenceRange('fasting_glucose', null));
     }
 
+    #[Group('US-1.2/AC-5')]
     public function test_empty_history(): void
     {
         $this->actingAs($this->doctor)->get($this->url())
@@ -186,6 +190,7 @@ class LabResultTest extends TestCase
             ->assertDontSee('evolution-chart');
     }
 
+    #[Group('US-1.2/AC-7')]
     public function test_doctor_edits_a_lab_result(): void
     {
         $r = $this->labResult();
@@ -208,6 +213,7 @@ class LabResultTest extends TestCase
         $this->assertSame($colleague->id, $r->updated_by);
     }
 
+    #[Group('US-1.2/AC-3')]
     public function test_validation(): void
     {
         $this->actingAs($this->doctor)->post($this->url(), ['taken_at' => now()->toDateString()])
@@ -228,6 +234,7 @@ class LabResultTest extends TestCase
         $this->assertDatabaseCount('lab_results', 0);
     }
 
+    #[Group('US-1.2/AC-4')]
     public function test_links_to_a_consultation_of_the_same_patient_only(): void
     {
         $consultation = $this->consultation();
@@ -272,6 +279,7 @@ class LabResultTest extends TestCase
             ->assertSee(route('patient.lab-results.create', [$this->patient, 'diagnosis' => $consultation->id]), false);
     }
 
+    #[Group('US-1.2/AC-7')]
     public function test_only_author_or_chief_doctor_can_delete(): void
     {
         $r = $this->labResult();
@@ -292,6 +300,7 @@ class LabResultTest extends TestCase
         $this->assertDatabaseCount('lab_results', 0);
     }
 
+    #[Group('US-1.2/AC-7')]
     public function test_administrator_cannot_read_or_write_lab_results(): void
     {
         $r = $this->labResult();
@@ -309,6 +318,7 @@ class LabResultTest extends TestCase
         $this->assertDatabaseCount('lab_results', 1);
     }
 
+    #[Group('US-1.2/AC-7')]
     public function test_lab_result_of_another_patient_is_not_found(): void
     {
         $other = Patient::create([
@@ -321,6 +331,7 @@ class LabResultTest extends TestCase
         $this->actingAs($this->doctor)->put($this->url("/{$r->id}"), $this->payload())->assertNotFound();
     }
 
+    #[Group('US-1.2/AC-8')]
     public function test_changes_are_audited_without_values(): void
     {
         Event::fake([LabResultRecorded::class]);
@@ -350,6 +361,7 @@ class LabResultTest extends TestCase
         $this->assertDatabaseCount('lab_results', 0);
     }
 
+    #[Group('US-1.2/AC-5')]
     public function test_indicators(): void
     {
         $r = new LabResult(['fasting_glucose' => 90, 'fasting_insulin' => 8, 'triglycerides' => 100, 'hdl' => 50]);

@@ -87,6 +87,7 @@ class ExpertDiagnosisTest extends TestCase
     }
 
     #[Group('US-4.1/AC-1')] // the request carries the service's credential
+    #[Group('US-2.2/AC-1')]
     public function test_result_page_shows_the_expert_evaluation(): void
     {
         ClinicalRecord::create(['patient_id' => $this->patient->id, 'consultation_reason' => 'Control', 'has_hypertension' => true]);
@@ -150,6 +151,7 @@ class ExpertDiagnosisTest extends TestCase
         $this->visitResult()->assertOk()->assertSee('Síndrome metabólico')->assertDontSee('Perfil aterogénico');
     }
 
+    #[Group('US-2.2/AC-7')]
     public function test_result_page_shows_the_macronutrient_distribution(): void
     {
         $evaluation = $this->evaluation();
@@ -270,6 +272,7 @@ class ExpertDiagnosisTest extends TestCase
         }
     }
 
+    #[Group('US-2.2/AC-9')]
     public function test_administrator_does_not_get_the_clinical_evaluation(): void
     {
         Http::fake();

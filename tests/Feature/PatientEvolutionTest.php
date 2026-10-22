@@ -175,6 +175,7 @@ class PatientEvolutionTest extends TestCase
     }
 
     #[Group('US-5.1/AC-6')]
+    #[Group('US-2.1/AC-3')]
     public function test_homa_ir_values_match_the_lab_results_page(): void
     {
         $this->lab('2026-02-14', 96, 6.4);

@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Rules\Rut;
 use Illuminate\Support\Facades\Validator;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class RutTest extends TestCase
@@ -25,11 +26,13 @@ class RutTest extends TestCase
     }
 
     #[DataProvider('ruts')]
+    #[Group('US-1.1/AC-2')]
     public function test_validates_check_digit(string $rut, bool $valid): void
     {
         $this->assertSame($valid, Validator::make(['rut' => $rut], ['rut' => [new Rut]])->passes());
     }
 
+    #[Group('US-1.1/AC-2')]
     public function test_computes_check_digits(): void
     {
         $this->assertSame('5', Rut::checkDigit('12345678'));
@@ -38,6 +41,7 @@ class RutTest extends TestCase
         $this->assertSame('1', Rut::checkDigit('11111111'));
     }
 
+    #[Group('US-1.1/AC-2')]
     public function test_normalizes_format(): void
     {
         $this->assertSame('12345678-K', Rut::normalize(' 12.345.678-k '));

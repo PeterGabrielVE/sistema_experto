@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Mockery;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class ListenersAndJobsTest extends TestCase
@@ -112,6 +113,7 @@ class ListenersAndJobsTest extends TestCase
         });
     }
 
+    #[Group('US-1.1/AC-9')]
     public function test_audit_trail_records_actor_and_record(): void
     {
         $doctor = User::factory()->create();

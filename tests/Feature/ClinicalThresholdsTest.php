@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\ClinicalMeasurement;
 use App\Models\LabResult;
 use App\Services\InferenceEngine;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 /**
@@ -12,6 +13,7 @@ use Tests\TestCase;
  */
 class ClinicalThresholdsTest extends TestCase
 {
+    #[Group('US-2.1/AC-7')]
     public function test_config_is_the_shared_file(): void
     {
         $shared = json_decode(file_get_contents(base_path('shared/clinical_thresholds.json')), true);
@@ -20,6 +22,7 @@ class ClinicalThresholdsTest extends TestCase
         $this->assertSame(2.5, config('clinical.insulin_resistance.homa_ir'));
     }
 
+    #[Group('US-2.1/AC-7')]
     public function test_models_use_the_configured_cut_offs(): void
     {
         $result = new LabResult(['fasting_glucose' => 105, 'fasting_insulin' => 18.2]); // HOMA-IR 4,72

@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use App\Events\ClinicalMeasurementRecorded;
 use App\Models\ClinicalMeasurement;
+use App\Models\Diagnosis;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class ClinicalMeasurementTest extends TestCase
@@ -58,6 +60,7 @@ class ClinicalMeasurementTest extends TestCase
         ], $attributes));
     }
 
+    #[Group('US-1.2/AC-1')]
     public function test_doctor_registers_a_measurement(): void
     {
         $this->actingAs($this->doctor)->get($this->url('/create'))
@@ -74,6 +77,7 @@ class ClinicalMeasurementTest extends TestCase
         $this->assertSame($this->doctor->id, $m->created_by);
     }
 
+    #[Group('US-1.2/AC-1')]
     public function test_form_suggests_the_last_height(): void
     {
         $this->measurement(['height_cm' => 171.5]);
@@ -83,6 +87,7 @@ class ClinicalMeasurementTest extends TestCase
             ->assertSee('value="171.5"', false);
     }
 
+    #[Group('US-1.2/AC-5')]
     public function test_history_shows_indicators_and_variation(): void
     {
         $this->measurement(['measured_at' => now()->subMonth(), 'weight_kg' => 85, 'waist_cm' => 100]);
@@ -103,6 +108,7 @@ class ClinicalMeasurementTest extends TestCase
             ->assertSee('evolution-chart');
     }
 
+    #[Group('US-1.2/AC-5')]
     public function test_empty_history(): void
     {
         $this->actingAs($this->doctor)->get($this->url())
@@ -111,6 +117,7 @@ class ClinicalMeasurementTest extends TestCase
             ->assertDontSee('evolution-chart');
     }
 
+    #[Group('US-1.2/AC-7')]
     public function test_doctor_edits_a_measurement(): void
     {
         $m = $this->measurement();
@@ -133,6 +140,7 @@ class ClinicalMeasurementTest extends TestCase
         $this->assertSame($colleague->id, $m->updated_by);
     }
 
+    #[Group('US-1.2/AC-3')]
     public function test_validation(): void
     {
         $this->actingAs($this->doctor)->post($this->url(), ['measured_at' => now()->toDateString()])
@@ -157,6 +165,7 @@ class ClinicalMeasurementTest extends TestCase
         $this->assertDatabaseCount('clinical_measurements', 0);
     }
 
+    #[Group('US-1.2/AC-7')]
     public function test_only_author_or_chief_doctor_can_delete(): void
     {
         $m = $this->measurement();
@@ -177,6 +186,7 @@ class ClinicalMeasurementTest extends TestCase
         $this->assertDatabaseCount('clinical_measurements', 0);
     }
 
+    #[Group('US-1.2/AC-7')]
     public function test_administrator_cannot_read_or_write_measurements(): void
     {
         $m = $this->measurement();
@@ -194,6 +204,7 @@ class ClinicalMeasurementTest extends TestCase
         $this->assertDatabaseCount('clinical_measurements', 1);
     }
 
+    #[Group('US-1.2/AC-7')]
     public function test_measurement_of_another_patient_is_not_found(): void
     {
         $other = Patient::create([
@@ -206,6 +217,7 @@ class ClinicalMeasurementTest extends TestCase
         $this->actingAs($this->doctor)->put($this->url("/{$m->id}"), $this->payload())->assertNotFound();
     }
 
+    #[Group('US-1.2/AC-8')]
     public function test_changes_are_audited_without_values(): void
     {
         Event::fake([ClinicalMeasurementRecorded::class]);
@@ -235,6 +247,7 @@ class ClinicalMeasurementTest extends TestCase
         $this->assertDatabaseCount('clinical_measurements', 0);
     }
 
+    #[Group('US-1.2/AC-6')]
     public function test_new_consultation_is_prefilled_with_last_weight_and_height(): void
     {
         $this->measurement(['measured_at' => now()->subMonths(2), 'weight_kg' => 90, 'height_cm' => 168]);
@@ -249,10 +262,11 @@ class ClinicalMeasurementTest extends TestCase
             ->assertSee('Peso y talla tomados del registro de mediciones');
     }
 
+    #[Group('US-1.2/AC-4')]
     public function test_measurement_links_to_a_consultation_of_the_same_patient(): void
     {
-        $consultation = \App\Models\Diagnosis::create(['id_patient' => $this->patient->id, 'age' => 36]);
-        $foreign = \App\Models\Diagnosis::create(['id_patient' => Patient::create([
+        $consultation = Diagnosis::create(['id_patient' => $this->patient->id, 'age' => 36]);
+        $foreign = Diagnosis::create(['id_patient' => Patient::create([
             'first_name' => 'Luis', 'last_name' => 'Soto', 'rut' => '22222222-2',
             'address' => 'Calle 2', 'gender' => 'H', 'birthdate' => '1985-05-05',
         ])->id, 'age' => 40]);
@@ -272,6 +286,7 @@ class ClinicalMeasurementTest extends TestCase
             ->assertSee(route('result', $consultation->id));
     }
 
+    #[Group('US-1.2/AC-6')]
     public function test_new_consultation_without_measurements(): void
     {
         $this->actingAs($this->doctor)->get("/diagnosis/{$this->patient->id}")
@@ -280,6 +295,7 @@ class ClinicalMeasurementTest extends TestCase
             ->assertDontSee('Medición del');
     }
 
+    #[Group('US-1.2/AC-5')]
     public function test_indicators(): void
     {
         $m = new ClinicalMeasurement(['weight_kg' => 60, 'height_cm' => 170, 'waist_cm' => 80, 'hip_cm' => 100]);

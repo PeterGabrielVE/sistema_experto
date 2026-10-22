@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class DiagnosisApiTest extends TestCase
@@ -246,6 +247,7 @@ class DiagnosisApiTest extends TestCase
         $this->withToken($token)->getJson('/api/v1/diagnoses/999')->assertNotFound();
     }
 
+    #[Group('US-2.2/AC-9')]
     public function test_administrator_gets_the_diagnosis_without_the_clinical_evaluation(): void
     {
         $diagnosis = $this->storedDiagnosis();

@@ -1,3 +1,4 @@
+import pytest
 from app import rules
 
 # Healthy answers: 0 points.
@@ -18,6 +19,7 @@ def finding_of(result, rule_id):
     return next((f for f in result["findings"] if f["rule_id"] == rule_id), None)
 
 
+@pytest.mark.spec("US-2.2/AC-1")
 def test_patient_with_insulin_resistance_and_metabolic_syndrome(facts):
     result = rules.evaluate(facts(
         anthropometry={"weight_kg": 80, "height_cm": 165, "waist_cm": 98},
@@ -42,6 +44,7 @@ def test_patient_with_insulin_resistance_and_metabolic_syndrome(facts):
     assert "DAT-01" not in ids  # nothing missing
 
 
+@pytest.mark.spec("US-2.2/AC-2")
 def test_healthy_patient_has_no_findings(facts):
     result = rules.evaluate(facts(
         sex="M",
@@ -62,22 +65,26 @@ def test_healthy_patient_has_no_findings(facts):
     assert result["indices"]["findrisc"]["value"] == 0
 
 
+@pytest.mark.spec("US-2.2/AC-3")
 def test_metabolic_syndrome_is_indeterminate_with_missing_criteria(facts):
     ms = rules.evaluate(facts(labs={"triglycerides": 200, "hdl": 35}))["assessments"]["metabolic_syndrome"]
     assert (ms["status"], ms["met"], ms["unknown"]) == ("indeterminado", 2, 3)
 
 
+@pytest.mark.spec("US-2.2/AC-3")
 def test_metabolic_syndrome_is_absent_when_missing_criteria_cannot_reach_three(facts):
     ms = rules.evaluate(facts(labs={"triglycerides": 90, "hdl": 60, "fasting_glucose": 88}))["assessments"]["metabolic_syndrome"]
     assert (ms["status"], ms["met"], ms["unknown"]) == ("ausente", 0, 2)
 
 
+@pytest.mark.spec("US-2.2/AC-1")
 def test_metabolic_syndrome_uses_sex_specific_cut_offs(facts):
     data = {"anthropometry": {"waist_cm": 85}, "labs": {"hdl": 45, "triglycerides": 160}}
     assert rules.evaluate(facts(sex="M", **data))["assessments"]["metabolic_syndrome"]["status"] == "presente"
     assert rules.evaluate(facts(sex="H", **data))["assessments"]["metabolic_syndrome"]["met"] == 1
 
 
+@pytest.mark.spec("US-2.2/AC-4")
 def test_known_conditions_count_as_treated_criteria(facts):
     result = rules.evaluate(facts(
         anthropometry={"waist_cm": 95},
@@ -91,6 +98,7 @@ def test_known_conditions_count_as_treated_criteria(facts):
     assert result["assessments"]["glycemic_status"]["status"] == "diabetes_conocida"
 
 
+@pytest.mark.spec("US-2.2/AC-4")
 def test_diabetes_range_alert_only_without_known_diabetes(facts):
     assert "GLU-01" in rule_ids(rules.evaluate(facts(labs={"hba1c": 6.8})))
 
@@ -99,6 +107,7 @@ def test_diabetes_range_alert_only_without_known_diabetes(facts):
     assert "GLU-03" in rule_ids(known)
 
 
+@pytest.mark.spec("US-2.2/AC-1")
 def test_one_altered_indicator_is_possible_insulin_resistance(facts):
     result = rules.evaluate(facts(labs={"fasting_glucose": 90, "fasting_insulin": 14}))  # HOMA-IR 3,11
 
@@ -106,6 +115,7 @@ def test_one_altered_indicator_is_possible_insulin_resistance(facts):
     assert next(f for f in result["findings"] if f["rule_id"] == "RI-01")["severity"] == "info"
 
 
+@pytest.mark.spec("US-2.1/AC-2", "US-2.2/AC-3")
 def test_suggests_the_missing_data(facts):
     result = rules.evaluate(facts(labs={"fasting_glucose": 95}))
     missing = next(f for f in result["findings"] if f["rule_id"] == "DAT-01")
@@ -116,16 +126,19 @@ def test_suggests_the_missing_data(facts):
     assert result["assessments"]["insulin_resistance"]["status"] == "indeterminado"
 
 
+@pytest.mark.spec("US-2.2/AC-5")
 def test_warns_that_cut_offs_are_for_adults(facts):
     assert "DAT-02" in rule_ids(rules.evaluate(facts(age=15)))
     assert "DAT-02" not in rule_ids(rules.evaluate(facts(age=None)))
 
 
+@pytest.mark.spec("US-2.2/AC-2")
 def test_rule_ids_are_unique():
     ids = [r.id for r in rules.RULES]
     assert len(ids) == len(set(ids))
 
 
+@pytest.mark.spec("US-2.2/AC-2")
 def test_ldl_goal_is_stricter_with_diabetes(facts):
     labs = {"ldl": 120}
     assert "LIP-02" not in rule_ids(rules.evaluate(facts(labs=labs)))
@@ -135,6 +148,7 @@ def test_ldl_goal_is_stricter_with_diabetes(facts):
     assert finding["evidence"] == ["LDL 120 mg/dL (meta < 100)"]
 
 
+@pytest.mark.spec("US-2.2/AC-1")
 def test_atherogenic_profile(facts):
     altered = rules.evaluate(facts(labs={"total_cholesterol": 230, "hdl": 38, "triglycerides": 200}))
     ap = altered["assessments"]["atherogenic_profile"]
@@ -150,6 +164,7 @@ def test_atherogenic_profile(facts):
     assert rules.evaluate(facts())["assessments"]["atherogenic_profile"]["status"] == "indeterminado"
 
 
+@pytest.mark.spec("US-2.2/AC-2")
 def test_fatty_liver_finding(facts):
     def fli_finding(ggt):
         result = rules.evaluate(facts(
@@ -167,6 +182,7 @@ def test_fatty_liver_finding(facts):
     assert fli_finding(1) is None                # FLI 29.8: rules out
 
 
+@pytest.mark.spec("US-2.2/AC-2")
 def test_findrisc_finding(facts):
     high = rules.evaluate(facts(
         age=50, anthropometry={"weight_kg": 90, "height_cm": 170, "waist_cm": 104},
@@ -189,6 +205,7 @@ def test_findrisc_finding(facts):
     assert "FIN-01" not in rule_ids(low)
 
 
+@pytest.mark.spec("US-2.2/AC-3")
 def test_missing_findrisc_answers_only_when_it_applies(facts):
     def missing(**groups):
         dat = finding_of(rules.evaluate(facts(age=50, **groups)), "DAT-01")

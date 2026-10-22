@@ -5,7 +5,9 @@ namespace Tests\Feature\Access;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class AuthorizationTest extends TestCase
@@ -28,6 +30,7 @@ class AuthorizationTest extends TestCase
     }
 
     #[DataProvider('matrix')]
+    #[Group('US-1.1/AC-7')]
     public function test_permission_matrix(string $uri, int $admin, int $doctor, int $chief, int $noRole): void
     {
         foreach ([
@@ -48,7 +51,7 @@ class AuthorizationTest extends TestCase
 
     public function test_public_registration_is_disabled(): void
     {
-        $this->assertFalse(\Illuminate\Support\Facades\Route::has('register'));
+        $this->assertFalse(Route::has('register'));
         $this->get('/register')->assertRedirect('/login');
         $this->post('/register', [
             'name' => 'Intruso', 'email' => 'x@example.com',
@@ -57,6 +60,7 @@ class AuthorizationTest extends TestCase
         $this->assertDatabaseMissing('users', ['email' => 'x@example.com']);
     }
 
+    #[Group('US-1.1/AC-7')]
     public function test_admin_cannot_modify_patients(): void
     {
         $patient = Patient::create([

@@ -9,6 +9,7 @@ use App\Models\Rule;
 use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class PolicyTest extends TestCase
@@ -23,6 +24,7 @@ class PolicyTest extends TestCase
         ]);
     }
 
+    #[Group('US-1.1/AC-8')]
     public function test_only_author_or_chief_doctor_can_delete_a_patient(): void
     {
         $author = User::factory()->create();
@@ -37,6 +39,7 @@ class PolicyTest extends TestCase
         $this->assertTrue(User::factory()->create()->can('update', $patient));
     }
 
+    #[Group('US-1.1/AC-8')]
     public function test_other_doctor_gets_403_with_reason(): void
     {
         $patient = $this->patientBy(User::factory()->create());

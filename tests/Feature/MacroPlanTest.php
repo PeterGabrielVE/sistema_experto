@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class MacroPlanTest extends TestCase
@@ -61,6 +62,7 @@ class MacroPlanTest extends TestCase
         ];
     }
 
+    #[Group('US-2.2/AC-7')]
     public function test_returns_the_plan_and_the_form_fields(): void
     {
         ClinicalRecord::create(['patient_id' => $this->patient->id, 'consultation_reason' => 'Control', 'has_prediabetes' => true]);
@@ -89,6 +91,7 @@ class MacroPlanTest extends TestCase
         });
     }
 
+    #[Group('US-2.2/AC-7')]
     public function test_without_a_plan_there_are_no_fields(): void
     {
         Http::fake(['*' => Http::response($this->evaluation([
@@ -101,6 +104,7 @@ class MacroPlanTest extends TestCase
             ->assertJsonPath('fields', null);
     }
 
+    #[Group('US-2.2/AC-7')]
     public function test_service_not_configured_or_down(): void
     {
         config(['services.expert.url' => null]);
@@ -119,6 +123,7 @@ class MacroPlanTest extends TestCase
             ->assertExactJson(['data' => null, 'fields' => null]);
     }
 
+    #[Group('US-2.2/AC-7')]
     public function test_validation_and_authorization(): void
     {
         Http::fake();
@@ -131,6 +136,7 @@ class MacroPlanTest extends TestCase
         Http::assertNothingSent();
     }
 
+    #[Group('US-2.2/AC-7')]
     public function test_consultation_form_asks_the_expert_service(): void
     {
         $this->actingAs($this->doctor)->get("/diagnosis/{$this->patient->id}")

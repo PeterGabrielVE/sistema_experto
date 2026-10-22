@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class MacroRuleTest extends TestCase
@@ -36,6 +37,7 @@ class MacroRuleTest extends TestCase
         ];
     }
 
+    #[Group('US-2.2/AC-8')]
     public function test_chief_doctor_creates_a_rule(): void
     {
         $this->actingAs($this->chief)->post('/macro-rules', $this->payload())
@@ -52,6 +54,7 @@ class MacroRuleTest extends TestCase
             ->assertSeeInOrder(['CFG-'.$rule->id, 'Resistencia a la insulina por HOMA-IR', 'HOMA-IR &gt; 2,5', 'Carbohidratos máximo 45 %', 'Carga glucémica máxima 80 por día', 'Activa'], false);
     }
 
+    #[Group('US-2.2/AC-8')]
     public function test_edit_and_deactivate(): void
     {
         $rule = MacroRule::create([...$this->payload(), 'actions' => ['glycemic_load' => 80], 'active' => true]);
@@ -67,6 +70,7 @@ class MacroRuleTest extends TestCase
         $this->assertSame('HOMA-IR ≥ 3', $rule->condition());
     }
 
+    #[Group('US-2.2/AC-8')]
     public function test_validation_follows_the_shared_catalog(): void
     {
         $this->actingAs($this->chief)->post('/macro-rules', $this->payload([
@@ -79,6 +83,7 @@ class MacroRuleTest extends TestCase
         $this->assertSame(0, MacroRule::count());
     }
 
+    #[Group('US-2.2/AC-8')]
     public function test_only_the_chief_doctor_manages_rules(): void
     {
         $rule = MacroRule::create([...$this->payload(), 'actions' => ['glycemic_load' => 80]]);
@@ -92,6 +97,7 @@ class MacroRuleTest extends TestCase
         $this->assertSame(0, MacroRule::count());
     }
 
+    #[Group('US-2.2/AC-8')]
     public function test_active_rules_are_sent_to_the_expert_service(): void
     {
         config(['services.expert.url' => 'http://expert:8000', 'services.expert.token' => 't0k']);

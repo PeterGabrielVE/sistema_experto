@@ -1,9 +1,12 @@
 import importlib
 import json
 
+import pytest
+
 from app import indices, thresholds
 
 
+@pytest.mark.spec("US-2.1/AC-7")
 def test_loaded_from_the_shared_file():
     shared = json.loads(thresholds._path().read_text(encoding="utf-8"))
 
@@ -12,6 +15,7 @@ def test_loaded_from_the_shared_file():
     assert thresholds.MS_WAIST == shared["metabolic_syndrome"]["waist"]
 
 
+@pytest.mark.spec("US-2.1/AC-7")
 def test_a_changed_cut_off_changes_the_result(tmp_path, monkeypatch):
     data = json.loads(thresholds._path().read_text(encoding="utf-8"))
     data["insulin_resistance"]["homa_ir"] = 5.0

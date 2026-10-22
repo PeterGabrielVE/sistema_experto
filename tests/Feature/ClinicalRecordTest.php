@@ -49,6 +49,7 @@ class ClinicalRecordTest extends TestCase
         ], $overrides);
     }
 
+    #[Group('US-1.1/AC-5')]
     public function test_doctor_registers_the_clinical_record(): void
     {
         $this->actingAs($this->doctor)->get($this->url('/edit'))
@@ -67,6 +68,7 @@ class ClinicalRecordTest extends TestCase
         $this->assertSame($this->doctor->id, $record->created_by);
     }
 
+    #[Group('US-1.1/AC-5')]
     public function test_doctor_edits_the_clinical_record(): void
     {
         $this->actingAs($this->doctor)->put($this->url(), $this->payload());
@@ -144,6 +146,7 @@ class ClinicalRecordTest extends TestCase
             ->assertSee(route('patient.lab-results.create', $this->patient));
     }
 
+    #[Group('US-1.1/AC-5')]
     public function test_findrisc_answers(): void
     {
         $this->actingAs($this->doctor)->put($this->url(), $this->payload([
@@ -176,11 +179,13 @@ class ClinicalRecordTest extends TestCase
         ]))->assertSessionHasErrors(['daily_physical_activity', 'family_history_diabetes']);
     }
 
+    #[Group('US-1.1/AC-6')]
     public function test_show_without_record_goes_to_the_form(): void
     {
         $this->actingAs($this->doctor)->get($this->url())->assertRedirect($this->url('/edit'));
     }
 
+    #[Group('US-1.1/AC-5')]
     public function test_validation(): void
     {
         $this->actingAs($this->doctor)->put($this->url(), [
@@ -197,6 +202,7 @@ class ClinicalRecordTest extends TestCase
     }
 
     #[Group('US-5.1/AC-5')]
+    #[Group('US-1.1/AC-7')]
     public function test_administrator_cannot_read_or_write_clinical_data(): void
     {
         $this->actingAs($this->doctor)->put($this->url(), $this->payload());
@@ -214,6 +220,7 @@ class ClinicalRecordTest extends TestCase
         $this->assertSame('Metformina 850 mg', ClinicalRecord::firstOrFail()->medications);
     }
 
+    #[Group('US-1.1/AC-9')]
     public function test_changes_are_audited_without_values(): void
     {
         Event::fake([ClinicalRecordSaved::class]);
@@ -229,6 +236,7 @@ class ClinicalRecordTest extends TestCase
         Event::assertDispatchedTimes(ClinicalRecordSaved::class, 2);
     }
 
+    #[Group('US-1.1/AC-8')]
     public function test_record_is_deleted_with_the_patient(): void
     {
         $this->actingAs($this->doctor)->put($this->url(), $this->payload());
