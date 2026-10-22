@@ -149,7 +149,7 @@ es `false` y no se puede invitar (AC-10).
 | `patient_id` | FK `patients`, `cascadeOnDelete` | |
 | `invited_by` | FK `users`, `nullOnDelete`, nullable | |
 | `email` | string | Correo al que se envió |
-| `token_hash` | char(64), `unique` | SHA-256 del token; el token solo viaja en el correo |
+| `token_hash` | char(64), `nullable`, `unique` | SHA-256 del token. El job lo genera justo antes de enviar, así el token en claro no queda en la tabla `jobs`; solo viaja en el correo |
 | `expires_at` | datetime | Creación + 7 días (D-2) |
 | `status` | string(16) | `queued` \| `sent` \| `failed` \| `accepted` \| `revoked` |
 | `sent_at`, `failed_at`, `accepted_at` | datetime, nullable | |

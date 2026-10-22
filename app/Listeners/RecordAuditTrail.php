@@ -9,6 +9,7 @@ use App\Events\DiagnosisCreated;
 use App\Events\FoodCatalogChanged;
 use App\Events\LabResultRecorded;
 use App\Events\PatientDeleted;
+use App\Events\PatientPortalAccessChanged;
 use App\Events\PatientRegistered;
 use App\Events\UserAccountCreated;
 use App\Events\UserRoleChanged;
@@ -112,6 +113,14 @@ class RecordAuditTrail
         $this->record('food.'.$event->action, $event->actor, [
             'food_id' => $event->food->id,
             'changes' => $event->changes,
+        ]);
+    }
+
+    public function handlePatientPortalAccessChanged(PatientPortalAccessChanged $event): void
+    {
+        $this->record('portal.'.$event->action, $event->actor, [
+            'patient_id' => $event->patient->id,
+            ...$event->context,
         ]);
     }
 

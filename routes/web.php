@@ -12,6 +12,7 @@ use App\Http\Controllers\MealPlanController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientEvolutionController;
+use App\Http\Controllers\PortalAccessController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\ReminderUnsubscribeController;
@@ -87,6 +88,9 @@ Route::middleware(['auth', 'staff'])->group(function () {
         // Next appointment (US-6.1), from the clinical record: schedule or change, and cancel.
         Route::put('patient/{patient}/appointment', [AppointmentController::class, 'update'])->name('patient.appointment.update');
         Route::delete('patient/{patient}/appointment', [AppointmentController::class, 'destroy'])->name('patient.appointment.destroy');
+
+        // Portal access of the patient (US-6.3), from the clinical record.
+        Route::post('patient/{patient}/portal/invitation', [PortalAccessController::class, 'invite'])->name('patient.portal.invite');
 
         // Weight and HOMA-IR history (JSON) for the evolution chart of the clinical record.
         Route::get('patient/{patient}/evolution', PatientEvolutionController::class)->name('patient.evolution');

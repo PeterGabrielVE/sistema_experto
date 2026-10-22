@@ -101,6 +101,16 @@ class Patient extends Model
         return $this->hasOne(User::class);
     }
 
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(PatientInvitation::class);
+    }
+
+    public function latestInvitation(): HasOne
+    {
+        return $this->hasOne(PatientInvitation::class)->latestOfMany();
+    }
+
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);

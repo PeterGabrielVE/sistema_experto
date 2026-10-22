@@ -9,13 +9,14 @@ use App\Http\Requests\ClinicalRecordRequest;
 use App\Models\ClinicalRecord;
 use App\Models\Patient;
 use App\Services\ClinicalRecordService;
+use App\Services\PortalAccessService;
 use Illuminate\Support\Facades\Gate;
 
 class ClinicalRecordController extends Controller
 {
     public function __construct(private ClinicalRecordService $records) {}
 
-    public function show(Patient $patient)
+    public function show(Patient $patient, PortalAccessService $portal)
     {
         Gate::authorize('viewClinicalRecord', $patient);
 
@@ -30,6 +31,9 @@ class ClinicalRecordController extends Controller
             'labResult' => $patient->labResults()->latestFirst()->first(),
             'lastWaist' => $patient->measurements()->whereNotNull('waist_cm')->latestFirst()->first(),
             'appointment' => $patient->nextAppointment()?->load('doctor'),
+            'portalAccount' => $patient->account,
+            'invitation' => $patient->latestInvitation,
+            'cannotInvite' => $portal->cannotInvite($patient),
         ]);
     }
 

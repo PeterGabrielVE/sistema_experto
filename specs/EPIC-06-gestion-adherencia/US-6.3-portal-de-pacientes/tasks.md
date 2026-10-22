@@ -11,7 +11,7 @@ que el equipo esté protegido.
   middleware `staff` (todas las rutas del equipo, `/home` y la API) y `patient`; cambiar a `isStaff()` las
   policies que aceptan cualquier rol, negar tokens de la API a pacientes y sacar el rol Paciente del
   formulario de usuarios, con `PortalIsolationTest`. Todavía no se puede invitar a nadie. Cubre AC-6.
-- [ ] **TK-6.3.2** — Crear `patient_invitations`, `PortalTerms` y `config/portal.php`; la invitación desde
+- [x] **TK-6.3.2** — Crear `patient_invitations`, `PortalTerms` y `config/portal.php`; la invitación desde
   la ficha (Doctor y Doctor Jefe), con las comprobaciones de correo, cuenta existente y términos, y el job
   `SendPortalInvitation` con el correo de bienvenida y sus reintentos; la tarjeta *Portal del paciente* con
   el estado del envío; auditar `portal.invited`. Cubre AC-1, AC-2, AC-8, AC-9, AC-10.

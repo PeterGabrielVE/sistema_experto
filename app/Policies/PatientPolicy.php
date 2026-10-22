@@ -51,6 +51,14 @@ class PatientPolicy
     }
 
     /**
+     * Portal access (US-6.3, D-1): the doctors who attend the patient, not administrators.
+     */
+    public function invitePortal(User $user, Patient $patient): bool
+    {
+        return $user->isDoctor();
+    }
+
+    /**
      * Deleting also removes the clinical history: only the doctor who
      * registered the patient or a Doctor Jefe may do it.
      */
