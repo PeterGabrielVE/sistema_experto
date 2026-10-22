@@ -7,7 +7,7 @@ Cada tarea nombra los criterios que cubre; entre todas cubren todos los AC de la
 Orden por dependencia: el aislamiento va primero, para que ninguna cuenta de paciente exista antes de
 que el equipo esté protegido.
 
-- [ ] **TK-6.3.1** — Agregar `Role::Patient`, `users.patient_id`, `User::isPatient()`/`isStaff()`, los
+- [x] **TK-6.3.1** — Agregar `Role::Patient`, `users.patient_id`, `User::isPatient()`/`isStaff()`, los
   middleware `staff` (todas las rutas del equipo, `/home` y la API) y `patient`; cambiar a `isStaff()` las
   policies que aceptan cualquier rol, negar tokens de la API a pacientes y sacar el rol Paciente del
   formulario de usuarios, con `PortalIsolationTest`. Todavía no se puede invitar a nadie. Cubre AC-6.

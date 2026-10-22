@@ -38,7 +38,8 @@ class UserRequest extends FormRequest
                 'required', 'string', 'email:rfc', 'max:255',
                 Rule::unique('users', 'email')->ignore($user?->id),
             ],
-            'rol_id' => ['required', Rule::enum(Role::class)],
+            // Patient accounts come from their portal invitation (US-6.3), never from here.
+            'rol_id' => ['required', Rule::enum(Role::class)->only(Role::staff())],
             'password' => [
                 $user ? 'nullable' : 'required',
                 'confirmed',

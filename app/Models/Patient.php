@@ -93,6 +93,14 @@ class Patient extends Model
         return $this->hasMany(Diagnosis::class, 'id_patient');
     }
 
+    /**
+     * Portal account of the patient (US-6.3), if they have one.
+     */
+    public function account(): HasOne
+    {
+        return $this->hasOne(User::class);
+    }
+
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);

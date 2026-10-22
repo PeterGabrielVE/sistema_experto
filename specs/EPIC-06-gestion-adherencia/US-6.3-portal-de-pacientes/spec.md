@@ -2,7 +2,7 @@
 id: US-6.3
 title: Dar acceso a los pacientes a un portal propio
 epic: EPIC-06
-status: approved
+status: in-progress
 owner: Laravel Dev
 ---
 

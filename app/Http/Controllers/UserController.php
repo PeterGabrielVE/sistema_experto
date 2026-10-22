@@ -11,13 +11,11 @@ use Illuminate\Support\Facades\Response;
 
 class UserController extends Controller
 {
-    public function __construct(private UserService $users)
-    {
-    }
+    public function __construct(private UserService $users) {}
 
     public function index()
     {
-        return view('users.index', ['users' => User::orderBy('name')->paginate(15)]);
+        return view('users.index', ['users' => User::staff()->orderBy('name')->paginate(15)]);
     }
 
     public function create()

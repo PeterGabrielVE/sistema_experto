@@ -12,7 +12,8 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * REST API tokens (guard "api"). One token per user: issuing a new one
- * revokes the previous one.
+ * revokes the previous one. Only the team gets one: a patient with a portal account
+ * gets the same answer as wrong credentials (US-6.3).
  */
 class TokenController extends Controller
 {
@@ -25,7 +26,7 @@ class TokenController extends Controller
 
         $user = User::where('email', $credentials['email'])->first();
 
-        if (! $user || ! Hash::check($credentials['password'], $user->password) || $user->role() === null) {
+        if (! $user || ! Hash::check($credentials['password'], $user->password) || ! $user->isStaff()) {
             throw ValidationException::withMessages(['email' => __('auth.failed')]);
         }
 

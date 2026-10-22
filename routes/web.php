@@ -51,11 +51,12 @@ Route::middleware(['signed', 'throttle:10,1'])->whereNumber('patient')->group(fu
     Route::post('recordatorios/baja/{patient}', [ReminderUnsubscribeController::class, 'store'])->name('reminders.unsubscribe.store');
 });
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+// The staff side: patients with a portal account get 403 (EnsureStaff, US-6.3).
+Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware(['auth', 'staff']);
 Route::get('downloadManual', [UserController::class, 'downloadManualPdf'])->name('downloadManual');
 
-Route::middleware('auth')->group(function () {
-    // Own profile: every authenticated user.
+Route::middleware(['auth', 'staff'])->group(function () {
+    // Own profile: every member of the team.
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('profile/password', [ProfileController::class, 'password'])->name('profile.password');

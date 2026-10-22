@@ -10,11 +10,12 @@ use Illuminate\Auth\Access\Response;
 class PatientPolicy
 {
     /**
-     * Any user with a role (administrators included) can consult patients.
+     * Any member of the team (administrators included) can consult patients; a patient
+     * with a portal account cannot (US-6.3).
      */
     public function viewAny(User $user): bool
     {
-        return $user->role() !== null;
+        return $user->isStaff();
     }
 
     public function view(User $user, Patient $patient): bool

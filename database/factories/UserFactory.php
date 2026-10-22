@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\Role;
+use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -43,6 +44,17 @@ class UserFactory extends Factory
     public function chiefDoctor(): static
     {
         return $this->state(['rol_id' => Role::ChiefDoctor->value]);
+    }
+
+    /**
+     * Portal account of a patient (US-6.3).
+     */
+    public function patient(?Patient $patient = null): static
+    {
+        return $this->state(fn () => [
+            'rol_id' => Role::Patient->value,
+            'patient_id' => $patient?->id ?? Patient::factory(),
+        ]);
     }
 
     public function withoutRole(): static

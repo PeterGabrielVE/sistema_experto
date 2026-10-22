@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->name('api.')->group(function () {
     Route::post('tokens', [TokenController::class, 'store'])->middleware('throttle:5,1')->name('tokens.store');
 
-    Route::middleware(['auth:api', 'throttle:60,1'])->group(function () {
+    Route::middleware(['auth:api', 'staff', 'throttle:60,1'])->group(function () {
         Route::delete('tokens', [TokenController::class, 'destroy'])->name('tokens.destroy');
 
         Route::middleware('can:viewAny,'.Diagnosis::class)->group(function () {

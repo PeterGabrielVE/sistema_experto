@@ -50,14 +50,14 @@ cuenta junto con el paciente.
 
 | Capa | Archivos | Cambio |
 | --- | --- | --- |
-| Base de datos | `…_add_patient_id_and_terms_to_users_table.php` (nueva) | `users.patient_id` (FK única, `cascadeOnDelete`), `terms_version`, `terms_accepted_at` |
+| Base de datos | `…_add_patient_id_to_users_table.php` (TK-6.3.1) y `…_add_terms_to_users_table.php` (TK-6.3.3), nuevas | `users.patient_id` (FK única, `cascadeOnDelete`); `terms_version`, `terms_accepted_at` |
 | Base de datos | `…_create_patient_invitations_table.php` (nueva) | Invitaciones y estado del envío |
 | Laravel | `app/Enums/Role.php` | `Patient = 4` ("Paciente"); `staffOptions()` para el formulario de usuarios |
 | Laravel | `app/Models/User.php` | `patient()`, `isPatient()`, `isStaff()` |
 | Laravel | `app/Models/Patient.php` | `account()`, `invitations()`, `latestInvitation()`, `latestMealPlan()` |
 | Laravel | `app/Models/PatientInvitation.php` (nuevo) | Estados, `isUsable()`, búsqueda por hash del token |
 | Laravel | `app/Http/Middleware/EnsureStaff.php`, `EnsurePatient.php` (nuevos), `bootstrap/app.php` | Alias `staff` y `patient` |
-| Laravel | `app/Policies/PatientPolicy.php`, `DiagnosisPolicy.php` | `viewAny`: `isStaff()`; `invitePortal`, `revokePortal`: médicos |
+| Laravel | `app/Policies/PatientPolicy.php`, `DiagnosisPolicy.php`, `UserPolicy.php` | `viewAny`: `isStaff()`; `invitePortal`, `revokePortal`: médicos; el Administrador no edita ni borra cuentas de pacientes, y la lista de usuarios solo muestra al equipo |
 | Laravel | `app/Http/Controllers/Api/TokenController.php` | Sin token para pacientes (misma respuesta que credenciales malas) |
 | Laravel | `app/Http/Controllers/Auth/LoginController.php`, `ResetPasswordController.php`, `HomeController.php` | Destino según el rol: `/portal` para pacientes, `/home` para el equipo |
 | Laravel | `app/Support/PortalTerms.php` (nuevo), `config/portal.php` (nuevo) | Ruta del archivo de términos, versión (hash) y HTML |

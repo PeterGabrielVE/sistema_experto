@@ -7,9 +7,12 @@ use App\Models\User;
 
 class DiagnosisPolicy
 {
+    /**
+     * Any member of the team; never a patient with a portal account (US-6.3).
+     */
     public function viewAny(User $user): bool
     {
-        return $user->role() !== null;
+        return $user->isStaff();
     }
 
     public function view(User $user, Diagnosis $diagnosis): bool

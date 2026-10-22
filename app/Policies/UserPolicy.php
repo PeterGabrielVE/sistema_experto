@@ -22,14 +22,17 @@ class UserPolicy
         return $user->isAdmin();
     }
 
+    /**
+     * Patient accounts are managed from the clinical record (US-6.3), not here.
+     */
     public function update(User $user, User $model): bool
     {
-        return $user->isAdmin();
+        return $user->isAdmin() && $model->isStaff();
     }
 
     public function delete(User $user, User $model): Response
     {
-        if (! $user->isAdmin()) {
+        if (! $user->isAdmin() || $model->isPatient()) {
             return Response::deny();
         }
 
