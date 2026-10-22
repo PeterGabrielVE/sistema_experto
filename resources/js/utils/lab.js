@@ -22,7 +22,8 @@ export function formatDecimal(value, digits = 2) {
  * normal | high | low against the reference range of an analyte (LabResult::ANALYTES); null when empty or invalid.
  */
 export function rangeStatus(value, analyte) {
-    if (value === null || Number.isNaN(value)) {
+    // Without a reference range (for example, a range by sex without the sex) nothing is judged.
+    if (value === null || Number.isNaN(value) || (analyte.max === undefined && analyte.min === undefined)) {
         return null;
     }
     if (analyte.max !== undefined && value > analyte.max) {
@@ -35,6 +36,9 @@ export function rangeStatus(value, analyte) {
 }
 
 export function referenceText(analyte) {
+    if (analyte.max === undefined && analyte.min === undefined) {
+        return '';
+    }
     if (analyte.max !== undefined) {
         return `≤ ${formatDecimal(analyte.max)} ${analyte.unit}`;
     }

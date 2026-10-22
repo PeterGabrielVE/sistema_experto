@@ -7,8 +7,13 @@
 
 @php
     $number = fn (?float $v, int $decimals = 2) => $v === null ? '—' : number_format($v, $decimals, ',', '.');
+    // Reference ranges of the patient's sex (lab_reference in shared/clinical_thresholds.json).
     $reference = function (array $analyte) {
-        return isset($analyte['min']) ? '≥ '.$analyte['min'] : '≤ '.str_replace('.', ',', (string) $analyte['max']);
+        return match (true) {
+            isset($analyte['min']) => '≥ '.str_replace('.', ',', (string) $analyte['min']),
+            isset($analyte['max']) => '≤ '.str_replace('.', ',', (string) $analyte['max']),
+            default => '—',
+        };
     };
     $th = 'text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2';
 @endphp
@@ -66,7 +71,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      @foreach (LabResult::ANALYTES as $field => $analyte)
+                      @foreach (LabResult::analytes($patient->gender) as $field => $analyte)
                         @continue($latest->{$field} === null)
                         <tr>
                           <td class="text-sm ps-3">{{ __($analyte['label']) }}</td>

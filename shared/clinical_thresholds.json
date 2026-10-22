@@ -199,6 +199,19 @@
         "source": "Porciones de intercambio y guías alimentarias (GABA Chile): al menos 3 porciones de verduras y 2 de frutas, 2 a 3 lácteos y legumbres hasta 1 porción diaria. Reparto de energía: desayuno 20 %, colación 10 %, almuerzo 30 %, once 15 %, cena 25 %."
     },
 
+    "lab_reference": {
+        "_about": "Rangos de referencia con que el historial de exámenes marca un valor fuera de rango (US-1.2): max, alto por encima; min, bajo por debajo. Un rango por sexo (H hombre, M mujer) no se aplica sin el sexo del paciente.",
+        "fasting_glucose": {"max": 99},
+        "fasting_insulin": {"max": 25},
+        "hba1c": {"max": 5.6},
+        "total_cholesterol": {"max": 199},
+        "hdl": {"min": 40},
+        "ldl": {"max": 129},
+        "triglycerides": {"max": 149},
+        "ggt": {"max": {"M": 40, "H": 60}},
+        "source": "ADA Standards of Care: glicemia en ayunas normal < 100 mg/dL y HbA1c < 5,7 %. NCEP ATP III: colesterol total < 200 mg/dL, LDL < 130 mg/dL, triglicéridos < 150 mg/dL y HDL ≥ 40 mg/dL. Insulina basal y GGT: rango habitual de laboratorio, que varía según el laboratorio; GGT por sexo (US-1.2, D-2)."
+    },
+
     "adherence": {
         "_about": "Puntaje de cada comida que el paciente marca en el portal (US-6.2): done = cumplí, partial = cumplí en parte, missed = no cumplí. El porcentaje semanal es su promedio sobre las comidas marcadas; las no marcadas son sin dato y no entran en el cálculo.",
         "scores": {"done": 1, "partial": 0.5, "missed": 0},

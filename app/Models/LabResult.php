@@ -16,16 +16,20 @@ class LabResult extends Model
      * Analytes with label, unit, reference range (adults, reference only) and
      * the plausible values accepted by validation ('limits').
      */
+    /**
+     * Label, unit and plausible limits of the form (impossible values are rejected). The reference
+     * ranges that flag a value are clinical: they live in lab_reference of
+     * shared/clinical_thresholds.json (US-1.2/AC-9), see referenceRange().
+     */
     public const ANALYTES = [
-        'fasting_glucose' => ['label' => 'Glicemia en ayunas', 'unit' => 'mg/dL', 'max' => 99, 'limits' => [20, 600]],
-        'fasting_insulin' => ['label' => 'Insulina basal', 'unit' => 'µU/mL', 'max' => 25, 'limits' => [0.5, 300]],
-        'hba1c' => ['label' => 'HbA1c', 'unit' => '%', 'max' => 5.6, 'limits' => [3, 20]],
-        'total_cholesterol' => ['label' => 'Colesterol total', 'unit' => 'mg/dL', 'max' => 199, 'limits' => [50, 600]],
-        'hdl' => ['label' => 'Colesterol HDL', 'unit' => 'mg/dL', 'min' => 40, 'limits' => [5, 200]],
-        'ldl' => ['label' => 'Colesterol LDL', 'unit' => 'mg/dL', 'max' => 129, 'limits' => [10, 500]],
-        'triglycerides' => ['label' => 'Triglicéridos', 'unit' => 'mg/dL', 'max' => 149, 'limits' => [20, 5000]],
-        // Upper limit varies by laboratory and sex (about 40 U/L in women, 60 U/L in men).
-        'ggt' => ['label' => 'GGT', 'unit' => 'U/L', 'max' => 50, 'limits' => [1, 3000]],
+        'fasting_glucose' => ['label' => 'Glicemia en ayunas', 'unit' => 'mg/dL', 'limits' => [20, 600]],
+        'fasting_insulin' => ['label' => 'Insulina basal', 'unit' => 'µU/mL', 'limits' => [0.5, 300]],
+        'hba1c' => ['label' => 'HbA1c', 'unit' => '%', 'limits' => [3, 20]],
+        'total_cholesterol' => ['label' => 'Colesterol total', 'unit' => 'mg/dL', 'limits' => [50, 600]],
+        'hdl' => ['label' => 'Colesterol HDL', 'unit' => 'mg/dL', 'limits' => [5, 200]],
+        'ldl' => ['label' => 'Colesterol LDL', 'unit' => 'mg/dL', 'limits' => [10, 500]],
+        'triglycerides' => ['label' => 'Triglicéridos', 'unit' => 'mg/dL', 'limits' => [20, 5000]],
+        'ggt' => ['label' => 'GGT', 'unit' => 'U/L', 'limits' => [1, 3000]],
     ];
 
     /**
@@ -151,16 +155,52 @@ class LabResult extends Model
     }
 
     /**
-     * Whether an analyte is outside its reference range; null if not registered.
+     * Reference range of an analyte for a sex (H | M), from lab_reference: ['max' => …] and/or
+     * ['min' => …]. Null when the analyte has none, or when it depends on the sex and the sex is
+     * unknown (no sex is assumed).
+     *
+     * @return array{max?: float|int, min?: float|int}|null
+     */
+    public static function referenceRange(string $analyte, ?string $sex): ?array
+    {
+        $range = [];
+        foreach (config("clinical.lab_reference.$analyte") ?? [] as $bound => $value) {
+            if (is_array($value)) {
+                if (! isset($value[$sex])) {
+                    return null;
+                }
+                $value = $value[$sex];
+            }
+            $range[$bound] = $value;
+        }
+
+        return $range ?: null;
+    }
+
+    /**
+     * ANALYTES with the reference range of a sex, for the form and the history.
+     *
+     * @return array<string, array>
+     */
+    public static function analytes(?string $sex): array
+    {
+        return array_map(
+            fn (string $analyte) => [...self::ANALYTES[$analyte], ...(self::referenceRange($analyte, $sex) ?? [])],
+            array_combine(array_keys(self::ANALYTES), array_keys(self::ANALYTES)),
+        );
+    }
+
+    /**
+     * Whether an analyte is outside its reference range for the patient's sex; null if not
+     * registered or without a range.
      */
     public function isOutOfRange(string $analyte): ?bool
     {
         $value = $this->{$analyte};
-        if ($value === null) {
+        $range = self::referenceRange($analyte, $this->patient?->gender);
+        if ($value === null || $range === null) {
             return null;
         }
-
-        $range = self::ANALYTES[$analyte];
 
         return (isset($range['max']) && $value > $range['max'])
             || (isset($range['min']) && $value < $range['min']);

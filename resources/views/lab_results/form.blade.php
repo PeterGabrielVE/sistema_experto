@@ -23,7 +23,7 @@
                         'mode' => $labResult->exists ? 'edit' : 'create',
                         'action' => $labResult->exists ? route('patient.lab-results.update', [$patient, $labResult]) : route('patient.lab-results.store', $patient),
                         'cancelUrl' => route('patient.lab-results.index', $patient),
-                        'analytes' => \App\Models\LabResult::ANALYTES,
+                        'analytes' => \App\Models\LabResult::analytes($patient->gender),
                         'panels' => collect(\App\Models\LabResult::PANELS)->map(fn ($fields, $title) => ['title' => $title, 'fields' => $fields])->values(),
                         'thresholds' => [
                             'homaIr' => config('clinical.insulin_resistance.homa_ir'),

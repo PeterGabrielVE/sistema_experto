@@ -10,6 +10,7 @@ use App\Models\User;
 use Database\Seeders\RulesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class LabResultTest extends TestCase
@@ -125,6 +126,56 @@ class LabResultTest extends TestCase
             ->assertSee('Sugiere resistencia a la insulina')
             ->assertSee('Fuera de rango')
             ->assertSee('evolution-chart');
+    }
+
+    #[Group('US-1.2/AC-9')]
+    public function test_reference_ranges_come_from_the_shared_file(): void
+    {
+        $shared = json_decode(file_get_contents(base_path('shared/clinical_thresholds.json')), true)['lab_reference'];
+        $this->assertSame(['max' => 99], $shared['fasting_glucose']);
+        $this->assertSame(['min' => 40], $shared['hdl']);
+        $this->assertNotEmpty($shared['source']);
+        $this->assertSame($shared, config('clinical.lab_reference'));
+        // Not written in the code any more.
+        foreach (LabResult::ANALYTES as $analyte) {
+            $this->assertArrayNotHasKey('max', $analyte);
+            $this->assertArrayNotHasKey('min', $analyte);
+        }
+
+        $result = $this->labResult(['fasting_glucose' => 105, 'hdl' => 38]);
+        $this->assertTrue($result->isOutOfRange('fasting_glucose'));
+        $this->assertTrue($result->isOutOfRange('hdl'));
+        $this->assertNull($result->isOutOfRange('ldl')); // not registered
+
+        // Changing the shared file changes the flag, the reference shown and the live form check.
+        config(['clinical.lab_reference.fasting_glucose' => ['max' => 110]]);
+        $this->assertFalse($result->fresh()->isOutOfRange('fasting_glucose'));
+        $this->actingAs($this->doctor)->get($this->url())->assertOk()->assertSee('≤ 110');
+        $this->actingAs($this->doctor)->get($this->url('/create'))
+            ->assertOk()
+            ->assertSee('&quot;fasting_glucose&quot;:{&quot;label&quot;:&quot;Glicemia en ayunas&quot;,&quot;unit&quot;:&quot;mg\/dL&quot;,&quot;limits&quot;:[20,600],&quot;max&quot;:110}', false);
+    }
+
+    #[Group('US-1.2/AC-9')]
+    public function test_ggt_range_depends_on_sex(): void
+    {
+        // The patient of setUp is a woman (M): high above 40 U/L.
+        $woman = $this->labResult(['ggt' => 45]);
+        $this->assertTrue($woman->isOutOfRange('ggt'));
+        $this->actingAs($this->doctor)->get($this->url())->assertSee('≤ 40');
+        $this->actingAs($this->doctor)->get($this->url('/create'))->assertSee('&quot;ggt&quot;:{&quot;label&quot;:&quot;GGT&quot;,&quot;unit&quot;:&quot;U\/L&quot;,&quot;limits&quot;:[1,3000],&quot;max&quot;:40}', false);
+
+        // A man (H): high above 60 U/L.
+        $man = Patient::factory()->create(['gender' => 'H']);
+        $result = $man->labResults()->create(['taken_at' => now()->subMonth(), 'ggt' => 45, 'created_by' => $this->doctor->id]);
+        $this->assertFalse($result->isOutOfRange('ggt'));
+        $result->update(['ggt' => 65]);
+        $this->assertTrue($result->fresh()->isOutOfRange('ggt'));
+        $this->actingAs($this->doctor)->get("/patient/{$man->id}/lab-results")->assertSee('≤ 60');
+
+        // Without a known sex the GGT is not flagged: no sex is assumed.
+        $this->assertNull(LabResult::referenceRange('ggt', null));
+        $this->assertSame(['max' => 99], LabResult::referenceRange('fasting_glucose', null));
     }
 
     public function test_empty_history(): void
