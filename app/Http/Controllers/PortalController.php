@@ -9,8 +9,18 @@ use Illuminate\Http\Request;
  */
 class PortalController extends Controller
 {
+    /**
+     * Name, next appointment and the latest saved meal plan, read only (D-3): no diagnoses,
+     * exams nor other data of the clinical record.
+     */
     public function home(Request $request)
     {
-        return view('portal.home', ['patient' => $request->user()->patient]);
+        $patient = $request->user()->patient;
+
+        return view('portal.home', [
+            'patient' => $patient,
+            'appointment' => $patient->nextAppointment()?->load('doctor'),
+            'mealPlan' => $patient->latestMealPlan(),
+        ]);
     }
 }

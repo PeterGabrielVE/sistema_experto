@@ -101,6 +101,16 @@ class Patient extends Model
         return $this->hasOne(User::class);
     }
 
+    /**
+     * The menu saved most recently in any of the patient's consultations, or null.
+     */
+    public function latestMealPlan(): ?MealPlan
+    {
+        return MealPlan::whereIn('diagnosis_id', $this->diagnoses()->select('id'))
+            ->latest('updated_at')->latest('id')
+            ->first();
+    }
+
     public function invitations(): HasMany
     {
         return $this->hasMany(PatientInvitation::class);

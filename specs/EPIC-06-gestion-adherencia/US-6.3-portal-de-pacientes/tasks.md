@@ -19,7 +19,7 @@ que el equipo esté protegido.
   crear la cuenta e iniciar sesión; enviar a cada rol a su inicio después del login y de la recuperación
   de contraseña; auditar `portal.activated` y `portal.login`, con `PortalLoginTest` y los tests de
   aceptación. Cubre AC-3, AC-4, AC-5, AC-9.
-- [ ] **TK-6.3.4** — Crear el inicio del portal con el nombre, la próxima consulta y el último plan
+- [x] **TK-6.3.4** — Crear el inicio del portal con el nombre, la próxima consulta y el último plan
   guardado (solo lectura, sin datos clínicos), con `PortalHomeTest` y la verificación manual de NFR-1
   en el PR. Cubre AC-4, AC-6.
 - [ ] **TK-6.3.5** — Quitar el acceso desde la ficha (borrar la cuenta e invalidar las invitaciones) y
