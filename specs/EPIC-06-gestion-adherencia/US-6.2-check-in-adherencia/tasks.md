@@ -13,6 +13,6 @@ Orden por dependencia: el registro necesita el menú del día, y el resumen de l
   formulario por comida (*cumplí*, *en parte*, *no cumplí*, *sin marcar*) para hoy y ayer y la ruta
   `PUT /portal/cumplimiento/{date}`, que rechaza otros días y comidas ajenas al menú, con
   `PortalAdherenceTest`. Cubre AC-1, AC-2, AC-3, AC-5.
-- [ ] **TK-6.2.3** — Crear `AdherenceService::weeklySummary()` y la tarjeta *Cumplimiento del plan* en la
+- [x] **TK-6.2.3** — Crear `AdherenceService::weeklySummary()` y la tarjeta *Cumplimiento del plan* en la
   ficha (8 semanas: porcentaje o "sin dato", comidas marcadas y días sin registro), con
   `AdherenceSummaryTest`. Cubre AC-4.

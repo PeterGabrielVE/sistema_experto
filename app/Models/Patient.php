@@ -111,6 +111,17 @@ class Patient extends Model
             ->first();
     }
 
+    /**
+     * Day the patient's first meal plan was saved, in the clinic: before it there was nothing to
+     * follow (US-6.2). Null without saved plans.
+     */
+    public function firstMealPlanDate(): ?Carbon
+    {
+        $first = MealPlan::whereIn('diagnosis_id', $this->diagnoses()->select('id'))->min('created_at');
+
+        return $first ? Carbon::parse($first, 'UTC')->setTimezone(config('app.clinic_timezone'))->startOfDay() : null;
+    }
+
     public function adherenceCheckins(): HasMany
     {
         return $this->hasMany(AdherenceCheckin::class);

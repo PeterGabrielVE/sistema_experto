@@ -8,6 +8,7 @@ use App\Enums\Smoking;
 use App\Http\Requests\ClinicalRecordRequest;
 use App\Models\ClinicalRecord;
 use App\Models\Patient;
+use App\Services\AdherenceService;
 use App\Services\ClinicalRecordService;
 use App\Services\PortalAccessService;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +17,7 @@ class ClinicalRecordController extends Controller
 {
     public function __construct(private ClinicalRecordService $records) {}
 
-    public function show(Patient $patient, PortalAccessService $portal)
+    public function show(Patient $patient, PortalAccessService $portal, AdherenceService $adherence)
     {
         Gate::authorize('viewClinicalRecord', $patient);
 
@@ -34,6 +35,8 @@ class ClinicalRecordController extends Controller
             'portalAccount' => $patient->account,
             'invitation' => $patient->latestInvitation,
             'cannotInvite' => $portal->cannotInvite($patient),
+            // Last 8 weeks of the portal records (US-6.2/AC-4).
+            'adherence' => $adherence->weeklySummary($patient, 8),
         ]);
     }
 
