@@ -48,6 +48,48 @@ class AdherenceService
     }
 
     /**
+     * The last weeks (Monday to Sunday, in the clinic) since the week of the patient's first saved
+     * plan, newest first (AC-4). The percent is the mean score of the marked meals (D-5), or null
+     * ("sin dato") without marks: never 0 by omission. Days without record are the days between the
+     * first plan and yesterday with no meal marked; today is not over yet.
+     *
+     * @return array<int, array{from: string, to: string, percent: float|null, marked: int, days_without_record: int}>
+     */
+    public function weeklySummary(Patient $patient, int $weeks): array
+    {
+        $first = $patient->firstMealPlanDate();
+        if (! $first) {
+            return [];
+        }
+
+        $today = $this->today();
+        $yesterday = $today->copy()->subDay();
+        $oldest = $today->copy()->startOfWeek()->subWeeks($weeks - 1)->max($first->copy()->startOfWeek());
+
+        $checkins = $patient->adherenceCheckins()
+            ->whereDate('date', '>=', $oldest->toDateString())
+            ->get()
+            ->groupBy(fn (AdherenceCheckin $checkin) => $checkin->date->toDateString());
+
+        $summary = [];
+        for ($monday = $today->copy()->startOfWeek(); $monday->gte($oldest); $monday->subWeek()) {
+            $days = collect(range(0, 6))->map(fn ($i) => $monday->copy()->addDays($i));
+            $marked = $days->flatMap(fn (Carbon $day) => $checkins[$day->toDateString()] ?? []);
+
+            $summary[] = [
+                'from' => $monday->toDateString(),
+                'to' => $monday->copy()->addDays(6)->toDateString(),
+                'percent' => $marked->isEmpty() ? null : round($marked->avg(fn (AdherenceCheckin $c) => $c->score()) * 100, 1),
+                'marked' => $marked->count(),
+                'days_without_record' => $days->filter(fn (Carbon $day) => $day->betweenIncluded($first, $yesterday)
+                    && ! isset($checkins[$day->toDateString()]))->count(),
+            ];
+        }
+
+        return $summary;
+    }
+
+    /**
      * Today in the clinic.
      */
     public function today(): Carbon
