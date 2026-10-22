@@ -13,10 +13,9 @@ owner: Frontend Dev
 El médico no sabe cuánto cumple el paciente su plan entre consultas, y sin ese dato no puede
 distinguir un plan que no funciona de uno que no se sigue.
 
-**Dependencia:** los pacientes **no tienen acceso al sistema**. Los roles existentes son
-Administrador, Doctor y Doctor Jefe; un paciente es un registro, no un usuario. El acceso de los
-pacientes (cuenta, inicio de sesión y acceso solo a sus propios datos) se especifica en
-[US-6.3](../US-6.3-portal-de-pacientes/spec.md), que debe estar aprobada antes que esta (D-1).
+**Dependencia:** el acceso de los pacientes (cuenta, inicio de sesión y acceso solo a sus propios
+datos) lo da el portal de [US-6.3](../US-6.3-portal-de-pacientes/spec.md), ya implementado (D-1). Su
+inicio muestra la próxima consulta y el último plan alimentario guardado, solo de lectura.
 
 ## Historia de usuario
 
