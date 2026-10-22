@@ -22,8 +22,11 @@ def _shared(name: str) -> Path:
 
 @dataclass(frozen=True)
 class Settings:
-    # Bearer token required by every endpoint but /health. Empty: no authentication.
+    # Bearer token required by every endpoint but /health. Empty: every request is rejected,
+    # unless the environment is "local" (US-4.1, D-2).
     token: str
+    # APP_ENV, like Laravel's; undeclared counts as production.
+    environment: str
     # Clinical cut-offs shared with Laravel and the inference service.
     thresholds_path: Path
     # Food composition catalog (exchange portions), also imported by Laravel into foods.
@@ -35,6 +38,7 @@ def get_settings() -> Settings:
     catalog = os.environ.get("FOOD_CATALOG_PATH")
     return Settings(
         token=os.environ.get("EXPERT_TOKEN", ""),
+        environment=os.environ.get("APP_ENV", "production"),
         thresholds_path=Path(thresholds) if thresholds else _shared("clinical_thresholds.json"),
         food_catalog_path=Path(catalog) if catalog else _shared("food_catalog.csv"),
     )

@@ -33,6 +33,7 @@ def test_rejects_invalid_input(client):
     assert response.status_code == 422
 
 
+@pytest.mark.spec("US-4.1/AC-2")
 def test_requires_token_when_configured(client, monkeypatch):
     monkeypatch.setenv("INFERENCE_TOKEN", "secret")
     payload = {"weight": 70, "size": 170, "age": 40, "gender": "M", "physical_activity": 1}
@@ -49,3 +50,22 @@ def test_manual_labels_are_learned():
     trained = model.train(manual)
     assert trained.samples_manual == 400
     assert trained.predict(manual[0])["rule_id"] == 3
+
+
+@pytest.mark.spec("US-4.1/AC-3")
+def test_without_token_rejects_unless_local(client, monkeypatch):
+    payload = {"weight": 70, "size": 170, "age": 40, "gender": "M", "physical_activity": 1}
+    for environment in ("production", None):
+        if environment:
+            monkeypatch.setenv("APP_ENV", environment)
+        else:
+            monkeypatch.delenv("APP_ENV", raising=False)  # undeclared: closed
+        response = client.post("/predict", json=payload)
+        assert response.status_code == 503
+        assert response.json() == {"detail": "Credencial del servicio no configurada"}
+        assert client.post("/train").status_code == 503
+        assert client.get("/health").status_code == 200
+        assert client.get("/health").json()["auth_configured"] is False
+
+    monkeypatch.setenv("APP_ENV", "local")
+    assert client.post("/predict", json=payload).status_code == 200

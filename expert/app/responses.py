@@ -19,6 +19,7 @@ class Health(BaseModel):
     status: Literal["ok"]
     ruleset_version: str
     rules: int = Field(description="Number of rules loaded")
+    auth_configured: bool = Field(description="EXPERT_TOKEN is set; without it the service rejects every request but this one")
 
 
 class RuleInfo(BaseModel):

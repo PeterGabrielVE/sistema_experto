@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from .. import rules
+from ..config import get_settings
 from ..responses import Health
 
 router = APIRouter(tags=["health"])
@@ -12,4 +13,9 @@ router = APIRouter(tags=["health"])
 
 @router.get("/health", response_model=Health)
 def health() -> dict:
-    return {"status": "ok", "ruleset_version": rules.RULESET_VERSION, "rules": len(rules.RULES)}
+    return {
+        "status": "ok",
+        "ruleset_version": rules.RULESET_VERSION,
+        "rules": len(rules.RULES),
+        "auth_configured": bool(get_settings().token),
+    }

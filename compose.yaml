@@ -83,6 +83,8 @@ services:
     image: sistema-experto-expert:latest
     environment:
       EXPERT_TOKEN: ${EXPERT_TOKEN:-}
+      # Without EXPERT_TOKEN the service rejects every request unless this is "local" (US-4.1, D-2).
+      APP_ENV: ${APP_ENV:-production}
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
       interval: 10s

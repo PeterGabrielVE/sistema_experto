@@ -14,7 +14,9 @@ PAYLOAD = {
 
 @pytest.fixture
 def client(monkeypatch):
+    # Development without a credential (US-4.1, D-2); the tests of AC-2 and AC-3 change it.
     monkeypatch.delenv("EXPERT_TOKEN", raising=False)
+    monkeypatch.setenv("APP_ENV", "local")
     return TestClient(app)
 
 
@@ -66,6 +68,7 @@ def test_rejects_invalid_facts(client, payload):
     assert client.post("/evaluate", json=payload).status_code == 422
 
 
+@pytest.mark.spec("US-4.1/AC-2")
 def test_requires_token_when_configured(client, monkeypatch):
     monkeypatch.setenv("EXPERT_TOKEN", "secret")
 
@@ -183,3 +186,30 @@ def test_catalog_unavailable(client, monkeypatch, tmp_path):
     assert response.json()["detail"]["errors"][0].startswith("No se encontró")
     targets = {"energy": 2000, "carbohydrates": 250, "proteins": 100, "fats": 67}
     assert client.post("/meal-plan", json={"targets": targets}).status_code == 503
+
+
+@pytest.mark.spec("US-4.1/AC-3")
+def test_without_token_rejects_unless_local(client, monkeypatch):
+    # A deployment that forgot EXPERT_TOKEN stays closed, not open (D-2).
+    for environment in ("production", None):
+        if environment:
+            monkeypatch.setenv("APP_ENV", environment)
+        else:
+            monkeypatch.delenv("APP_ENV", raising=False)  # undeclared: closed
+        response = client.post("/evaluate", json=PAYLOAD)
+        assert response.status_code == 503
+        assert response.json() == {"detail": "Credencial del servicio no configurada"}
+        assert client.post("/meal-plan", json={}).status_code == 503
+        assert client.get("/health").status_code == 200
+
+    monkeypatch.setenv("APP_ENV", "local")
+    assert client.post("/evaluate", json=PAYLOAD).status_code == 200
+
+
+@pytest.mark.spec("US-4.1/AC-3")
+def test_health_says_whether_auth_is_configured(client, monkeypatch):
+    monkeypatch.setenv("APP_ENV", "production")
+    assert client.get("/health").json()["auth_configured"] is False
+
+    monkeypatch.setenv("EXPERT_TOKEN", "secret")
+    assert client.get("/health").json()["auth_configured"] is True

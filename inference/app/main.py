@@ -19,9 +19,13 @@ _model = model.load()
 
 
 def require_token(authorization: str | None = Header(default=None)) -> None:
+    """Bearer token shared with Laravel. Without INFERENCE_TOKEN the service stays closed, unless
+    APP_ENV is "local" (US-4.1, D-2): a deployment that forgot it is not left open."""
     expected = os.environ.get("INFERENCE_TOKEN", "")
     if not expected:
-        return
+        if os.environ.get("APP_ENV", "production") == "local":
+            return
+        raise HTTPException(status_code=503, detail="Credencial del servicio no configurada")
     if not authorization or not secrets.compare_digest(authorization, f"Bearer {expected}"):
         raise HTTPException(status_code=401, detail="Invalid token")
 
@@ -36,7 +40,11 @@ class Patient(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "model": _model.metadata() if _model else None}
+    return {
+        "status": "ok",
+        "model": _model.metadata() if _model else None,
+        "auth_configured": bool(os.environ.get("INFERENCE_TOKEN")),
+    }
 
 
 @app.post("/predict", dependencies=[Depends(require_token)])

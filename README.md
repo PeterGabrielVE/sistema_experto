@@ -67,7 +67,8 @@ docker compose exec app php artisan inference:train
 ```
 
 El modelo se guarda en el volumen `models`. `INFERENCE_TOKEN` (en `.env`) protege la API;
-el servicio solo es accesible dentro de la red de Docker. Tests: `docker compose exec inference python -m pytest tests`.
+el servicio solo es accesible dentro de la red de Docker. Sin token configurado responde `503` a todo menos
+`/health`, salvo con `APP_ENV=local` (US-4.1); `/health` informa `auth_configured`. Tests: `docker compose exec inference python -m pytest tests`.
 
 ## Servicio experto de diagnóstico (Python)
 
@@ -187,10 +188,13 @@ el servicio responde.
   en producción, regenerar la caché de configuración de Laravel.
 - La meta de LDL depende del riesgo: ≥ 160 mg/dL en general y ≥ 100 mg/dL con diabetes registrada (ADA).
 - **Estructura:** `main.py` crea la app; los endpoints están en `routers/` (`health.py`, `diagnosis.py`);
-  `config.py` lee las variables de entorno (`EXPERT_TOKEN`, `CLINICAL_THRESHOLDS_PATH`, `FOOD_CATALOG_PATH`); `security.py` valida
+  `config.py` lee las variables de entorno (`EXPERT_TOKEN`, `APP_ENV`, `CLINICAL_THRESHOLDS_PATH`, `FOOD_CATALOG_PATH`); `security.py` valida
   el token; `schemas.py` y `responses.py` definen los cuerpos de entrada y de respuesta. La documentación
   OpenAPI queda en `/docs` y `/openapi.json` dentro de la red de Docker.
-- `EXPERT_TOKEN` (en `.env`) protege la API. Tests: `docker compose exec expert python -m pytest tests`.
+- `EXPERT_TOKEN` (en `.env`) protege la API. Sin token configurado, el servicio responde `503` a todo menos
+  `/health`, salvo que `APP_ENV` sea `local`: un despliegue que olvidó el token queda cerrado, no abierto
+  (US-4.1). En `compose.yaml`, `APP_ENV` vale `production` si no se define. Tests:
+  `docker compose exec expert python -m pytest tests`.
 
 ## API REST de diagnóstico
 
