@@ -2,7 +2,7 @@
 id: US-1.2
 title: Registrar las mediciones y los exámenes de laboratorio de cada consulta
 epic: EPIC-01
-status: draft
+status: approved
 owner: Laravel Dev · Frontend Dev
 ---
 
@@ -53,19 +53,30 @@ escritos en el código, y no en `shared/clinical_thresholds.json` con su fuente,
 - **AC-8** — Dado cualquier alta, edición o eliminación, cuando se guarda, entonces queda registrado quién, cuándo
   y qué campos cambiaron, sin los valores (son datos de salud).
 - **AC-9** — Dado el historial de exámenes, cuando marca un valor fuera de rango, entonces usa los rangos de
-  referencia de `shared/clinical_thresholds.json`, con su fuente bibliográfica.
+  referencia de `shared/clinical_thresholds.json`, con su fuente bibliográfica (D-1), y la GGT según el sexo del
+  paciente (D-2).
 
 ## Fuera de alcance
 
 - La gráfica de evolución del peso y del HOMA-IR: es US-5.1.
 - Cargar exámenes desde un archivo del laboratorio.
 
+## Decisiones funcionales
+
+### D-1. Rangos de referencia del laboratorio
+
+Se mantienen los valores que el sistema ya usa, con su fuente en `shared/clinical_thresholds.json`:
+glicemia en ayunas ≤ 99 mg/dL y HbA1c ≤ 5,6 % (ADA Standards of Care); colesterol total ≤ 199, LDL ≤ 129 y
+triglicéridos ≤ 149 mg/dL, y HDL ≥ 40 mg/dL (NCEP ATP III); insulina basal ≤ 25 µU/mL (rango habitual de
+laboratorio, que varía según el laboratorio).
+
+### D-2. GGT por sexo
+
+La GGT se marca alta sobre 40 U/L en mujeres y sobre 60 U/L en hombres (rango habitual de laboratorio).
+
 ## Preguntas abiertas
 
-- [ ] **1. Rangos de referencia del laboratorio** (Doctor Jefe): para AC-9, ¿qué fuente respalda cada rango
-  que hoy usa el sistema (glicemia ≤ 99, insulina ≤ 25, HbA1c ≤ 5,6, colesterol total ≤ 199, HDL ≥ 40,
-  LDL ≤ 129, triglicéridos ≤ 149 y GGT ≤ 50)? ¿La GGT debe tener un rango distinto por sexo (alrededor de
-  40 U/L en mujeres y 60 U/L en hombres, como anota el código)?
+- [x] **1. Rangos de referencia del laboratorio.** Respondida en D-1 y D-2.
 
 ## Referencias
 

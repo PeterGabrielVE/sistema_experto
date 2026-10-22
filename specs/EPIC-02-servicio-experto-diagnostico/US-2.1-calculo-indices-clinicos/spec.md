@@ -2,7 +2,7 @@
 id: US-2.1
 title: Calcular los índices clínicos del paciente
 epic: EPIC-02
-status: draft
+status: approved
 owner: Python Dev
 ---
 
