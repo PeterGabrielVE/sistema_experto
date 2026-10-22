@@ -2,7 +2,7 @@
 id: US-4.1
 title: Enviar los datos clínicos a los servicios Python de forma segura
 epic: EPIC-04
-status: draft
+status: approved
 owner: Laravel Dev · Python Dev
 ---
 
