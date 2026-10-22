@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Services\InferenceEngine;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class InferenceEngineTest extends TestCase
@@ -13,6 +14,7 @@ class InferenceEngineTest extends TestCase
         'weight' => 80, 'size' => 170, 'age' => 40, 'gender' => 'H', 'physical_activity' => 2,
     ];
 
+    #[Group('US-4.1/AC-1')] // the request carries the service's credential
     public function test_uses_ml_service_prediction(): void
     {
         config(['services.inference.url' => 'http://inference:8000', 'services.inference.token' => 't0k']);
@@ -31,6 +33,7 @@ class InferenceEngineTest extends TestCase
             && $request['gender'] === 'H');
     }
 
+    #[Group('US-4.1/AC-4')]
     public function test_falls_back_to_rules_when_service_is_down(): void
     {
         config(['services.inference.url' => 'http://inference:8000']);
@@ -42,6 +45,7 @@ class InferenceEngineTest extends TestCase
         $this->assertSame('rules', $result['inference_source']);
     }
 
+    #[Group('US-4.1/AC-4')]
     public function test_falls_back_to_rules_on_invalid_response(): void
     {
         config(['services.inference.url' => 'http://inference:8000']);
@@ -50,6 +54,22 @@ class InferenceEngineTest extends TestCase
         $this->assertSame('rules', app(InferenceEngine::class)->classify($this->patient)['inference_source']);
     }
 
+    #[Group('US-4.1/AC-4')]
+    public function test_falls_back_to_rules_when_the_token_is_rejected_or_missing(): void
+    {
+        config(['services.inference.url' => 'http://inference:8000', 'services.inference.token' => 'wrong']);
+
+        foreach ([401 => 'Invalid token', 503 => 'Credencial del servicio no configurada'] as $status => $detail) {
+            Http::fake(['*' => Http::response(['detail' => $detail], $status)]);
+
+            $result = app(InferenceEngine::class)->classify($this->patient);
+
+            $this->assertSame(3, $result['id_rule']); // IMC 27.7
+            $this->assertSame('rules', $result['inference_source']);
+        }
+    }
+
+    #[Group('US-4.1/AC-6')]
     public function test_uses_rules_when_service_not_configured(): void
     {
         config(['services.inference.url' => null]);

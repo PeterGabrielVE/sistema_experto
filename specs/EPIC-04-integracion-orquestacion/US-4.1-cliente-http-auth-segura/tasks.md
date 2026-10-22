@@ -7,7 +7,7 @@ Cada tarea nombra los criterios que cubre; entre todas cubren todos los AC de la
 Conservan los ids del backlog: TK-4.1.1 es el cliente de Laravel y TK-4.1.2 la autenticación de los
 servicios. Son independientes y pueden ir en cualquier orden.
 
-- [ ] **TK-4.1.1** — Etiquetar los tests existentes del cliente HTTP de Laravel (credencial, degradación,
+- [x] **TK-4.1.1** — Etiquetar los tests existentes del cliente HTTP de Laravel (credencial, degradación,
   servicio no configurado); agregar los tests de degradación ante `401` y `503`, y registrar los errores
   `422` del servicio `expert` solo con el campo y el tipo de error, sin valores clínicos. Cubre AC-1, AC-4,
   AC-5, AC-6.

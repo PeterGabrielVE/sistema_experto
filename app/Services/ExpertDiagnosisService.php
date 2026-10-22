@@ -10,6 +10,7 @@ use App\Models\MacroRule;
 use App\Models\Patient;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -120,7 +121,7 @@ class ExpertDiagnosisService
             Log::warning('Expert service returned an invalid meal plan', [
                 ...$context,
                 'status' => $response->status(),
-                'errors' => $response->status() === 422 ? $response->json('detail') : null,
+                'errors' => self::rejectedFields($response),
             ]);
         } catch (ConnectionException $e) {
             Log::warning('Expert service unreachable', ['error' => $e->getMessage()]);
@@ -159,7 +160,7 @@ class ExpertDiagnosisService
             Log::warning('Expert service returned an invalid response', [
                 ...$context,
                 'status' => $response->status(),
-                'errors' => $response->status() === 422 ? $response->json('detail') : null,
+                'errors' => self::rejectedFields($response),
             ]);
         } catch (ConnectionException $e) {
             Log::warning('Expert service unreachable', ['error' => $e->getMessage()]);
@@ -215,6 +216,24 @@ class ExpertDiagnosisService
     {
         return ($diagnosis->exists ? (clone $records)->where('diagnosis_id', $diagnosis->id)->latestFirst()->first() : null)
             ?? $records->whereDate($dateColumn, '<=', $diagnosis->created_at ?? now())->latestFirst()->first();
+    }
+
+    /**
+     * The fields a 422 rejected and why, for the log (US-4.1/AC-5). FastAPI also sends back the
+     * values ("input", "ctx", "msg"): they are clinical data and are left out.
+     *
+     * @return array<int, array{loc: string, type: string|null}>|null
+     */
+    private static function rejectedFields(Response $response): ?array
+    {
+        if ($response->status() !== 422 || ! is_array($detail = $response->json('detail'))) {
+            return null;
+        }
+
+        return array_map(fn ($error) => [
+            'loc' => implode('.', (array) ($error['loc'] ?? [])),
+            'type' => $error['type'] ?? null,
+        ], array_values(array_filter($detail, 'is_array')));
     }
 
     private function client()

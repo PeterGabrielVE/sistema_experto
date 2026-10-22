@@ -6,11 +6,15 @@ use App\Models\ClinicalRecord;
 use App\Models\Diagnosis;
 use App\Models\Patient;
 use App\Models\User;
+use App\Services\ExpertDiagnosisService;
 use Database\Seeders\RulesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Mockery;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
 class ExpertDiagnosisTest extends TestCase
@@ -82,6 +86,7 @@ class ExpertDiagnosisTest extends TestCase
         return $this->actingAs($this->doctor)->get("/result/{$this->diagnosis->id}");
     }
 
+    #[Group('US-4.1/AC-1')] // the request carries the service's credential
     public function test_result_page_shows_the_expert_evaluation(): void
     {
         ClinicalRecord::create(['patient_id' => $this->patient->id, 'consultation_reason' => 'Control', 'has_hypertension' => true]);
@@ -202,6 +207,7 @@ class ExpertDiagnosisTest extends TestCase
             && str_contains($request->body(), '"labs":{}'));
     }
 
+    #[Group('US-4.1/AC-4')]
     public function test_page_works_when_the_service_is_down_or_invalid(): void
     {
         Http::fake(fn () => throw new ConnectionException('down'));
@@ -211,6 +217,7 @@ class ExpertDiagnosisTest extends TestCase
         $this->visitResult()->assertOk()->assertDontSee('Evaluación del sistema experto');
     }
 
+    #[Group('US-4.1/AC-6')]
     public function test_not_called_when_not_configured(): void
     {
         config(['services.expert.url' => null]);
@@ -218,6 +225,49 @@ class ExpertDiagnosisTest extends TestCase
 
         $this->visitResult()->assertOk()->assertDontSee('Evaluación del sistema experto');
         Http::assertNothingSent();
+    }
+
+    #[Group('US-4.1/AC-4')]
+    public function test_page_works_when_the_token_is_rejected_or_missing(): void
+    {
+        // Wrong credential (401) and service deployed without one (503): same as a service down.
+        foreach ([401 => 'Invalid token', 503 => 'Credencial del servicio no configurada'] as $status => $detail) {
+            Http::fake(['*' => Http::response(['detail' => $detail], $status)]);
+
+            $this->visitResult()
+                ->assertOk()
+                ->assertSee('El paciente posee sobrepeso') // the IMC rules
+                ->assertDontSee('Evaluación del sistema experto');
+        }
+
+        $this->assertModelExists($this->diagnosis);
+    }
+
+    #[Group('US-4.1/AC-5')]
+    public function test_invalid_data_is_logged_without_clinical_values(): void
+    {
+        // What FastAPI answers to an out-of-range value: the value itself comes back in "input".
+        $detail = [[
+            'type' => 'less_than_equal', 'loc' => ['body', 'labs', 'fasting_glucose'],
+            'msg' => 'Input should be less than or equal to 1000', 'input' => 2071.5, 'ctx' => ['le' => 1000],
+        ]];
+        Http::fake(['*' => Http::response(['detail' => $detail], 422)]);
+        Log::spy();
+
+        app(ExpertDiagnosisService::class)->evaluateFacts(['sex' => 'M', 'labs' => ['fasting_glucose' => 2071.5]], ['diagnosis' => $this->diagnosis->id]);
+        app(ExpertDiagnosisService::class)->requestMealPlan(['targets' => ['energy' => 1777.3]], ['diagnosis' => $this->diagnosis->id]);
+
+        foreach (['Expert service returned an invalid response', 'Expert service returned an invalid meal plan'] as $message) {
+            Log::shouldHaveReceived('warning')->with($message, Mockery::on(function (array $context) {
+                $logged = json_encode($context);
+
+                return $context['status'] === 422
+                    && $context['errors'] === [['loc' => 'body.labs.fasting_glucose', 'type' => 'less_than_equal']]
+                    && ! str_contains($logged, '2071')
+                    && ! str_contains($logged, 'input')
+                    && ! str_contains($logged, 'Input should');
+            }))->once();
+        }
     }
 
     public function test_administrator_does_not_get_the_clinical_evaluation(): void
