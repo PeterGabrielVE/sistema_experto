@@ -13,10 +13,10 @@ owner: Frontend Dev
 El médico no sabe cuánto cumple el paciente su plan entre consultas, y sin ese dato no puede
 distinguir un plan que no funciona de uno que no se sigue.
 
-**Dependencia bloqueante:** los pacientes **no tienen acceso al sistema**. Los roles existentes son
-Administrador, Doctor y Doctor Jefe (`app/Enums/Role.php`); un paciente es un registro (`patients`), no
-un usuario. Esta historia requiere un portal de pacientes (cuenta, inicio de sesión y acceso solo a sus
-propios datos), que hoy no está en el backlog. Ver pregunta abierta 1.
+**Dependencia:** los pacientes **no tienen acceso al sistema**. Los roles existentes son
+Administrador, Doctor y Doctor Jefe; un paciente es un registro, no un usuario. El acceso de los
+pacientes (cuenta, inicio de sesión y acceso solo a sus propios datos) se especifica en
+[US-6.3](../US-6.3-portal-de-pacientes/spec.md), que debe estar aprobada antes que esta (D-1).
 
 ## Historia de usuario
 
@@ -27,9 +27,10 @@ propios datos), que hoy no está en el backlog. Ver pregunta abierta 1.
 ## Criterios de aceptación
 
 - **AC-1** — Dado un paciente con cuenta y un plan alimentario guardado, cuando entra al portal, entonces
-  ve su menú del día y puede marcar, por comida, si lo cumplió, lo cumplió en parte o no lo cumplió.
-- **AC-2** — Dado un día ya registrado, cuando el paciente vuelve a entrar ese mismo día, entonces puede
-  corregir su registro; los días anteriores ya no se modifican.
+  ve su menú del día y puede marcar, por comida, si lo cumplió, lo cumplió en parte o no lo cumplió (D-2).
+- **AC-2** — Dado el portal, cuando el paciente entra, entonces puede registrar o corregir el cumplimiento
+  de hoy y de ayer; los días anteriores ya no se pueden registrar ni modificar, y si quedaron sin
+  registro se muestran como "sin dato" (D-3).
 - **AC-3** — Dado un paciente, cuando entra al portal, entonces solo ve sus propios datos; cualquier
   intento de ver los de otro paciente responde 403.
 - **AC-4** — Dado los registros de adherencia, cuando el médico abre la ficha del paciente, entonces ve
@@ -43,16 +44,39 @@ propios datos), que hoy no está en el backlog. Ver pregunta abierta 1.
 - Registro de alimentos consumidos con cantidades (diario de comidas).
 - Aplicación móvil nativa.
 - Mensajería entre paciente y médico.
+- La cuenta del paciente y su acceso al portal: es US-6.3.
+
+## Decisiones funcionales
+
+### D-1. Portal de pacientes
+
+El acceso de los pacientes se especifica en una historia propia y previa, US-6.3 (rol Paciente,
+invitación por correo desde la ficha, inicio de sesión, recuperación de contraseña y acceso solo a
+sus datos). Esta historia no se planifica hasta que US-6.3 esté aprobada.
+
+### D-2. Registro por comida
+
+El paciente no conoce sus gramos de macronutrientes, pero sí su menú. Por eso marca cada comida del
+menú del día como *cumplí*, *cumplí en parte* o *no cumplí*.
+
+### D-3. Días que se pueden registrar
+
+El día de hoy y el de ayer, para poder registrar lo que se olvidó la noche anterior. Después, el día
+queda "sin dato".
 
 ## Preguntas abiertas
 
-- [ ] **1. Portal de pacientes** (bloqueante): ¿se crea una épica o historia previa para que los pacientes
-  tengan cuenta (rol Paciente, invitación por correo, inicio de sesión, recuperación de contraseña)?
-  Sin ella esta historia no se puede aprobar.
-- [ ] **2.** ¿El cumplimiento se registra por comida o como un único "sí / en parte / no" por día? El
-  backlog dice "si cumplí mis macros", pero el paciente no conoce sus gramos: ¿se pregunta por el menú?
-- [ ] **3.** ¿Cuántos días hacia atrás puede registrar el paciente si olvidó hacerlo?
+- [x] **1. Portal de pacientes.** Respondida en D-1: historia previa US-6.3.
+- [x] **2.** ¿El cumplimiento se registra por comida o como un único "sí / en parte / no" por día?
+  Respondida en D-2: por comida.
+- [x] **3.** ¿Cuántos días hacia atrás puede registrar el paciente? Respondida en D-3: hoy y ayer.
+- [ ] **4.** ¿Cómo se calcula el porcentaje semanal de AC-4: *cumplí en parte* cuenta como medio
+  cumplimiento o se muestra aparte? ¿Las comidas sin marcar de un día registrado son "sin dato"?
+  (Doctor Jefe)
+- [ ] **5.** ¿Qué menú del día ve el paciente cuando el plan guardado tiene varios días: se rota por día
+  de la semana o el paciente elige? (Doctor Jefe)
 
 ## Referencias
 
 - Backlog (Notion): US-6.2 *Check-in diario de adherencia*.
+- [US-6.3](../US-6.3-portal-de-pacientes/spec.md): portal de pacientes.
