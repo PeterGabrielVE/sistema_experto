@@ -174,7 +174,7 @@
     </thead>
     <tbody>
             <tr>
-                <p><b>General:</b>En los trastornos metabólicos como resistencia a insulina lo primordial es mantener una dieta apropiada sin embargo la actividad física es recomendable, a modo general se sugiere caminar por lo menos 30 minutos al día en caso de tener algún tipo de discapacidad que le impida movilizarse realice estiramientos en el lugar en donde se encuentre.</p>
+                <p><b>General:</b>@include('pdf._general-advice')</p>
             </tr>
           
     </tbody>

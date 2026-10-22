@@ -7,7 +7,7 @@ Cada tarea nombra los criterios que cubre; entre todas cubren todos los AC de la
 Conservan los ids del backlog: TK-5.2.1 es la vista imprimible y TK-5.2.2 el generador PDF. Orden por
 dependencia: el PDF convierte la vista.
 
-- [ ] **TK-5.2.1** — Crear `config/clinic.php`, `PatientPlanDocument` y la vista `meal_plans/pdf.blade.php`
+- [x] **TK-5.2.1** — Crear `config/clinic.php`, `PatientPlanDocument` y la vista `meal_plans/pdf.blade.php`
   (logo o nombre, paciente, fecha, profesional, menú por día y comida con energía y macros del día,
   recomendaciones, indicaciones generales compartidas con el informe y alergias; un día por página), con
   los tests de contenido sobre el HTML. Cubre AC-1, AC-2, AC-4, AC-5, AC-8, AC-9.
