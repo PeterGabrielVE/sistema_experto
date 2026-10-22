@@ -24,10 +24,13 @@ class PortalController extends Controller
             'appointment' => $patient->nextAppointment()?->load('doctor'),
             'mealPlan' => $patient->latestMealPlan(),
             // The days the patient can record (US-6.2, D-3): menu of today and of yesterday.
-            'days' => [
-                ['title' => __('Menú de hoy'), 'date' => $today, 'menu' => $adherence->menuFor($patient, $today)],
-                ['title' => __('Menú de ayer'), 'date' => $today->copy()->subDay(), 'menu' => $adherence->menuFor($patient, $today->copy()->subDay())],
-            ],
+            'days' => collect([[__('Menú de hoy'), $today], [__('Menú de ayer'), $today->copy()->subDay()]])
+                ->map(fn ($day) => [
+                    'title' => $day[0],
+                    'date' => $day[1],
+                    'menu' => $adherence->menuFor($patient, $day[1]),
+                    'marks' => $adherence->marksFor($patient, $day[1]),
+                ])->all(),
         ]);
     }
 }

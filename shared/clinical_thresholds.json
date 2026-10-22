@@ -199,5 +199,11 @@
         "source": "Porciones de intercambio y guías alimentarias (GABA Chile): al menos 3 porciones de verduras y 2 de frutas, 2 a 3 lácteos y legumbres hasta 1 porción diaria. Reparto de energía: desayuno 20 %, colación 10 %, almuerzo 30 %, once 15 %, cena 25 %."
     },
 
+    "adherence": {
+        "_about": "Puntaje de cada comida que el paciente marca en el portal (US-6.2): done = cumplí, partial = cumplí en parte, missed = no cumplí. El porcentaje semanal es su promedio sobre las comidas marcadas; las no marcadas son sin dato y no entran en el cálculo.",
+        "scores": {"done": 1, "partial": 0.5, "missed": 0},
+        "source": "Decisión del Doctor Jefe (US-6.2, D-5)."
+    },
+
     "adult_age": 18
 }

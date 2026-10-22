@@ -111,6 +111,11 @@ class Patient extends Model
             ->first();
     }
 
+    public function adherenceCheckins(): HasMany
+    {
+        return $this->hasMany(AdherenceCheckin::class);
+    }
+
     public function invitations(): HasMany
     {
         return $this->hasMany(PatientInvitation::class);
