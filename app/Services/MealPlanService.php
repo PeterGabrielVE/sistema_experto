@@ -20,9 +20,7 @@ class MealPlanService
 
     public const REPORTED = [...self::NUTRIENTS, 'glycemic_load', 'saturated_fat'];
 
-    public function __construct(private ExpertDiagnosisService $expert)
-    {
-    }
+    public function __construct(private ExpertDiagnosisService $expert) {}
 
     /**
      * The energy and grams the doctor set in the consultation; null when incomplete.
@@ -75,7 +73,7 @@ class MealPlanService
 
         return $this->expert->requestMealPlan([
             'targets' => $targets,
-            'foods' => $this->catalog()->map(fn (Food $food) => $this->foodPayload($food))->values()->all(),
+            'foods' => $this->catalog(activeOnly: true)->map(fn (Food $food) => $this->foodPayload($food))->values()->all(),
             'limits' => $this->limits($diagnosis, $targets, $evaluation),
             'seed' => $diagnosis->id * 1000 + $variant,
             'days' => $days,
@@ -160,7 +158,7 @@ class MealPlanService
      */
     public function editorCatalog(): array
     {
-        return $this->catalog()
+        return $this->catalog(activeOnly: true)
             ->filter(fn (Food $food) => (float) $food->kcal > 0)
             ->map(fn (Food $food) => [
                 'id' => $food->id,
@@ -174,11 +172,14 @@ class MealPlanService
     }
 
     /**
+     * New proposals and the editor's search only offer active foods; a saved menu is
+     * rebuilt with its own foods, retired ones included (US-4.2/AC-4).
+     *
      * @return Collection<int, Food> keyed by id
      */
-    private function catalog(): Collection
+    private function catalog(bool $activeOnly = false): Collection
     {
-        return Food::all()->keyBy('id');
+        return Food::query()->when($activeOnly, fn ($query) => $query->active())->get()->keyBy('id');
     }
 
     /**

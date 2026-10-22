@@ -26,4 +26,9 @@ class FoodPolicy
     {
         return $user->hasRole(Role::ChiefDoctor);
     }
+
+    public function retire(User $user, Food $food): bool
+    {
+        return $user->hasRole(Role::ChiefDoctor);
+    }
 }

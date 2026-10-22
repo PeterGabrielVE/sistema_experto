@@ -8,7 +8,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * A food of the catalog was created or updated in the application (US-4.2/AC-7).
+ * A food of the catalog was created, updated or retired in the application (US-4.2/AC-7).
  */
 class FoodCatalogChanged
 {
@@ -17,6 +17,8 @@ class FoodCatalogChanged
     public const CREATED = 'created';
 
     public const UPDATED = 'updated';
+
+    public const RETIRED = 'retired';
 
     /**
      * @param  array<string, array{0: mixed, 1: mixed}>  $changes  field of the CSV => [before, after].

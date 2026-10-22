@@ -119,8 +119,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('macro-rules', MacroRuleController::class)->except(['show'])
         ->middleware('can:viewAny,'.MacroRule::class);
     // Food catalog (US-4.2): the medical team sees it; a Doctor Jefe changes it (FoodPolicy).
-    Route::resource('foods', FoodController::class)->only(['index', 'create', 'store', 'edit', 'update'])
-        ->middleware('can:viewAny,'.Food::class);
+    Route::middleware('can:viewAny,'.Food::class)->group(function () {
+        Route::resource('foods', FoodController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+        Route::patch('foods/{food}/retire', [FoodController::class, 'retire'])->name('foods.retire');
+    });
 
     Route::get('{page}', [PageController::class, 'index'])->name('page.index');
 });

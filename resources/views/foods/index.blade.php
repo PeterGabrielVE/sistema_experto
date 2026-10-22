@@ -122,6 +122,16 @@
                                 <i class="fas fa-pen" aria-hidden="true"></i>
                               </a>
                             @endcan
+                            @can('retire', $food)
+                              <form action="{{ route('foods.retire', $food) }}" method="post" style="display:inline-block;"
+                                onsubmit="return confirm(@js(__('¿Retirar :name del catálogo? Dejará de usarse en propuestas nuevas; los menús guardados no cambian.', ['name' => $food->name])))">
+                                @csrf
+                                @method('patch')
+                                <button type="submit" class="btn btn-danger btn-sm mb-0" title="{{ __('Retirar') }}" aria-label="{{ __('Retirar') }}">
+                                  <i class="fas fa-archive" aria-hidden="true"></i>
+                                </button>
+                              </form>
+                            @endcan
                           </td>
                         @endcan
                       </tr>

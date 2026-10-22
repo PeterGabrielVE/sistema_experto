@@ -19,7 +19,7 @@ constitución (plan, *Verificación de la constitución*).
   advertencia de energía) y el evento `FoodCatalogChanged` auditado con los valores anteriores y nuevos,
   con los tests de validación, de propuestas nuevas con los valores editados y de auditoría.
   Cubre AC-2, AC-3, AC-6, AC-7.
-- [ ] **TK-4.2.5** — Agregar `retired_at` a `foods`, la acción *Retirar* (Doctor Jefe, auditada) y
+- [x] **TK-4.2.5** — Agregar `retired_at` a `foods`, la acción *Retirar* (Doctor Jefe, auditada) y
   excluir los retirados de `generate()` y `editorCatalog()` sin afectar a `rebuild()` ni a los menús
   guardados. Cubre AC-4, AC-6, AC-7.
 - [ ] **TK-4.2.6** — Hacer que `foods:import` solo agregue ids nuevos, crear `foods:export` y el botón

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Food extends Model
@@ -11,6 +12,21 @@ class Food extends Model
     protected $fillable = [
         'id_group', 'name', 'item', 'portion', 'gr', 'kcal', 'protein', 'lipid', 'saturated_fat', 'cho', 'glycemic_index', 'allergens', 'price', 'clna_mg', 'k_mg', 'p_mg', 'ca_mg',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'retired_at' => 'datetime',
+        ];
+    }
+
+    /**
+     * Foods offered to the meal plan generator and the editor (not retired).
+     */
+    public function scopeActive(Builder $query): void
+    {
+        $query->whereNull('retired_at');
+    }
 
     /**
      * Exchange groups the meal plan generator uses (meal_plan in shared/clinical_thresholds.json):

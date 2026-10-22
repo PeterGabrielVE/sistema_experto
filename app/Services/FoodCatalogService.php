@@ -83,6 +83,21 @@ class FoodCatalogService
     }
 
     /**
+     * Stops offering the food to new proposals; it is kept for the saved menus (AC-4).
+     */
+    public function retire(Food $food, User $actor): Food
+    {
+        $food->retired_at = now();
+        $food->save();
+
+        FoodCatalogChanged::dispatch($food, $actor, FoodCatalogChanged::RETIRED, [
+            'retired_at' => [null, $food->retired_at->toIso8601String()],
+        ]);
+
+        return $food;
+    }
+
+    /**
      * "7.50" and 7.5 are the same value: numbers as their shortest text.
      */
     private static function number(mixed $value): string

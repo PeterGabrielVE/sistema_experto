@@ -126,8 +126,79 @@ class FoodCatalogTest extends TestCase
         $this->actingAs($this->doctor)->get(route('foods.edit', $avena))->assertForbidden();
         $this->actingAs($this->doctor)->put(route('foods.update', $avena), $this->payload())->assertForbidden();
 
+        $this->actingAs($this->doctor)->patch(route('foods.retire', $avena))->assertForbidden();
+        $this->actingAs(User::factory()->admin()->create())->patch(route('foods.retire', $avena))->assertForbidden();
+
         $this->assertSame(1, Food::count());
         $this->assertSame('Avena', $avena->refresh()->name);
+        $this->assertNull($avena->retired_at);
+    }
+
+    #[Group('US-4.2/AC-4')]
+    public function test_retired_food_is_not_sent_to_the_generator_nor_the_editor(): void
+    {
+        $this->freezeSecond();
+        [$diagnosis, $pollo] = $this->consultation();
+        $avena = $this->food('Avena', 'Cereales');
+        Http::fake(['expert:8000/meal-plan' => Http::response(['status' => 'optimo', 'days' => []]), '*' => Http::response([], 503)]);
+
+        $this->actingAs($this->chief)->get(route('foods.index'))->assertSee(route('foods.retire', $pollo));
+        $this->actingAs($this->chief)->patch(route('foods.retire', $pollo))
+            ->assertRedirect(route('foods.index'))
+            ->assertSessionHas('status', 'Pollo se retiró del catálogo: ya no se usa en propuestas nuevas.');
+
+        // Not deleted: saved menus refer to it.
+        $this->assertTrue($pollo->refresh()->retired_at->eq(now()));
+
+        app(MealPlanService::class)->generate($diagnosis);
+        $sent = Http::recorded()->map(fn ($pair) => $pair[0])
+            ->first(fn (Request $request) => $request->url() === 'http://expert:8000/meal-plan');
+        $this->assertSame([$avena->id], array_column($sent['foods'], 'id'));
+        $this->assertSame([$avena->id], array_column(app(MealPlanService::class)->editorCatalog(), 'id'));
+
+        $this->actingAs($this->chief)->get(route('foods.index'))
+            ->assertSee('Pollo se retiró del catálogo') // the flashed message, not a row
+            ->assertSee(route('foods.edit', $avena))
+            ->assertDontSee(route('foods.edit', $pollo))
+            ->assertSee('1 alimento');
+    }
+
+    #[Group('US-4.2/AC-4')]
+    public function test_saved_menu_with_a_retired_food_is_shown_complete(): void
+    {
+        [$diagnosis, $pollo] = $this->consultation();
+        $this->actingAs($this->chief)->patch(route('foods.retire', $pollo));
+
+        // The editor rebuilds a saved menu with its foods, retired ones included.
+        $plan = app(MealPlanService::class)->rebuild($diagnosis, [['meals' => [
+            ['key' => 'almuerzo', 'items' => [['food_id' => $pollo->id, 'portions' => 2]]],
+        ]]]);
+        $almuerzo = collect($plan['days'][0]['meals'])->firstWhere('key', 'almuerzo');
+        $this->assertSame('Pollo', $almuerzo['items'][0]['name']);
+        $this->assertEquals(130, $almuerzo['items'][0]['energy']);
+
+        MealPlan::create(['diagnosis_id' => $diagnosis->id, 'plan' => $plan, 'edited' => true, 'created_by' => $this->doctor->id]);
+        Http::fake(['*' => Http::response([], 503)]);
+
+        $this->actingAs($this->doctor)->get(route('result', $diagnosis))->assertOk()->assertSee('Pollo');
+        Http::assertNotSent(fn (Request $request) => $request->url() === 'http://expert:8000/meal-plan');
+    }
+
+    #[Group('US-4.2/AC-7')]
+    public function test_retiring_is_audited_once(): void
+    {
+        $this->freezeSecond();
+        Event::fake([FoodCatalogChanged::class]);
+        $avena = $this->food('Avena', 'Cereales');
+
+        $this->actingAs($this->chief)->patch(route('foods.retire', $avena))->assertRedirect(route('foods.index'));
+        Event::assertDispatched(FoodCatalogChanged::class, fn ($e) => $e->action === 'retired'
+            && $e->food->is($avena) && $e->actor->is($this->chief)
+            && $e->changes === ['retired_at' => [null, now()->toIso8601String()]]);
+
+        // Already retired: nothing changes.
+        $this->actingAs($this->chief)->patch(route('foods.retire', $avena))->assertStatus(422);
+        Event::assertDispatchedTimes(FoodCatalogChanged::class, 1);
     }
 
     #[Group('US-4.2/AC-2')]

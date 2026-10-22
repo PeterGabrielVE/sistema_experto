@@ -23,7 +23,7 @@ class FoodController extends Controller
         $search = trim($validated['q'] ?? '');
         $group = $validated['grupo'] ?? null;
 
-        $foods = Food::query()
+        $foods = Food::active()
             ->when($search !== '', fn ($query) => $query->where('name', 'like', '%'.addcslashes($search, '%_\\').'%'))
             ->when($group, fn ($query) => $query->where('item', $group))
             ->orderBy('item')->orderBy('name')->orderBy('id')
@@ -32,7 +32,7 @@ class FoodController extends Controller
         return view('foods.index', [
             'foods' => $foods,
             'flags' => $foods->mapWithKeys(fn (Food $food) => [$food->id => $food->reviewFlags()])->filter(),
-            'groups' => Food::query()->distinct()->orderBy('item')->pluck('item'),
+            'groups' => Food::active()->distinct()->orderBy('item')->pluck('item'),
             'allergens' => collect(config('clinical.meal_plan.allergens'))->map(fn ($allergen) => $allergen['label']),
             'search' => $search,
             'group' => $group,
@@ -65,6 +65,17 @@ class FoodController extends Controller
         $catalog->save($food, $request->validated(), $request->user());
 
         return $this->saved($food, __('Alimento actualizado correctamente.'));
+    }
+
+    public function retire(Request $request, Food $food, FoodCatalogService $catalog)
+    {
+        Gate::authorize('retire', $food);
+        abort_if($food->retired_at !== null, 422, __('El alimento ya estaba retirado.'));
+
+        $catalog->retire($food, $request->user());
+
+        return redirect()->route('foods.index')
+            ->withStatus(__(':name se retiró del catálogo: ya no se usa en propuestas nuevas.', ['name' => $food->name]));
     }
 
     private function formData(Food $food): array
