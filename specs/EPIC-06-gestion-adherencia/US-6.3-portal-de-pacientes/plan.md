@@ -100,8 +100,9 @@ invitación: *enviándose*, *enviada el …*, *no se pudo enviar*, *aceptada el 
 otro paciente.
 
 **Acceso:** el login es el mismo. `LoginController::redirectTo()` envía a `/portal` o a `/home` según el
-rol, y `ResetPasswordController` hace lo mismo. `/home` redirige a un paciente a `/portal`. Toda otra
-ruta del equipo responde `403` a un paciente.
+rol; `ResetPasswordController` y la redirección de quien ya tiene sesión (`guest`) hacen lo mismo. `/home`
+es del equipo: como toda otra ruta del equipo, responde `403` a un paciente. *¿Olvidaste tu contraseña?*
+responde lo mismo con o sin cuenta (`ForgotPasswordController`, AC-5).
 
 **Correo de bienvenida** (sin datos clínicos, AC-1):
 
@@ -176,8 +177,8 @@ huérfanas.
 ## Estrategia de pruebas
 
 Todo en Laravel (PHPUnit, `RefreshDatabase`). Archivos nuevos: `tests/Feature/Portal/PortalIsolationTest.php`,
-`PortalInvitationTest.php`, `PortalLoginTest.php`, `PortalHomeTest.php`, `PortalRevokeTest.php` y
-`PortalAuditTest.php`.
+`PortalInvitationTest.php`, `PortalAcceptInvitationTest.php`, `PortalLoginTest.php`, `PortalHomeTest.php`,
+`PortalRevokeTest.php` y `PortalAuditTest.php`.
 `UserFactory` gana el estado `patient(Patient $patient)`.
 
 | Criterio | Capa | Test |
@@ -186,9 +187,9 @@ Todo en Laravel (PHPUnit, `RefreshDatabase`). Archivos nuevos: `tests/Feature/Po
 | AC-1 | Feature | `PortalInvitationTest::test_clinical_record_shows_the_invitation_state` |
 | AC-1 | Feature | `PortalInvitationTest::test_administrator_cannot_invite` |
 | AC-2 | Feature | `PortalInvitationTest::test_patient_without_email_or_with_an_email_in_use_is_not_invited` (data provider: sin correo, correo de un médico, correo de otra cuenta de paciente) |
-| AC-3 | Feature | `PortalInvitationTest::test_patient_creates_the_password_accepts_the_terms_and_enters` |
-| AC-3 | Feature | `PortalInvitationTest::test_without_accepting_the_terms_no_account_is_created` |
-| AC-3 | Feature | `PortalInvitationTest::test_expired_used_revoked_or_tampered_link_creates_nothing` (data provider) |
+| AC-3 | Feature | `PortalAcceptInvitationTest::test_patient_creates_the_password_accepts_the_terms_and_enters` |
+| AC-3 | Feature | `PortalAcceptInvitationTest::test_without_accepting_the_terms_no_account_is_created` |
+| AC-3 | Feature | `PortalAcceptInvitationTest::test_expired_used_revoked_or_tampered_link_creates_nothing` (data provider) |
 | AC-4 | Feature | `PortalHomeTest::test_portal_shows_name_next_appointment_and_saved_meal_plan` |
 | AC-4 | Feature | `PortalHomeTest::test_portal_without_appointment_or_meal_plan_says_so` |
 | AC-4 | Feature | `PortalHomeTest::test_portal_shows_no_clinical_data` (consulta, ficha y exámenes cargados: no aparecen IMC, categoría, motivo de consulta ni valores de laboratorio) |
@@ -207,7 +208,7 @@ Todo en Laravel (PHPUnit, `RefreshDatabase`). Archivos nuevos: `tests/Feature/Po
 | AC-8 | Feature | `PortalInvitationTest::test_patient_can_be_edited_while_the_mail_server_is_down` |
 | AC-9 | Feature | `PortalAuditTest::test_invite_activate_login_and_revoke_are_audited_without_clinical_data` |
 | AC-10 | Feature | `PortalInvitationTest::test_cannot_invite_without_the_terms_text` |
-| NFR-2 | Feature | `PortalInvitationTest::test_password_rules_match_the_staff` |
+| NFR-2 | Feature | `PortalAcceptInvitationTest::test_password_rules_match_the_staff` |
 
 Los tests de términos escriben un archivo temporal y lo apuntan con `config(['portal.terms_path' => …])`.
 Los de vencimiento usan `Carbon::setTestNow()`. Los ids se toman de los modelos creados, para que la

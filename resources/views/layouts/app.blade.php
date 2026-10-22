@@ -21,9 +21,13 @@
   @stack('css')
 </head>
 
-<body class="{{ auth()->check() ? 'g-sidenav-show' : '' }} bg-gray-100 {{ $class ?? '' }}">
+<body class="{{ auth()->user()?->isStaff() ? 'g-sidenav-show' : '' }} bg-gray-100 {{ $class ?? '' }}">
   @auth
-    @include('layouts.page_template.auth')
+    @if (auth()->user()->isPatient())
+      @include('layouts.page_template.portal')
+    @else
+      @include('layouts.page_template.auth')
+    @endif
   @endauth
   @guest
     @include('layouts.page_template.guest')

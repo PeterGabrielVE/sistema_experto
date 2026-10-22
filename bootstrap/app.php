@@ -18,7 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectTo(
             guests: fn () => route('login'),
-            users: '/home',
+            // Already logged in: each side to its own home (US-6.3).
+            users: fn (Request $request) => $request->user()?->isPatient() ? route('portal.home') : '/home',
         );
 
         // Staff side and patient portal (US-6.3); checked before route model binding.

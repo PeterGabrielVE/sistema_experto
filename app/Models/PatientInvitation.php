@@ -61,10 +61,10 @@ class PatientInvitation extends Model
     }
 
     /**
-     * Link of the welcome mail; the page that accepts it is portal.invitation (TK-6.3.3).
+     * Link of the welcome mail.
      */
     public static function url(string $token): string
     {
-        return url('portal/invitacion/'.$token);
+        return route('portal.invitation', $token);
     }
 }

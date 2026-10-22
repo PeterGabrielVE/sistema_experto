@@ -16,6 +16,10 @@ class PatientPortalAccessChanged
 
     public const INVITED = 'invited';
 
+    public const ACTIVATED = 'activated';
+
+    public const LOGIN = 'login';
+
     /**
      * @param  array<string, int|string|null>  $context  Identifiers only: no clinical or contact data.
      */

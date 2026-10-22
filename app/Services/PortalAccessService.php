@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\Role;
 use App\Events\PatientPortalAccessChanged;
 use App\Jobs\SendPortalInvitation;
 use App\Models\Patient;
@@ -60,5 +61,61 @@ class PortalAccessService
         }
 
         return $invitation->refresh();
+    }
+
+    /**
+     * The invitation of a link that still works, or null: unknown or tampered token, expired,
+     * used, revoked, or an e-mail another account took meanwhile (AC-3, D-4).
+     */
+    public function usableInvitation(string $token): ?PatientInvitation
+    {
+        $invitation = PatientInvitation::where('token_hash', hash('sha256', $token))->first();
+
+        $usable = $invitation
+            && $invitation->status === PatientInvitation::SENT
+            && ! $invitation->isExpired()
+            && ! $invitation->patient->account()->exists()
+            && ! User::where('email', $invitation->email)->exists();
+
+        return $usable ? $invitation : null;
+    }
+
+    /**
+     * Creates the portal account with the password and the accepted terms version (AC-3).
+     * Returns null when the invitation stopped working meanwhile (it is checked again locked).
+     */
+    public function accept(PatientInvitation $invitation, string $password, string $termsVersion): ?User
+    {
+        $account = DB::transaction(function () use ($invitation, $password, $termsVersion) {
+            $invitation = PatientInvitation::whereKey($invitation->id)->lockForUpdate()->first();
+            if ($invitation?->status !== PatientInvitation::SENT || $invitation->isExpired()
+                || User::where('email', $invitation->email)->orWhere('patient_id', $invitation->patient_id)->exists()) {
+                return null;
+            }
+
+            $account = (new User)->forceFill([
+                'name' => $invitation->patient->fullName(),
+                'email' => $invitation->email,
+                'password' => $password, // hashed by the cast
+                'rol_id' => Role::Patient->value,
+                'patient_id' => $invitation->patient_id,
+                'terms_version' => $termsVersion,
+                'terms_accepted_at' => now(),
+            ]);
+            $account->save();
+
+            $invitation->update(['status' => PatientInvitation::ACCEPTED, 'accepted_at' => now(), 'token_hash' => null]);
+
+            return $account;
+        });
+
+        if ($account) {
+            PatientPortalAccessChanged::dispatch($invitation->patient, $account, PatientPortalAccessChanged::ACTIVATED, [
+                'invitation_id' => $invitation->id,
+                'terms_version' => $termsVersion,
+            ]);
+        }
+
+        return $account;
     }
 }

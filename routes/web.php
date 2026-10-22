@@ -13,6 +13,8 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PatientEvolutionController;
 use App\Http\Controllers\PortalAccessController;
+use App\Http\Controllers\PortalController;
+use App\Http\Controllers\PortalInvitationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RecommendationController;
 use App\Http\Controllers\ReminderUnsubscribeController;
@@ -50,6 +52,15 @@ Auth::routes(['register' => false]);
 Route::middleware(['signed', 'throttle:10,1'])->whereNumber('patient')->group(function () {
     Route::get('recordatorios/baja/{patient}', [ReminderUnsubscribeController::class, 'show'])->name('reminders.unsubscribe');
     Route::post('recordatorios/baja/{patient}', [ReminderUnsubscribeController::class, 'store'])->name('reminders.unsubscribe.store');
+});
+
+// Patient portal (US-6.3): the invitation link (public, protected by its token) and the portal itself.
+Route::middleware(['guest', 'throttle:10,1'])->group(function () {
+    Route::get('portal/invitacion/{token}', [PortalInvitationController::class, 'show'])->name('portal.invitation');
+    Route::post('portal/invitacion/{token}', [PortalInvitationController::class, 'accept'])->name('portal.invitation.accept');
+});
+Route::middleware(['auth', 'patient'])->prefix('portal')->name('portal.')->group(function () {
+    Route::get('/', [PortalController::class, 'home'])->name('home');
 });
 
 // The staff side: patients with a portal account get 403 (EnsureStaff, US-6.3).

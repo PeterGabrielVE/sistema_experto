@@ -25,5 +25,11 @@ class ResetPasswordController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    /**
+     * Each side its own home: the portal for patients (US-6.3), the dashboard for the team.
+     */
+    protected function redirectTo(): string
+    {
+        return auth()->user()?->isPatient() ? route('portal.home') : '/home';
+    }
 }

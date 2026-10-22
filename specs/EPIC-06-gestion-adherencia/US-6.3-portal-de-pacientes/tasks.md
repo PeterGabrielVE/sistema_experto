@@ -15,7 +15,7 @@ que el equipo esté protegido.
   la ficha (Doctor y Doctor Jefe), con las comprobaciones de correo, cuenta existente y términos, y el job
   `SendPortalInvitation` con el correo de bienvenida y sus reintentos; la tarjeta *Portal del paciente* con
   el estado del envío; auditar `portal.invited`. Cubre AC-1, AC-2, AC-8, AC-9, AC-10.
-- [ ] **TK-6.3.3** — Aceptar la invitación (crear la contraseña y aceptar los términos, con su versión),
+- [x] **TK-6.3.3** — Aceptar la invitación (crear la contraseña y aceptar los términos, con su versión),
   crear la cuenta e iniciar sesión; enviar a cada rol a su inicio después del login y de la recuperación
   de contraseña; auditar `portal.activated` y `portal.login`, con `PortalLoginTest` y los tests de
   aceptación. Cubre AC-3, AC-4, AC-5, AC-9.
