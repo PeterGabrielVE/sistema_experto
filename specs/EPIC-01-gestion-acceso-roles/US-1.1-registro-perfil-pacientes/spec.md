@@ -2,7 +2,7 @@
 id: US-1.1
 title: Registrar y editar los pacientes y su ficha clínica
 epic: EPIC-01
-status: draft
+status: approved
 owner: Laravel Dev · Frontend Dev
 ---
 
@@ -52,8 +52,9 @@ es un dato de salud: solo la ven los médicos (constitución VII).
 - **AC-8** — Dado un paciente, cuando un médico intenta eliminarlo, entonces solo puede hacerlo quien lo
   registró o un Doctor Jefe; a otro médico se le indica por qué no. Eliminar al paciente elimina también su
   ficha, sus consultas, mediciones y exámenes.
-- **AC-9** — Dado cualquier alta, edición o eliminación de un paciente o de su ficha, cuando se guarda,
-  entonces queda registrado quién lo hizo, cuándo y qué campos cambiaron, sin los valores clínicos.
+- **AC-9** — Dado el registro o la eliminación de un paciente, o el alta o la edición de su ficha, cuando se
+  guarda, entonces queda registrado quién lo hizo y cuándo; para la ficha, además, qué campos cambiaron, sin
+  los valores clínicos. (La edición de los datos personales del paciente no se audita hoy.)
 
 ## Fuera de alcance
 
