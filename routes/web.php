@@ -124,6 +124,8 @@ Route::middleware(['auth', 'staff'])->group(function () {
         Route::get('result/{diagnosis}/menu', [MealPlanController::class, 'edit'])->name('meal-plan.edit');
         Route::put('result/{diagnosis}/menu', [MealPlanController::class, 'update'])->name('meal-plan.update');
         Route::delete('result/{diagnosis}/menu', [MealPlanController::class, 'destroy'])->name('meal-plan.destroy');
+        // The saved plan for the patient, in PDF (US-5.2).
+        Route::get('result/{diagnosis}/plan.pdf', [MealPlanController::class, 'pdf'])->name('meal-plan.pdf');
 
         // Dashboard series (JSON, MonthlyCountResource).
         Route::get('diagnoses/chart', [StatisticsController::class, 'diagnoses'])->name('diagnoses/chart');

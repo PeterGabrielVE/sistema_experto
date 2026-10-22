@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SaveMealPlanRequest;
 use App\Models\Diagnosis;
+use App\Models\Patient;
 use App\Services\MealPlanService;
+use App\Services\PatientPlanDocument;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -14,8 +17,24 @@ use Illuminate\Support\Facades\Gate;
  */
 class MealPlanController extends Controller
 {
-    public function __construct(private MealPlanService $plans)
+    public function __construct(private MealPlanService $plans) {}
+
+    /**
+     * The plan for the patient in PDF (US-5.2): only the saved plan (D-3), for the doctors (D-4),
+     * without calling the Python services (AC-6).
+     */
+    public function pdf(Diagnosis $diagnosis, PatientPlanDocument $document)
     {
+        Gate::authorize('viewClinicalRecord', Patient::findOrFail($diagnosis->id_patient));
+
+        $data = $document->data($diagnosis);
+        // Only reached by typing the URL: the result page offers no button without a saved plan.
+        abort_unless($data, response(__('La consulta no tiene un plan alimentario guardado.'), 404));
+
+        // The date of the consultation, not the patient's name, in the file name.
+        $date = $diagnosis->created_at->copy()->setTimezone(config('app.clinic_timezone'))->toDateString();
+
+        return Pdf::loadView('meal_plans.pdf', $data)->download("plan-alimentario-{$date}.pdf");
     }
 
     public function edit(Request $request, Diagnosis $diagnosis)

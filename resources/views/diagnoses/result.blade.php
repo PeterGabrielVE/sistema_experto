@@ -201,7 +201,15 @@
                                 </div>
 
                                 <div class="text-center">
-                                    <a href="{{ route('download', ['diagnosis' => $diagnosis, 'variante' => $variant ?: null, 'dias' => $days > 1 ? $days : null]) }}" class="btn btn-info mt-4" target="_blank">{{ __('Descargar') }}</a>
+                                    <a href="{{ route('download', ['diagnosis' => $diagnosis, 'variante' => $variant ?: null, 'dias' => $days > 1 ? $days : null]) }}" class="btn btn-info mt-4" target="_blank">{{ __('Informe (PDF)') }}</a>
+                                    {{-- The saved plan for the patient (US-5.2): what the doctor reviewed, for the doctors. --}}
+                                    @can('viewClinicalRecord', $patient)
+                                        @if ($savedPlan)
+                                            <a href="{{ route('meal-plan.pdf', $diagnosis) }}" class="btn btn-success mt-4">{{ __('Plan para el paciente (PDF)') }}</a>
+                                        @else
+                                            <p class="text-sm text-secondary mt-2 mb-0">{{ __('Para entregar el plan al paciente, revise y guarde la propuesta.') }}</p>
+                                        @endif
+                                    @endcan
                                 </div>
                             </div>
                         </form>

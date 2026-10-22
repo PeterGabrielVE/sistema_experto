@@ -11,6 +11,6 @@ dependencia: el PDF convierte la vista.
   (logo o nombre, paciente, fecha, profesional, menú por día y comida con energía y macros del día,
   recomendaciones, indicaciones generales compartidas con el informe y alergias; un día por página), con
   los tests de contenido sobre el HTML. Cubre AC-1, AC-2, AC-4, AC-5, AC-8, AC-9.
-- [ ] **TK-5.2.2** — Crear la ruta `meal-plan.pdf` con DomPDF (solo Doctor y Doctor Jefe, `404` sin plan
+- [x] **TK-5.2.2** — Crear la ruta `meal-plan.pdf` con DomPDF (solo Doctor y Doctor Jefe, `404` sin plan
   guardado, sin llamar a los servicios Python) y los botones *Informe (PDF)* y *Plan para el paciente (PDF)*
   en la página de resultado, con sus tests. Cubre AC-1, AC-3, AC-6, AC-7.

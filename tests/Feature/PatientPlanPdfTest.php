@@ -12,7 +12,9 @@ use App\Models\User;
 use App\Services\PatientPlanDocument;
 use Database\Seeders\RulesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use Tests\TestCase;
 
 /**
@@ -63,24 +65,33 @@ class PatientPlanPdfTest extends TestCase
      */
     private function savedPlan(int $days = 2, string $breakfast = 'Avena'): MealPlan
     {
+        $nutrients = fn (float $energy, float $gl = 0) => [
+            'energy' => $energy, 'carbohydrates' => 30, 'proteins' => 3, 'fats' => 1, 'glycemic_load' => $gl, 'saturated_fat' => 0.2,
+        ];
         $day = fn (int $n) => [
             'day' => $n,
             'meals' => [
                 ['key' => 'desayuno', 'label' => 'Desayuno', 'energy_target' => 370, 'items' => [
-                    ['food_id' => 1, 'name' => $breakfast, 'group' => 'Cereales', 'portions' => 1.5, 'grams' => 75, 'energy' => 210, 'glycemic_load' => 21.7],
-                ], 'totals' => ['energy' => 210]],
+                    ['food_id' => 1, 'name' => $breakfast, 'group' => 'Cereales', 'portions' => 1.5, 'grams' => 75, ...$nutrients(210, 21.7)],
+                ], 'totals' => $nutrients(210, 21.7)],
                 ['key' => 'almuerzo', 'label' => 'Almuerzo', 'energy_target' => 555, 'items' => [
-                    ['food_id' => 2, 'name' => 'Aceite de Oliva', 'group' => 'Aceites', 'portions' => 0.5, 'grams' => null, 'energy' => 90],
-                ], 'totals' => ['energy' => 90]],
+                    ['food_id' => 2, 'name' => 'Aceite de Oliva', 'group' => 'Aceites', 'portions' => 0.5, 'grams' => null, ...$nutrients(90)],
+                ], 'totals' => $nutrients(90)],
             ],
             'totals' => ['energy' => 1792.4, 'carbohydrates' => 197.5, 'proteins' => 88, 'fats' => 68, 'glycemic_load' => 97.3, 'saturated_fat' => 13.1],
-            'deviation_percent' => ['energy' => -3.1],
+            'deviation_percent' => ['energy' => -3.1, 'carbohydrates' => -1.3, 'proteins' => -2.2, 'fats' => 13.3],
             'notes' => ['Supera el máximo de la carga glucémica.'],
         ];
 
+        // As MealPlanService::rebuild() stores it.
         return MealPlan::create([
             'diagnosis_id' => $this->diagnosis->id, 'edited' => true,
-            'plan' => ['status' => 'editado', 'targets' => ['energy' => 1850], 'days' => array_map($day, range(1, $days)), 'notes' => []],
+            'plan' => [
+                'status' => 'editado', 'seed' => null,
+                'targets' => ['energy' => 1850, 'carbohydrates' => 200, 'proteins' => 90, 'fats' => 60],
+                'limits' => ['glycemic_load' => 100, 'saturated_fat' => 14],
+                'days' => array_map($day, range(1, $days)), 'notes' => [],
+            ],
         ]);
     }
 
@@ -210,5 +221,79 @@ class PatientPlanPdfTest extends TestCase
     public function test_without_a_saved_plan_there_is_no_document(): void
     {
         $this->assertNull(app(PatientPlanDocument::class)->data($this->diagnosis));
+    }
+
+    #[Group('US-5.2/AC-1')]
+    #[RequiresPhpExtension('gd')] // DomPDF embeds the PNG logo with GD (in the Docker image and in CI)
+    public function test_doctor_downloads_the_plan_as_a_pdf_file(): void
+    {
+        $this->savedPlan(2);
+
+        foreach ([User::factory()->create(), User::factory()->chiefDoctor()->create()] as $doctor) {
+            $response = $this->actingAs($doctor)->get(route('meal-plan.pdf', $this->diagnosis))->assertOk();
+
+            $this->assertSame('application/pdf', $response->headers->get('Content-Type'));
+            // The date of the consultation, not the patient's name, in the file name.
+            $this->assertSame('attachment; filename=plan-alimentario-2026-10-21.pdf', $response->headers->get('Content-Disposition'));
+            $this->assertStringStartsWith('%PDF', $response->getContent());
+        }
+    }
+
+    #[Group('US-5.2/AC-1')]
+    public function test_result_page_offers_the_report_and_the_patient_plan(): void
+    {
+        $this->savedPlan(1);
+        Http::fake(['*' => Http::response([], 503)]);
+
+        $this->actingAs(User::factory()->create())->get(route('result', $this->diagnosis))
+            ->assertOk()
+            ->assertSee('Informe (PDF)')
+            ->assertSee(route('download', $this->diagnosis), false)
+            ->assertSee('Plan para el paciente (PDF)')
+            ->assertSee(route('meal-plan.pdf', $this->diagnosis), false);
+    }
+
+    #[Group('US-5.2/AC-3')]
+    public function test_without_a_saved_plan_there_is_no_patient_pdf(): void
+    {
+        Http::fake(['*' => Http::response([], 503)]);
+        $doctor = User::factory()->create();
+
+        $this->actingAs($doctor)->get(route('result', $this->diagnosis))
+            ->assertOk()
+            ->assertSee('Informe (PDF)')
+            ->assertDontSee(route('meal-plan.pdf', $this->diagnosis), false)
+            ->assertSee('Para entregar el plan al paciente, revise y guarde la propuesta.');
+
+        $this->actingAs($doctor)->get(route('meal-plan.pdf', $this->diagnosis))
+            ->assertNotFound()
+            ->assertSee('La consulta no tiene un plan alimentario guardado.');
+    }
+
+    #[Group('US-5.2/AC-6')]
+    #[RequiresPhpExtension('gd')]
+    public function test_pdf_does_not_call_the_python_services(): void
+    {
+        config(['services.expert.url' => 'http://expert:8000', 'services.inference.url' => 'http://inference:8000']);
+        $this->savedPlan(1);
+        Http::fake(['*' => Http::response([], 503)]); // both services down
+
+        $this->actingAs(User::factory()->create())->get(route('meal-plan.pdf', $this->diagnosis))->assertOk();
+
+        Http::assertNothingSent();
+    }
+
+    #[Group('US-5.2/AC-7')]
+    public function test_administrator_gets_403(): void
+    {
+        $this->savedPlan(1);
+        Http::fake(['*' => Http::response([], 503)]);
+        $this->get(route('meal-plan.pdf', $this->diagnosis))->assertRedirect(route('login'));
+
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin)->get(route('meal-plan.pdf', $this->diagnosis))->assertForbidden();
+        $this->actingAs($admin)->get(route('result', $this->diagnosis))
+            ->assertOk()
+            ->assertDontSee(route('meal-plan.pdf', $this->diagnosis), false);
     }
 }
