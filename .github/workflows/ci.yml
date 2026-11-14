@@ -193,7 +193,7 @@ jobs:
         run: php artisan test --compact --log-junit=junit.xml
       - name: Publish test report
         if: ${{ !cancelled() }}
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@v6
         with:
           report_paths: junit.xml
           check_name: PHP test report (${{ matrix.database }})
@@ -268,7 +268,7 @@ jobs:
           pipx run pip-audit -r "$RUNNER_TEMP/installed.txt" --no-deps --disable-pip --progress-spinner off
       - name: Publish test report
         if: ${{ !cancelled() }}
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@v6
         with:
           report_paths: ${{ matrix.service }}/junit.xml
           check_name: Python test report (${{ matrix.service }})
